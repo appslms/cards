@@ -1,3 +1,4 @@
+//--- START OF FILE js/config.js ---
 export const CARDS = [
     { id: 1, name: "Charizard VMAX", image: "assets/cards/card1.png" },
     { id: 2, name: "Pikachu V", image: "assets/cards/card2.png" },
@@ -5,24 +6,24 @@ export const CARDS = [
     { id: 4, name: "Lugia Legend", image: "assets/cards/card4.png" },
 ];
 
+// ¡CORREGIDO! Los 'id' ahora son los valores exactos que el CSS espera.
 export const EFFECTS = [
     { id: "basic", name: "Básico (Sin Efecto)" },
-    { id: "amazing-rare", name: "Amazing Rare" },
-    { id: "cosmos-holo", name: "Cosmos Holo" },
-    { id: "radiant-rare", name: "Radiant Rare" },
-    { id: "rainbow-alt", name: "Rainbow (Alt Art)" },
-    { id: "rainbow-holo", name: "Rainbow Holo" },
-    { id: "regular-holo", name: "Regular Holo" },
-    { id: "reverse-holo", name: "Reverse Holo" },
-    { id: "secret-rare", name: "Secret Rare (Gold)" },
-    { id: "shiny-rare", name: "Shiny Rare" },
-    { id: "shiny-v", name: "Shiny V" },
-    { id: "shiny-vmax", name: "Shiny VMAX" },
-    { id: "trainer-full-art", name: "Trainer Full Art" },
-    { id: "v-full-art", name: "V Full Art" },
-    { id: "v-max", name: "VMAX" },
-    { id: "v-regular", name: "V Regular" },
-    { id: "v-star", name: "V-Star" },
+    { id: "amazing rare", name: "Amazing Rare" },
+    { id: "rare holo cosmos", name: "Cosmos Holo" },
+    { id: "radiant rare", name: "Radiant Rare" },
+    { id: "rare rainbow alt", name: "Rainbow (Alt Art)" },
+    { id: "rare rainbow", name: "Rainbow Holo" },
+    { id: "rare holo", name: "Regular Holo" },
+    { id: "reverse holo", name: "Reverse Holo" },
+    { id: "rare secret", name: "Secret Rare (Gold)" },
+    { id: "rare shiny", name: "Shiny Rare" },
+    { id: "rare shiny v", name: "Shiny V" },
+    { id: "rare shiny vmax", name: "Shiny VMAX" },
+    { id: "rare ultra", name: "Trainer/V Full Art" },
+    { id: "rare holo vmax", name: "VMAX" },
+    { id: "rare holo v", name: "V Regular" },
+    { id: "rare holo vstar", name: "V-Star" },
 ];
 
 export const TEXTURES = [
@@ -35,3 +36,4 @@ export const TEXTURES = [
     { id: "metal", name: "Metálico", path: "css/img/metal.png" },
     { id: "wave", name: "Ondas", path: "css/img/wave.png" },
 ];
+//--- END OF FILE js/config.js ---

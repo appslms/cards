@@ -1,3 +1,4 @@
+//--- START OF FILE js/modules/ui.js ---
 import { CARDS, EFFECTS, TEXTURES } from '../config.js';
 
 const visualizerEl = document.getElementById('visualizer');
@@ -35,10 +36,10 @@ function applyChanges() {
         cardFrontImg.alt = selectedCard.name;
     }
 
-    // 2. Cambiar el efecto (el atributo data-rarity es la clave)
+    // 2. Cambiar el efecto (el atributo data-rarity es la única fuente de verdad)
     cardEl.setAttribute('data-rarity', selectedEffect);
     
-    // 3. Cambiar la textura (foil) estableciendo la variable global
+    // 3. Cambiar la textura (foil)
     if (selectedTexture && selectedTexture.path !== 'none') {
         root.style.setProperty('--foil', `url(${selectedTexture.path})`);
         root.style.setProperty('--imgsize', '25%'); // Tamaño para tileado
@@ -50,9 +51,8 @@ function applyChanges() {
 
 export function renderApp() {
     const initialCard = CARDS[0];
-    const initialEffect = 'v-star';
+    const initialEffect = 'rare holo vstar'; // Usamos el ID correcto desde el principio
 
-    // Estructura HTML que espera la librería de Simey
     visualizerEl.innerHTML = `
         <div class="card-wrapper">
             <div class="card interactive" data-rarity="${initialEffect}">
@@ -75,11 +75,10 @@ export function renderApp() {
         ${createDropdown('texture-select', 'Elige una Textura (Foil):', TEXTURES, 'none')}
     `;
 
-    // Aplicar la configuración inicial a la tarjeta
     applyChanges();
 
-    // Añadir event listeners a los controles
     document.getElementById('card-select').addEventListener('change', applyChanges);
     document.getElementById('effect-select').addEventListener('change', applyChanges);
     document.getElementById('texture-select').addEventListener('change', applyChanges);
 }
+//--- END OF FILE js/modules/ui.js ---

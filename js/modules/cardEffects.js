@@ -1,3 +1,4 @@
+//--- START OF FILE js/modules/cardEffects.js ---
 let interactiveElement = null;
 const root = document.documentElement;
 
@@ -7,6 +8,7 @@ const eventHandlers = {
 };
 
 function updatePointer(event) {
+    if (!interactiveElement) return;
     let x = 0.5, y = 0.5;
 
     if (event.type === 'mousemove') {
@@ -21,7 +23,6 @@ function updatePointer(event) {
         y = (beta / 90) + 0.5;
     }
 
-    // Establecer TODAS las variables en :root para que la librería las herede
     root.style.setProperty('--pointer-x', x);
     root.style.setProperty('--pointer-y', y);
     root.style.setProperty('--background-x', `${x * 100}%`);
@@ -35,16 +36,12 @@ function updatePointer(event) {
 
 function requestGyroscopePermission() {
     if (typeof DeviceOrientationEvent.requestPermission !== 'function') {
-        // Para Android, que no necesita permiso explícito
         window.addEventListener('deviceorientation', eventHandlers.deviceorientation);
         return;
     }
-    // Para iOS 13+
     DeviceOrientationEvent.requestPermission().then(state => {
         if (state === 'granted') {
             window.addEventListener('deviceorientation', eventHandlers.deviceorientation);
-            // Opcional: Feedback visual para el usuario
-            // alert("Giroscopio activado.");
         }
     }).catch(console.error);
 }
@@ -55,7 +52,6 @@ export function addInteraction(element) {
     const card = element.closest('.card');
     if (!card) return;
 
-    // Inyectar las capas de efecto si no existen
     if (!card.querySelector('.card__shine')) {
         const shine = document.createElement('div');
         shine.className = 'card__shine';
@@ -67,10 +63,7 @@ export function addInteraction(element) {
         card.querySelector('.card__rotator').appendChild(glare);
     }
     
-    // Listeners de movimiento
     window.addEventListener('mousemove', eventHandlers.mousemove);
-    
-    // El permiso del giroscopio debe ser solicitado por una acción del usuario.
-    // Usamos el clic en la tarjeta, pero solo una vez.
     card.addEventListener('click', requestGyroscopePermission, { once: true });
 }
+//--- END OF FILE js/modules/cardEffects.js ---
