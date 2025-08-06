@@ -3,9 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Tarjeta Holográfica Virtual</title>
+    <title>Mi Tarjeta Virtual Holográfica</title>
     <style>
-        /* --- Estilos Generales --- */
+        :root {
+            --pointer-x: 0.5;
+            --pointer-y: 0.5;
+            --pointer-from-center-x: 0;
+            --pointer-from-center-y: 0;
+            --card-opacity: 0.8; /* Ligeramente más transparente para ver la carta debajo */
+            --holo-opacity: 1;
+            --rotate-x: calc(var(--pointer-from-center-y) * -25deg);
+            --rotate-y: calc(var(--pointer-from-center-x) * 25deg);
+            --holo-bg-x: calc(var(--pointer-x) * 100%);
+            --holo-bg-y: calc(var(--pointer-y) * 100%);
+            --shine-deg: calc(var(--pointer-from-center-x) * 40deg + 135deg);
+        }
+
         body {
             margin: 0;
             display: flex;
@@ -13,229 +26,120 @@
             align-items: center;
             height: 100vh;
             background-color: #1a1a1a;
-            font-family: 'Helvetica Neue', sans-serif;
-            /* Perspectiva para el efecto 3D global */
-            perspective: 1500px;
+            perspective: 2000px;
         }
 
-        /* --- Contenedor de la Tarjeta --- */
-        .card-container {
-            width: 320px;
-            height: 480px;
-        }
-
-        /* --- La Tarjeta --- */
         .card {
-            width: 100%;
-            height: 100%;
+            width: 320px;
+            height: 480px; /* Ajusta estas dimensiones si tu imagen tiene una proporción diferente */
             position: relative;
             border-radius: 20px;
-            overflow: hidden; /* Muy importante para que los efectos no se salgan */
+            overflow: hidden;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            
-            /* Habilita el contexto 3D para los elementos hijos */
+            transform: rotateX(var(--rotate-x)) rotateY(var(--rotate-y));
             transform-style: preserve-3d;
-            /* Transición suave para el movimiento */
             transition: transform 0.1s ease-out;
-
-            /* Estilo por defecto mientras no hay interacción */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: rgba(255, 255, 255, 0.8);
-            text-align: center;
-            font-size: 1.2em;
             cursor: pointer;
-        }
 
-        /* --- Capa de Contenido (Placeholder) --- */
-        .card-content {
-            position: absolute;
-            inset: 0; /* Abarca todo el espacio (top:0, right:0, bottom:0, left:0) */
-            background: linear-gradient(135deg, #2d3436 0%, #000000 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            z-index: 1; /* Capa base, al fondo */
+            /* --- CAMBIO 1: Imagen de fondo de la tarjeta --- */
+            background-image: url('card.png');
+            background-size: cover; /* Asegura que la imagen cubra toda la tarjeta */
+            background-position: center;
         }
-        .card-content .title {
-            font-size: 2em;
-            font-weight: bold;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-        }
-        .card-content .subtitle {
-            font-size: 0.9em;
-            margin-top: 10px;
-            opacity: 0.7;
-        }
-        .card-content .hint {
-            position: absolute;
-            bottom: 20px;
-            font-size: 0.8em;
-            opacity: 0.5;
-        }
-
-        /* --- Capa de Efecto Holográfico --- */
-        .holo {
+        
+        /* Capa de Brillo (Shine) - Sin cambios */
+        .card.holo::before {
+            content: "";
             position: absolute;
             inset: 0;
-            z-index: 2; /* Por encima del contenido */
+            z-index: 2;
+            opacity: var(--card-opacity);
+            background: linear-gradient( var(--shine-deg), rgba(255, 255, 255, 0) 20%, rgba(255, 255, 255, 0.4) 50%, rgba(255, 255, 255, 0) 80% );
+        }
 
-            /* El gradiente iridiscente que se moverá */
-            background-image: repeating-linear-gradient(0deg, rgb(255,119,115) 0%, rgb(255,237,95) 15%, rgb(168,255,95) 30%, rgb(131,255,247) 45%, rgb(120,148,255) 60%, rgb(216,117,255) 75%, rgb(255,119,115) 100%);
-            background-size: 200% 200%;
+        /* Capa Holográfica (Holo) */
+        .card.holo::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 3;
+            opacity: var(--holo-opacity);
             
-            /* ¡La magia! Mezcla el gradiente con la capa de abajo */
-            mix-blend-mode: overlay; /* Prueba también 'color-dodge', 'screen' */
-            opacity: 0.8;
+            background-image: repeating-linear-gradient(0deg, #ff7773 0%, #ffed5f 15%, #a8ff5f 30%, #83fff7 45%, #7894ff 60%, #d875ff 75%, #ff7773 100%);
+            background-size: 200% 200%;
+            background-position: var(--holo-bg-x) var(--holo-bg-y);
+            mix-blend-mode: color-dodge;
 
-            /* Si tuvieras una máscara SVG para aplicar el efecto solo a ciertas zonas: */
-            /* mask-image: url('tu-mascara.svg'); */
-            /* mask-size: cover; */
-        }
-
-        /* --- Capa de Brillo (Gloss) --- */
-        .shine {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(110deg, rgba(255,255,255,0) 40%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 60%);
-            opacity: 0.6;
-            background-size: 250% 250%;
-            z-index: 3; /* Por encima de todo */
+            /* --- CAMBIO 2: Aplicamos la máscara --- */
+            mask-image: url('mask.png');
+            mask-size: cover; /* La máscara se estira para cubrir toda la tarjeta */
+            mask-position: center;
+            /* Opcional: define cómo se repite la máscara si es más pequeña */
+            /* mask-repeat: no-repeat; */ 
         }
     </style>
 </head>
 <body>
 
-    <div class="card-container">
-        <div class="card" id="card">
-            <!-- Capa de Contenido (nuestro placeholder) -->
-            <div class="card-content">
-                <span class="title">TARJETA VIRTUAL</span>
-                <span class="subtitle">Holográfica e Interactiva</span>
-                <span class="hint" id="hint-text">Mueve el mouse sobre mí</span>
-            </div>
-            <!-- Capa de brillo que se mueve por encima -->
-            <div class="shine"></div>
-            <!-- Capa del efecto holográfico -->
-            <div class="holo"></div>
-        </div>
-    </div>
+    <!--
+        HTML simplificado. La clase "holo" activa los efectos.
+        No necesitamos el div de contenido porque la imagen está en el CSS.
+    -->
+    <div class="card holo" id="card"></div>
 
     <script>
+        // El JavaScript no necesita ningún cambio.
+        // Su única función es actualizar las variables CSS, y eso sigue siendo igual.
         const card = document.getElementById('card');
-        const shineLayer = card.querySelector('.shine');
-        const holoLayer = card.querySelector('.holo');
-        const hintText = document.getElementById('hint-text');
+        const root = document.documentElement;
 
-        const maxRotation = 25; // Máxima rotación en grados
-        const maxHoloMove = 50; // Máximo desplazamiento del fondo holográfico en %
+        function updateCardVariables(x, y) {
+            const pointerX = x;
+            const pointerY = y;
+            const pointerFromCenterX = pointerX - 0.5;
+            const pointerFromCenterY = pointerY - 0.5;
 
-        // --- LÓGICA DE INTERACCIÓN ---
-
-        let isGyroAvailable = false;
-
-        // 1. Lógica para el Giroscopio del Teléfono
-        function requestDeviceOrientation() {
-            // iOS 13+ requiere pedir permiso explícitamente
-            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                DeviceOrientationEvent.requestPermission()
-                    .then(permissionState => {
-                        if (permissionState === 'granted') {
-                            window.addEventListener('deviceorientation', handleOrientation);
-                            isGyroAvailable = true;
-                            hintText.innerText = "¡Efecto activado! Inclina tu teléfono";
-                        }
-                    })
-                    .catch(() => {
-                        // Si se deniega, usamos el mouse como fallback
-                        addMouseListeners();
-                    });
-            } else {
-                // Para Android y otros dispositivos que no requieren permiso
-                window.addEventListener('deviceorientation', (e) => {
-                    // Verificamos si realmente hay datos del giroscopio
-                    if (e.beta !== null || e.gamma !== null) {
-                         // Si es la primera vez, quitamos el listener del mouse
-                        if (!isGyroAvailable) {
-                            card.removeEventListener('mousemove', handleMouseMove);
-                            card.removeEventListener('mouseleave', handleMouseLeave);
-                        }
-                        isGyroAvailable = true;
-                        handleOrientation(e);
-                        hintText.innerText = "¡Efecto activado! Inclina tu teléfono";
-                    }
-                });
-            }
+            root.style.setProperty('--pointer-x', pointerX);
+            root.style.setProperty('--pointer-y', pointerY);
+            root.style.setProperty('--pointer-from-center-x', pointerFromCenterX);
+            root.style.setProperty('--pointer-from-center-y', pointerFromCenterY);
         }
+
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width;
+            const y = (e.clientY - rect.top) / rect.height;
+            updateCardVariables(x, y);
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            updateCardVariables(0.5, 0.5);
+        });
 
         function handleOrientation(event) {
-            let { beta, gamma } = event; // beta: inclinación adelante/atrás, gamma: lado a lado
+            let { beta, gamma } = event;
+            const clampedBeta = Math.max(-45, Math.min(45, beta));
+            const clampedGamma = Math.max(-45, Math.min(45, gamma));
+            
+            const pointerX = (clampedGamma / 90) + 0.5;
+            const pointerY = (clampedBeta / 90) + 0.5;
 
-            // Limitar los valores para un efecto más sutil y controlado
-            gamma = Math.max(-45, Math.min(45, gamma));
-            beta = Math.max(-45, Math.min(45, beta));
-
-            const rotateY = (gamma / 45) * maxRotation;
-            const rotateX = (-beta / 45) * maxRotation;
-
-            const holoBgPosX = (gamma / 45) * maxHoloMove;
-            const holoBgPosY = (beta / 45) * maxHoloMove;
-            const shineBgPosX = (gamma / 45) * 100;
-
-            applyStyles(rotateX, rotateY, holoBgPosX, holoBgPosY, shineBgPosX);
+            updateCardVariables(pointerX, pointerY);
         }
 
-        // 2. Lógica para el Mouse (Fallback en Escritorio)
-        function handleMouseMove(e) {
-            if (isGyroAvailable) return; // Si el giroscopio está activo, no hacemos nada
-
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-
-            const normX = (x / rect.width - 0.5) * 2;  // Normalizado de -1 a 1
-            const normY = (y / rect.height - 0.5) * 2; // Normalizado de -1 a 1
-
-            const rotateY = normX * maxRotation;
-            const rotateX = -normY * maxRotation;
-
-            const holoBgPosX = normX * maxHoloMove;
-            const holoBgPosY = normY * maxHoloMove;
-            const shineBgPosX = normX * 100;
-
-            applyStyles(rotateX, rotateY, holoBgPosX, holoBgPosY, shineBgPosX);
-        }
-
-        function handleMouseLeave() {
-            // Resetea la tarjeta a su estado original
-            card.style.transform = 'rotateX(0deg) rotateY(0deg)';
+        function requestDeviceOrientation() {
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission().then(permissionState => {
+                    if (permissionState === 'granted') {
+                        window.addEventListener('deviceorientation', handleOrientation);
+                    }
+                }).catch(console.error);
+            } else {
+                window.addEventListener('deviceorientation', handleOrientation);
+            }
         }
         
-        function addMouseListeners() {
-            card.addEventListener('mousemove', handleMouseMove);
-            card.addEventListener('mouseleave', handleMouseLeave);
-        }
-
-        // 3. Función unificada para aplicar los estilos
-        function applyStyles(rX, rY, hX, hY, sX) {
-            requestAnimationFrame(() => {
-                card.style.transform = `rotateX(${rX}deg) rotateY(${rY}deg)`;
-                holoLayer.style.backgroundPosition = `${-hX}% ${-hY}%`;
-                shineLayer.style.backgroundPosition = `${-sX}%`;
-            });
-        }
-        
-        // --- INICIALIZACIÓN ---
-        
-        // Al hacer clic, intentamos activar el giroscopio
         card.addEventListener('click', requestDeviceOrientation);
-
-        // Por defecto, añadimos los listeners del mouse. Si el giroscopio se activa, se quitarán.
-        addMouseListeners();
-
     </script>
 </body>
 </html>
