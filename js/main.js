@@ -1,13 +1,12 @@
-import * as auth from './modules/auth.js';
-import { renderLoginScreen, renderCollectionScreen } from './modules/ui.js';
+import { renderApp } from './modules/ui.js';
+import { addInteraction } from './modules/cardEffects.js';
 
 function main() {
-    const currentUser = auth.getCurrentUser();
-
-    if (currentUser) {
-        renderCollectionScreen(currentUser);
-    } else {
-        renderLoginScreen();
+    renderApp();
+    
+    const cardElement = document.querySelector('.card');
+    if (cardElement) {
+        addInteraction(cardElement);
     }
 }
 

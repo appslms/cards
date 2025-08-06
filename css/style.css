@@ -1,15 +1,10 @@
 :root {
     --primary: hsl(187, 85%, 60%);
-    --link-hover: hsl(207, 100%, 94%);
     --color-background: hsl(220, 7%, 18%);
     --color-surface: hsl(220, 7%, 24%);
     --color-text: #e0e0e0;
-    --color-accent: #f44336;
     --font-family-base: 'Roboto', sans-serif;
     --font-family-heading: 'Roboto Condensed', sans-serif;
-    
-    --transition-duration: 0.6s;
-    --transition-timing: cubic-bezier(0.2, 1, 0.3, 1);
 }
 
 * { box-sizing: border-box; }
@@ -20,108 +15,85 @@ body {
     color: var(--color-text);
     font-family: var(--font-family-base);
     perspective: 3000px;
-    scroll-behavior: smooth;
-}
-body.is-modal-open { overflow: hidden; }
-
-h1, h2, h3 { font-family: var(--font-family-heading); }
-a { color: var(--primary); transition: color 0.3s ease; }
-a:hover { color: var(--link-hover); }
-
-.app-header {
-    padding: 1rem 2rem;
-    text-align: center;
 }
 
-main#app {
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 2rem;
+    gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+    .app-container {
+        flex-direction: row;
+        align-items: center;
+    }
+}
+
+main#visualizer {
+    flex: 3;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 80vh;
-    padding: 2rem;
-    box-sizing: border-box;
-    width: 100%;
-    max-width: 1400px;
+    min-height: 60vh;
+}
+
+.card-wrapper {
+    width: 380px;
+    height: 532px;
+}
+
+aside#control-panel {
+    flex: 1;
+    background: var(--color-surface);
+    padding: 1.5rem 2rem;
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+    max-width: 400px;
     margin: 0 auto;
 }
 
-.overlay {
-    position: fixed; inset: 0;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(8px);
-    opacity: 0;
-    transition: opacity var(--transition-duration) ease;
-    z-index: 999;
-    pointer-events: none;
-}
-body.is-modal-open .overlay { opacity: 1; pointer-events: auto; }
-
-.login-screen, .collection-screen {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+.control-group {
+    margin-bottom: 1.5rem;
 }
 
-.login-form {
-    background: var(--color-surface);
-    padding: 2rem 3rem;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-.login-form input {
-    display: block; width: 100%; padding: 0.8rem; margin: 1rem 0;
-    border: 1px solid #444; background: #333; color: var(--color-text);
-    border-radius: 8px; font-size: 1rem;
-}
-.login-form button, .logout-button {
-    background: var(--primary); color: #000; font-weight: bold;
-    padding: 0.8rem 1.5rem; border: none; border-radius: 8px;
-    cursor: pointer; transition: transform 0.2s ease, background-color 0.2s ease;
+.control-group label {
+    display: block;
+    margin-bottom: 0.5rem;
     font-family: var(--font-family-heading);
-}
-.login-form button:hover { transform: scale(1.05); }
-.logout-button { background: var(--color-accent); margin-top: 2rem; }
-
-.card-grid {
-    display: flex; flex-wrap: wrap; justify-content: center;
-    gap: 2.5rem;
-    padding: 2rem 0;
+    font-size: 1.2rem;
+    letter-spacing: 0.5px;
 }
 
-.card-item {
-    width: 180px; height: 252px;
-    position: relative;
+.control-group select {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #333;
+    color: var(--color-text);
+    border: 1px solid #555;
+    border-radius: 8px;
+    font-size: 1rem;
     cursor: pointer;
-    transition: transform 0.4s ease, box-shadow 0.4s ease;
-}
-.card-item:hover {
-    transform: translateY(-15px) scale(1.03);
-    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
-    z-index: 10;
-}
-
-.card-item.is-focused {
-    position: fixed;
-    top: 50%; left: 50%;
-    width: 380px; height: 532px;
-    z-index: 1000;
-    cursor: default;
-    transform: translate(-50%, -50%) rotateY(180deg);
-}
-.card-item.is-focused.is-interactive {
-    transform: translate(-50%, -50%) rotateY(180deg) rotateX(var(--rotate-x)) rotateY(var(--rotate-y));
-}
-.card-item.is-focused:hover, .card-item.is-focused.is-interactive:hover {
-    box-shadow: 0 25px 50px rgba(0,0,0,0.7);
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0e0e0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.7rem top 50%;
+    background-size: 1.2rem;
 }
 
-
-.hidden { display: none; }
 .loading-spinner {
-    border: 4px solid rgba(255, 255, 255, 0.3); border-radius: 50%;
-    border-top: 4px solid var(--primary); width: 40px; height: 40px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top: 4px solid var(--primary);
+    width: 50px;
+    height: 50px;
     animation: spin 1s linear infinite;
 }
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

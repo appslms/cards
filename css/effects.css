@@ -1,9 +1,4 @@
-/* Este archivo actúa como un índice, importando todos los estilos de efectos. */
-
-/* El archivo base es el más importante y debe ir primero. */
 @import url("effects/base.css");
-
-/* Importamos el resto de los efectos en orden alfabético para mantener la organización. */
 @import url("effects/amazing-rare.css");
 @import url("effects/basic.css");
 @import url("effects/cosmos-holo.css");

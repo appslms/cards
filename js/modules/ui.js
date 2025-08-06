@@ -1,90 +1,77 @@
-import * as auth from './auth.js';
-import { CARDS } from '../config.js';
-import { addInteraction, removeInteraction } from './cardEffects.js';
+import { CARDS, EFFECTS, TEXTURES } from '../config.js';
 
-const app = document.getElementById('app');
-const overlay = document.getElementById('app-overlay');
-let focusedCardElement = null;
+const visualizerEl = document.getElementById('visualizer');
+const controlPanelEl = document.getElementById('control-panel');
 
-export function renderLoginScreen() {
-    app.innerHTML = `
-        <div class="login-screen">
-            <h1>Colección de Tarjetas Holográficas</h1>
-            <p>Un proyecto interactivo con CSS y JavaScript.</p>
-            <form id="login-form">
-                <input type="text" id="username" name="username" placeholder="Prueba con: Juan, Maria, Admin..." required>
-                <button type="submit">Ingresar a la Colección</button>
-            </form>
+function createDropdown(id, label, options, selectedValue) {
+    const optionsHTML = options.map(opt => 
+        `<option value="${opt.id}" ${opt.id == selectedValue ? 'selected' : ''}>${opt.name}</option>`
+    ).join('');
+    return `
+        <div class="control-group">
+            <label for="${id}">${label}</label>
+            <select id="${id}">${optionsHTML}</select>
         </div>
     `;
-    document.getElementById('login-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const username = e.target.username.value;
-        if (auth.login(username)) {
-            window.location.reload();
-        } else {
-            alert('Usuario no encontrado.');
-        }
-    });
 }
 
-export function renderCollectionScreen(user) {
-    const userCards = CARDS.filter(card => user.allowedCards.includes(card.id));
+function applyChanges() {
+    const cardEl = document.querySelector('.card');
+    if (!cardEl) return;
 
-    const cardGridHTML = userCards.length > 0 
-        ? userCards.map(card => {
-            const effectClass = card.effectClass || 'basic';
-            return `
-                <div class="card card-item ${effectClass}" 
-                     data-card-id="${card.id}" 
-                     style="background-image: url('${card.image}');">
-                </div>
-            `;
-        }).join('')
-        : '<h2>Esta colección está vacía.</h2><p>El administrador necesita asignarte tarjetas.</p>';
+    const cardSelect = document.getElementById('card-select');
+    const effectSelect = document.getElementById('effect-select');
+    const textureSelect = document.getElementById('texture-select');
 
-    app.innerHTML = `
-        <div class="collection-screen">
-            <h1>Colección de ${user.username}</h1>
-            <p>Haz clic en una tarjeta para verla en detalle e interactuar.</p>
-            <div class="card-grid">${cardGridHTML}</div>
-            <button class="logout-button">Cerrar Sesión</button>
+    const selectedCard = CARDS.find(c => c.id == cardSelect.value);
+    const selectedTexture = TEXTURES.find(t => t.id == textureSelect.value);
+    const selectedEffect = effectSelect.value;
+
+    // 1. Cambiar la imagen de la tarjeta
+    if (selectedCard) {
+        cardEl.style.backgroundImage = `url('${selectedCard.image}')`;
+    }
+
+    // 2. Cambiar el efecto usando el atributo data-rarity
+    cardEl.setAttribute('data-rarity', selectedEffect);
+
+    // 3. Cambiar la textura (foil) y su tamaño para el tileado
+    if (selectedTexture && selectedTexture.path !== 'none') {
+        cardEl.style.setProperty('--foil', `url(../${selectedTexture.path})`);
+        cardEl.style.setProperty('--imgsize', '25%'); // Tamaño para tileado
+    } else {
+        // Restaura el valor por defecto si no se selecciona ninguna textura
+        cardEl.style.removeProperty('--foil');
+        cardEl.style.removeProperty('--imgsize');
+    }
+}
+
+export function renderApp() {
+    // Definir el estado inicial
+    const initialCardId = CARDS[0].id;
+    const initialEffectId = 'v-star';
+    const initialTextureId = 'none';
+
+    // Renderizar la tarjeta inicial
+    visualizerEl.innerHTML = `
+        <div class="card-wrapper">
+            <div class="card interactive ${initialEffectId}" data-rarity="${initialEffectId}"></div>
         </div>
     `;
-
-    document.querySelectorAll('.card-item').forEach(cardEl => {
-        cardEl.addEventListener('click', () => focusCard(cardEl));
-    });
     
-    document.querySelector('.logout-button').addEventListener('click', () => {
-        auth.logout();
-        window.location.reload();
-    });
+    // Renderizar el panel de control con valores iniciales seleccionados
+    controlPanelEl.innerHTML = `
+        <h2>Centro de Control</h2>
+        ${createDropdown('card-select', 'Elige una Carta:', CARDS, initialCardId)}
+        ${createDropdown('effect-select', 'Elige un Efecto:', EFFECTS, initialEffectId)}
+        ${createDropdown('texture-select', 'Elige una Textura (Foil):', TEXTURES, initialTextureId)}
+    `;
+
+    // Aplicar la configuración inicial a la tarjeta
+    applyChanges();
+
+    // Añadir event listeners a los controles
+    document.getElementById('card-select').addEventListener('change', applyChanges);
+    document.getElementById('effect-select').addEventListener('change', applyChanges);
+    document.getElementById('texture-select').addEventListener('change', applyChanges);
 }
-
-function focusCard(cardElement) {
-    if (focusedCardElement) return;
-
-    focusedCardElement = cardElement;
-    document.body.classList.add('is-modal-open');
-    cardElement.classList.add('is-focused');
-
-    setTimeout(() => {
-        if (!focusedCardElement) return;
-        cardElement.classList.add('is-interactive');
-        addInteraction(cardElement);
-    }, 500);
-}
-
-function unfocusCard() {
-    if (!focusedCardElement) return;
-
-    document.body.classList.remove('is-modal-open');
-    focusedCardElement.classList.remove('is-interactive');
-    focusedCardElement.classList.remove('is-focused');
-    removeInteraction(focusedCardElement);
-
-    focusedCardElement = null;
-}
-
-overlay.addEventListener('click', unfocusCard);

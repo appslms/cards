@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Colección de Tarjetas</title>
+    <title>Visualizador de Tarjetas Holográficas</title>
     <link rel="stylesheet" href="css/effects.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,12 +12,13 @@
     <script type="module" src="js/main.js" defer></script>
 </head>
 <body>
-    <div id="app-overlay" class="overlay"></div>
-
-    <header class="app-header"></header>
-
-    <main id="app">
-        <div class="loading-spinner"></div>
-    </main>
+    <div class="app-container">
+        <main id="visualizer">
+            <!-- La tarjeta se renderizará aquí -->
+        </main>
+        <aside id="control-panel">
+            <!-- El panel de control se renderizará aquí -->
+        </aside>
+    </div>
 </body>
 </html>

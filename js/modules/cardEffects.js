@@ -1,4 +1,4 @@
-let currentCard = null;
+let interactiveCard = null;
 
 const eventHandlers = {
     mousemove: (e) => updatePointer(e),
@@ -6,29 +6,36 @@ const eventHandlers = {
 };
 
 function updatePointer(event) {
-    if (!currentCard) return;
+    if (!interactiveCard) return;
 
     let x = 0.5, y = 0.5;
 
     if (event.type === 'mousemove') {
-        const rect = currentCard.getBoundingClientRect();
+        const rect = interactiveCard.getBoundingClientRect();
         x = (event.clientX - rect.left) / rect.width;
         y = (event.clientY - rect.top) / rect.height;
     } else if (event.type === 'deviceorientation') {
+        // Asegurarse de que los valores de beta y gamma existen
+        if (event.beta === null || event.gamma === null) return;
         const beta = Math.max(-45, Math.min(45, event.beta));
         const gamma = Math.max(-45, Math.min(45, event.gamma));
         x = (gamma / 90) + 0.5;
         y = (beta / 90) + 0.5;
     }
 
-    currentCard.style.setProperty('--pointer-x', x);
-    currentCard.style.setProperty('--pointer-y', y);
-    currentCard.style.setProperty('--pointer-from-center-x', x - 0.5);
-    currentCard.style.setProperty('--pointer-from-center-y', y - 0.5);
+    interactiveCard.style.setProperty('--pointer-x', `${x * 100}%`);
+    interactiveCard.style.setProperty('--pointer-y', `${y * 100}%`);
+    interactiveCard.style.setProperty('--background-x', `${x * 100}%`);
+    interactiveCard.style.setProperty('--background-y', `${y * 100}%`);
+    interactiveCard.style.setProperty('--pointer-from-left', x);
+    interactiveCard.style.setProperty('--pointer-from-top', y);
+    interactiveCard.style.setProperty('--pointer-from-center', Math.abs(x - 0.5) + Math.abs(y - 0.5));
+    interactiveCard.style.setProperty('--rotate-x', `${(x - 0.5) * 2 * 18}deg`);
+    interactiveCard.style.setProperty('--rotate-y', `${(y - 0.5) * -2 * 18}deg`);
 }
 
 export function addInteraction(cardElement) {
-    currentCard = cardElement;
+    interactiveCard = cardElement;
     window.addEventListener('mousemove', eventHandlers.mousemove);
 
     if (window.DeviceOrientationEvent) {
@@ -37,16 +44,9 @@ export function addInteraction(cardElement) {
                 if (state === 'granted') {
                     window.addEventListener('deviceorientation', eventHandlers.deviceorientation);
                 }
-            });
+            }).catch(console.error);
         } else {
             window.addEventListener('deviceorientation', eventHandlers.deviceorientation);
         }
     }
-}
-
-export function removeInteraction() {
-    if (!currentCard) return;
-    window.removeEventListener('mousemove', eventHandlers.mousemove);
-    window.removeEventListener('deviceorientation', eventHandlers.deviceorientation);
-    currentCard = null;
 }
