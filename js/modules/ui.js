@@ -1,4 +1,3 @@
-//--- START OF FILE js/modules/ui.js ---
 import { CARDS, EFFECTS, TEXTURES } from '../config.js';
 
 const visualizerEl = document.getElementById('visualizer');
@@ -84,4 +83,3 @@ export function renderApp() {
     document.getElementById('effect-select').addEventListener('change', applyChanges);
     document.getElementById('texture-select').addEventListener('change', applyChanges);
 }
-//--- END OF FILE js/modules/ui.js ---
