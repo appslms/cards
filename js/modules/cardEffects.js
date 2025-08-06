@@ -1,15 +1,12 @@
-//--- START OF FILE js/modules/cardEffects.js ---
 let interactiveElement = null;
+const root = document.documentElement;
 
 const eventHandlers = {
     mousemove: (e) => updatePointer(e),
     deviceorientation: (e) => updatePointer(e),
 };
 
-// Función para actualizar las variables CSS basadas en el movimiento
 function updatePointer(event) {
-    if (!interactiveElement) return;
-
     let x = 0.5, y = 0.5;
 
     if (event.type === 'mousemove') {
@@ -24,8 +21,7 @@ function updatePointer(event) {
         y = (beta / 90) + 0.5;
     }
 
-    // Actualiza todas las variables CSS que la librería de Simey espera
-    const root = document.documentElement; // Es mejor práctica establecerlas en :root
+    // Establecer TODAS las variables en :root para que la librería las herede
     root.style.setProperty('--pointer-x', x);
     root.style.setProperty('--pointer-y', y);
     root.style.setProperty('--background-x', `${x * 100}%`);
@@ -33,48 +29,48 @@ function updatePointer(event) {
     root.style.setProperty('--pointer-from-left', x);
     root.style.setProperty('--pointer-from-top', y);
     root.style.setProperty('--pointer-from-center', Math.abs(x - 0.5) + Math.abs(y - 0.5));
-    
-    // ¡LA CORRECCIÓN CLAVE! Establece las variables para la rotación 3D
-    root.style.setProperty('--rotate-x', `${(x - 0.5) * 2 * 14}deg`); // Rotación en el eje Y
-    root.style.setProperty('--rotate-y', `${(y - 0.5) * -2 * 14}deg`); // Rotación en el eje X
+    root.style.setProperty('--rotate-x', `${(x - 0.5) * 2 * 14}deg`);
+    root.style.setProperty('--rotate-y', `${(y - 0.5) * -2 * 14}deg`);
 }
 
-// Función para solicitar permiso para el giroscopio
 function requestGyroscopePermission() {
-    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-        DeviceOrientationEvent.requestPermission().then(state => {
-            if (state === 'granted') {
-                window.addEventListener('deviceorientation', eventHandlers.deviceorientation);
-                // Opcional: notificar al usuario
-                // alert("Giroscopio activado."); 
-            }
-        }).catch(() => {
-            // alert("No se pudo activar el giroscopio.");
-        });
-    } else {
-        // Para Android y otros que no necesitan permiso
+    if (typeof DeviceOrientationEvent.requestPermission !== 'function') {
+        // Para Android, que no necesita permiso explícito
         window.addEventListener('deviceorientation', eventHandlers.deviceorientation);
+        return;
     }
+    // Para iOS 13+
+    DeviceOrientationEvent.requestPermission().then(state => {
+        if (state === 'granted') {
+            window.addEventListener('deviceorientation', eventHandlers.deviceorientation);
+            // Opcional: Feedback visual para el usuario
+            // alert("Giroscopio activado.");
+        }
+    }).catch(console.error);
 }
 
-// Función para inicializar la interacción
 export function addInteraction(element) {
     interactiveElement = element;
     
-    // Crear dinámicamente las capas de brillo y reflejo, como en el proyecto original
-    const shineElement = document.createElement('div');
-    shineElement.className = 'card__shine';
-    const glareElement = document.createElement('div');
-    glareElement.className = 'card__glare';
-    
-    // Añadirlas dentro del .card__rotator
-    interactiveElement.appendChild(shineElement);
-    interactiveElement.appendChild(glareElement);
+    const card = element.closest('.card');
+    if (!card) return;
 
-    // Añadir listeners
+    // Inyectar las capas de efecto si no existen
+    if (!card.querySelector('.card__shine')) {
+        const shine = document.createElement('div');
+        shine.className = 'card__shine';
+        card.querySelector('.card__rotator').appendChild(shine);
+    }
+    if (!card.querySelector('.card__glare')) {
+        const glare = document.createElement('div');
+        glare.className = 'card__glare';
+        card.querySelector('.card__rotator').appendChild(glare);
+    }
+    
+    // Listeners de movimiento
     window.addEventListener('mousemove', eventHandlers.mousemove);
     
-    // Para el giroscopio, el permiso debe ser solicitado por una acción del usuario
-    interactiveElement.addEventListener('click', requestGyroscopePermission, { once: true });
+    // El permiso del giroscopio debe ser solicitado por una acción del usuario.
+    // Usamos el clic en la tarjeta, pero solo una vez.
+    card.addEventListener('click', requestGyroscopePermission, { once: true });
 }
-//--- END OF FILE js/modules/cardEffects.js ---
