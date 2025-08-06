@@ -18,8 +18,8 @@ function createDropdown(id, label, options, selectedValue) {
 
 function applyChanges() {
     const cardEl = document.querySelector('.card');
-    const cardFrontEl = document.querySelector('.card__front img');
-    if (!cardEl || !cardFrontEl) return;
+    const cardFrontImg = document.querySelector('.card__front img');
+    if (!cardEl || !cardFrontImg) return;
 
     const cardSelect = document.getElementById('card-select');
     const effectSelect = document.getElementById('effect-select');
@@ -31,23 +31,22 @@ function applyChanges() {
 
     // 1. Cambiar la imagen de la tarjeta
     if (selectedCard) {
-        cardFrontEl.src = selectedCard.image;
+        cardFrontImg.src = selectedCard.image;
+        cardFrontImg.alt = selectedCard.name;
     }
 
-    // 2. Cambiar el efecto usando el atributo data-rarity y las clases
+    // 2. Cambiar el efecto
     cardEl.setAttribute('data-rarity', selectedEffect);
-    // Removemos todas las clases de efecto anteriores y añadimos la nueva
-    cardEl.className = 'card interactive'; // Reset a clases base
+    // Para asegurar la reactividad, removemos todas las clases de efecto posibles y añadimos la nueva
+    EFFECTS.forEach(effect => cardEl.classList.remove(effect.id));
     cardEl.classList.add(selectedEffect);
 
 
-    // 3. Cambiar la textura (foil) y su tamaño para el tileado
+    // 3. Cambiar la textura (foil)
     if (selectedTexture && selectedTexture.path !== 'none') {
-        // ¡CORRECCIÓN DE RUTA! No se necesita '../'
         cardEl.style.setProperty('--foil', `url(${selectedTexture.path})`);
-        cardEl.style.setProperty('--imgsize', '25%'); // Tamaño para tileado
+        cardEl.style.setProperty('--imgsize', '25%'); // Para tileado
     } else {
-        // Restaura los valores por defecto si no se selecciona ninguna textura
         cardEl.style.removeProperty('--foil');
         cardEl.style.removeProperty('--imgsize');
     }
@@ -57,8 +56,7 @@ export function renderApp() {
     const initialCard = CARDS[0];
     const initialEffect = 'v-star';
 
-    // ¡NUEVA ESTRUCTURA HTML CORRECTA!
-    // Esto coincide con lo que la librería CSS de Simey espera.
+    // Estructura HTML que espera la librería de Simey
     visualizerEl.innerHTML = `
         <div class="card-wrapper">
             <div class="card interactive ${initialEffect}" data-rarity="${initialEffect}">
@@ -67,9 +65,8 @@ export function renderApp() {
                         <div class="card__front">
                             <img src="${initialCard.image}" alt="${initialCard.name}">
                         </div>
-                        <div class="card__back">
-                             <!-- Podríamos poner una imagen del reverso de la carta aquí -->
-                        </div>
+                        <div class="card__back"></div>
+                        <!-- Las capas .card__shine y .card__glare se añadirán aquí con JS -->
                     </div>
                 </div>
             </div>
@@ -83,9 +80,8 @@ export function renderApp() {
         ${createDropdown('texture-select', 'Elige una Textura (Foil):', TEXTURES, 'none')}
     `;
 
-    // Añadir event listeners a los controles
     document.getElementById('card-select').addEventListener('change', applyChanges);
     document.getElementById('effect-select').addEventListener('change', applyChanges);
-    document.getElementById('texture-select').addEventListener('change', applyChanges);
+    document.getElementById_('texture-select').addEventListener('change', applyChanges);
 }
 //--- END OF FILE js/modules/ui.js ---

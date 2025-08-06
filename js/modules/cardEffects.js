@@ -6,6 +6,7 @@ const eventHandlers = {
     deviceorientation: (e) => updatePointer(e),
 };
 
+// Función para actualizar las variables CSS basadas en el movimiento
 function updatePointer(event) {
     if (!interactiveElement) return;
 
@@ -23,43 +24,57 @@ function updatePointer(event) {
         y = (beta / 90) + 0.5;
     }
 
-    // Estas son las variables que la librería de Simey espera.
-    // La nomenclatura y los valores son importantes.
-    interactiveElement.style.setProperty('--pointer-x', `${x * 100}%`);
-    interactiveElement.style.setProperty('--pointer-y', `${y * 100}%`);
-    interactiveElement.style.setProperty('--background-x', `${x * 100}%`);
-    interactiveElement.style.setProperty('--background-y', `${y * 100}%`);
-    interactiveElement.style.setProperty('--pointer-from-left', x);
-    interactiveElement.style.setProperty('--pointer-from-top', y);
-    interactiveElement.style.setProperty('--pointer-from-center', Math.abs(x - 0.5) + Math.abs(y - 0.5));
+    // Actualiza todas las variables CSS que la librería de Simey espera
+    const root = document.documentElement; // Es mejor práctica establecerlas en :root
+    root.style.setProperty('--pointer-x', x);
+    root.style.setProperty('--pointer-y', y);
+    root.style.setProperty('--background-x', `${x * 100}%`);
+    root.style.setProperty('--background-y', `${y * 100}%`);
+    root.style.setProperty('--pointer-from-left', x);
+    root.style.setProperty('--pointer-from-top', y);
+    root.style.setProperty('--pointer-from-center', Math.abs(x - 0.5) + Math.abs(y - 0.5));
     
-    // Variables para la rotación 3D
-    interactiveElement.style.setProperty('--rotate-x', `${(x - 0.5) * 2 * 14}deg`); // Eje Y
-    interactiveElement.style.setProperty('--rotate-y', `${(y - 0.5) * -2 * 14}deg`); // Eje X (invertido para que sea natural)
+    // ¡LA CORRECCIÓN CLAVE! Establece las variables para la rotación 3D
+    root.style.setProperty('--rotate-x', `${(x - 0.5) * 2 * 14}deg`); // Rotación en el eje Y
+    root.style.setProperty('--rotate-y', `${(y - 0.5) * -2 * 14}deg`); // Rotación en el eje X
 }
 
+// Función para solicitar permiso para el giroscopio
 function requestGyroscopePermission() {
     if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
         DeviceOrientationEvent.requestPermission().then(state => {
             if (state === 'granted') {
                 window.addEventListener('deviceorientation', eventHandlers.deviceorientation);
-                alert("Giroscopio activado. ¡Inclina tu teléfono!");
+                // Opcional: notificar al usuario
+                // alert("Giroscopio activado."); 
             }
         }).catch(() => {
-            alert("No se pudo activar el giroscopio.");
+            // alert("No se pudo activar el giroscopio.");
         });
     } else {
-        // Para dispositivos (como Android) que no requieren permiso explícito
+        // Para Android y otros que no necesitan permiso
         window.addEventListener('deviceorientation', eventHandlers.deviceorientation);
     }
 }
 
+// Función para inicializar la interacción
 export function addInteraction(element) {
     interactiveElement = element;
+    
+    // Crear dinámicamente las capas de brillo y reflejo, como en el proyecto original
+    const shineElement = document.createElement('div');
+    shineElement.className = 'card__shine';
+    const glareElement = document.createElement('div');
+    glareElement.className = 'card__glare';
+    
+    // Añadirlas dentro del .card__rotator
+    interactiveElement.appendChild(shineElement);
+    interactiveElement.appendChild(glareElement);
+
+    // Añadir listeners
     window.addEventListener('mousemove', eventHandlers.mousemove);
     
-    // El permiso del giroscopio en iOS DEBE ser solicitado por una acción del usuario.
-    // Usamos el clic en la propia tarjeta para esto.
-    interactiveElement.addEventListener('click', requestGyroscopePermission);
+    // Para el giroscopio, el permiso debe ser solicitado por una acción del usuario
+    interactiveElement.addEventListener('click', requestGyroscopePermission, { once: true });
 }
-//- END OF FILE js/modules/cardEffects.js ---
+//--- END OF FILE js/modules/cardEffects.js ---
