@@ -1,5 +1,0 @@
-{
-  "name": "Gyro-Reactive Virtual Card",
-  "description": "A responsive virtual card that reacts to device orientation, creating holographic and glare effects. Inspired by interactive trading cards.",
-  "requestFramePermissions": []
-}
