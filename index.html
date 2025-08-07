@@ -1,60 +1,107 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Interactive Holographic Card</title>
+    <title>Tarjeta Holográfica Interactiva</title>
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Preload de assets críticos -->
+    <link rel="preload" as="image" href="assets/mask@2x.png" />
+    <link
+      rel="preload"
+      as="image"
+      href="assets/card.png"
+      imagesrcset="assets/card@1x.png 1x, assets/card@2x.png 2x"
+    />
+
     <style>
-      body {
-        touch-action: manipulation; /* Prevents zoom on double tap on mobile */
+      :root {
+        color-scheme: light;
       }
-      .transform-style-preserve-3d {
-        transform-style: preserve-3d;
+      body { touch-action: manipulation; }
+
+      /* Variables para animación y rendimiento */
+      .virtual-card-container {
+        --rx: 0deg; /* rotateX */
+        --ry: 0deg; /* rotateY */
+        --holoX: 50%;
+        --holoY: 50%;
+        --glareX: 50%;
+        --glareY: 50%;
+        --persp: 1500px;
+        will-change: transform;
+      }
+      .transform-style-preserve-3d { transform-style: preserve-3d; }
+      .virtual-card-container { transform: perspective(var(--persp)) rotateX(var(--rx)) rotateY(var(--ry)); }
+      .holo-effect { background-position: var(--holoX) var(--holoY); }
+      .glare-effect { background: radial-gradient(circle at var(--glareX) var(--glareY), hsla(0,0%,100%,.85) 0%, hsla(0,0%,100%,0) 70%); }
+
+      /* Máscara en 1x/2x y fallback leve si no carga */
+      .holo-effect {
+        background-image: conic-gradient(from 180deg at 50% 50%, #2a8af6 0deg, #a33cf3 70deg, #f05285 130deg, #f7d268 200deg, #81f7ab 270deg, #2a8af6 360deg);
+        background-size: 180% 180%;
+        -webkit-mask-image: image-set(url(assets/mask@1x.png) 1x, url(assets/mask@2x.png) 2x);
+        mask-image: image-set(url(assets/mask@1x.png) 1x, url(assets/mask@2x.png) 2x);
+        -webkit-mask-size: cover; mask-size: cover;
+        -webkit-mask-position: center; mask-position: center;
+        background-color: rgba(255,255,255,.12);
+      }
+
+      /* Overlay de ruido sutil para materialidad */
+      .noise {
+        opacity: .06; mix-blend-mode: overlay; pointer-events: none;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140"><filter id="n"><feTurbulence baseFrequency="0.7" numOctaves="2" seed="3" /></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.4"/></svg>');
+        background-size: 200px 200px;
+      }
+
+      /* Respeto a preferencias del usuario */
+      @media (prefers-reduced-motion: reduce) {
+        .virtual-card-container { transition: none !important; }
       }
     </style>
-</head>
+  </head>
   <body class="bg-white">
     <main class="flex flex-col items-center justify-center min-h-screen w-full p-4 overflow-hidden">
-      <div 
+      <div
+        id="card"
         class="virtual-card-container relative rounded-3xl transition-transform duration-100 ease-out"
-        style="width: 420px; height: 520px; transform: perspective(1166px) rotateX(0deg) rotateY(0deg);"
+        style="width: clamp(260px, 60vw, 420px); aspect-ratio: 21 / 26;"
+        tabindex="0"
+        role="img"
+        aria-label="Tarjeta holográfica interactiva"
       >
         <div class="w-full h-full transform-style-preserve-3d rounded-3xl overflow-hidden shadow-xl">
-          <!-- Layer 1: Card Artwork -->
-          <img 
+          <!-- Capa 1: Ilustración -->
+          <img
             src="assets/card.png"
-            alt="Virtual Card" 
+            alt="Ilustración de tarjeta"
             class="absolute inset-0 w-full h-full object-cover rounded-3xl"
+            loading="eager"
           />
-          <!-- Layer 2: Holographic Effect Layer -->
-          <div 
-            class="holo-effect absolute inset-0 opacity-65 mix-blend-color-dodge" 
-            style="
-              background-image: conic-gradient(from 180deg at 50% 50%, #2a8af6 0deg, #a33cf3 70deg, #f05285 130deg, #f7d268 200deg, #81f7ab 270deg, #2a8af6 360deg);
-              background-size: 160% 160%;
-              mask-image: url(assets/mask.png);
-              -webkit-mask-image: url(assets/mask.png);
-              mask-size: cover;
-              -webkit-mask-size: cover;
-              mask-position: center;
-              -webkit-mask-position: center;
-            "
-          ></div>
-          <!-- Layer 3: Glare Effect -->
+
+          <!-- Capa 2: Holograma -->
+          <div class="holo-effect absolute inset-0 opacity-70 mix-blend-color-dodge"></div>
+
+          <!-- Capa 3: Brillo/Glare -->
           <div class="glare-effect absolute inset-0 mix-blend-overlay"></div>
+
+          <!-- Capa 4: Ruido sutil -->
+          <div class="noise absolute inset-0"></div>
         </div>
       </div>
+
+      <button id="gyroBtn" class="mt-4 px-4 py-2 rounded-xl bg-black text-white text-sm">Activar giroscopio</button>
     </main>
-    
+
     <script type="module">
-      // --- Finalized Settings ---
+      // Ajustes
       const settings = {
         perspective: 1500,
         smoothing: 0.30,
         mouseMaxRotX: 20,
         mouseMaxRotY: 20,
-        gyroMaxRotX: 20, 
+        gyroMaxRotX: 20,
         gyroMaxRotY: 20,
         holoOpacity: 0.90,
         holoBgSize: 180,
@@ -63,134 +110,163 @@
         glareSize: 70,
       };
 
-      // --- DOM Element Selection ---
-      const cardContainer = document.querySelector('.virtual-card-container');
+      // DOM
+      const cardContainer = document.getElementById('card');
       const holoEffect = cardContainer.querySelector('.holo-effect');
       const glareEffect = cardContainer.querySelector('.glare-effect');
+      const gyroBtn = document.getElementById('gyroBtn');
 
-      // --- State ---
+      // Estado
       let rotation = { x: 0, y: 0 };
       let targetRotation = { x: 0, y: 0 };
       let initialOrientation = { beta: null, gamma: null };
       let isGyroActive = false;
-      let animationFrameId = null;
+      let rafId = null;
+      let needsFrame = false;
+      let px = 0, py = 0; // pointer normalized
 
-      // --- Style Update Function ---
-      const updateCardStyles = () => {
-        const yMax = isGyroActive ? settings.gyroMaxRotY : settings.mouseMaxRotY;
-        const xMax = isGyroActive ? settings.gyroMaxRotX : settings.mouseMaxRotX;
+      // Estilos iniciales
+      function applyStaticStyles() {
+        cardContainer.style.setProperty('--persp', settings.perspective + 'px');
+        holoEffect.style.opacity = settings.holoOpacity;
+        holoEffect.style.backgroundSize = settings.holoBgSize + '% ' + settings.holoBgSize + '%';
+        // El gradiente de glare ya usa vars para la posición; el radio se fija aquí:
+        glareEffect.style.background = `radial-gradient(circle at var(--glareX) var(--glareY), hsla(0,0%,100%,${settings.glareOpacity}) 0%, hsla(0,0%,100%,0) ${settings.glareSize}%)`;
+      }
 
-        const clampedY = Math.min(Math.max(rotation.y, -yMax), yMax);
-        const clampedX = Math.min(Math.max(rotation.x, -xMax), xMax);
+      // Render común (un solo paso por frame)
+      function render(xMax, yMax) {
+        const clampedY = Math.max(-yMax, Math.min(rotation.y, yMax));
+        const clampedX = Math.max(-xMax, Math.min(rotation.x, xMax));
 
         const glareX = (clampedY / yMax) * 100 + 50;
         const glareY = (-clampedX / xMax) * 100 + 50;
         const holoX = 50 - (clampedY / yMax) * settings.holoMoveFactor;
         const holoY = 50 - (-clampedX / xMax) * settings.holoMoveFactor;
-        
-        cardContainer.style.transform = `perspective(${settings.perspective}px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`;
-        
-        holoEffect.style.opacity = settings.holoOpacity;
-        holoEffect.style.backgroundSize = `${settings.holoBgSize}% ${settings.holoBgSize}%`;
-        holoEffect.style.backgroundPosition = `${holoX}% ${holoY}%`;
-        
-        glareEffect.style.background = `radial-gradient(circle at ${glareX}% ${glareY}%, hsla(0,0%,100%,${settings.glareOpacity}) 0%, hsla(0,0%,100%,0) ${settings.glareSize}%)`;
-      };
 
-      const updateLoop = () => {
+        cardContainer.style.setProperty('--rx', clampedX + 'deg');
+        cardContainer.style.setProperty('--ry', clampedY + 'deg');
+        cardContainer.style.setProperty('--holoX', holoX + '%');
+        cardContainer.style.setProperty('--holoY', holoY + '%');
+        cardContainer.style.setProperty('--glareX', glareX + '%');
+        cardContainer.style.setProperty('--glareY', glareY + '%');
+      }
+
+      // Bucle por demanda para puntero
+      function tickPointer() {
+        rotation.y += ((settings.mouseMaxRotY * px) - rotation.y) * settings.smoothing;
+        rotation.x += ((-settings.mouseMaxRotX * py) - rotation.x) * settings.smoothing;
+        render(settings.mouseMaxRotX, settings.mouseMaxRotY);
+        needsFrame = false;
+      }
+
+      // Bucle continuo para giroscopio
+      function tickGyro() {
         rotation.x += (targetRotation.x - rotation.x) * settings.smoothing;
         rotation.y += (targetRotation.y - rotation.y) * settings.smoothing;
-        updateCardStyles();
-        if (isGyroActive) {
-            animationFrameId = requestAnimationFrame(updateLoop);
+        render(settings.gyroMaxRotX, settings.gyroMaxRotY);
+        rafId = requestAnimationFrame(tickGyro);
+      }
+
+      // Eventos puntero
+      function onPointerMove(e) {
+        const rect = cardContainer.getBoundingClientRect();
+        px = (e.clientX - rect.left) / rect.width - 0.5;
+        py = (e.clientY - rect.top) / rect.height - 0.5;
+        if (!isGyroActive && !needsFrame) {
+          needsFrame = true;
+          requestAnimationFrame(tickPointer);
         }
-      };
+      }
 
-      // --- Event Handlers ---
-      const handleMouseMove = (e) => {
-        if (isGyroActive) return;
-
-        const { clientX, clientY, currentTarget } = e;
-        const { left, top, width, height } = currentTarget.getBoundingClientRect();
-        const x = clientX - left;
-        const y = clientY - top;
-        
-        rotation.y = settings.mouseMaxRotY * (x / width - 0.5);
-        rotation.x = -settings.mouseMaxRotX * (y / height - 0.5);
-        updateCardStyles();
-      };
-
-      const handleMouseLeave = () => {
+      function onPointerLeave() {
         if (isGyroActive) return;
         rotation = { x: 0, y: 0 };
-        updateCardStyles();
-      };
-
-      const handleDeviceOrientation = (event) => {
-        const { beta, gamma } = event;
-        if (beta === null || gamma === null) return;
-        
-        if (initialOrientation.beta === null) {
-            initialOrientation.beta = beta;
-            initialOrientation.gamma = gamma;
-        }
-
-        const deltaBeta = beta - initialOrientation.beta;
-        const deltaGamma = gamma - initialOrientation.gamma;
-        
-        targetRotation.x = Math.min(Math.max(deltaBeta, -settings.gyroMaxRotX), settings.gyroMaxRotX);
-        targetRotation.y = Math.min(Math.max(-deltaGamma, -settings.gyroMaxRotY), settings.gyroMaxRotY);
-      };
-      
-      const enableGyro = () => {
-          if (isGyroActive) return;
-          isGyroActive = true;
-          initialOrientation = { beta: null, gamma: null };
-          rotation = { x: 0, y: 0 };
-          targetRotation = { x: 0, y: 0 };
-          
-          window.addEventListener('deviceorientation', handleDeviceOrientation);
-          
-          if (animationFrameId) cancelAnimationFrame(animationFrameId);
-          animationFrameId = requestAnimationFrame(updateLoop);
-      };
-
-      const tryEnableGyro = async () => {
-        if (!('DeviceOrientationEvent' in window)) return;
-
-        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-            const requestPermission = async () => {
-                try {
-                    const permissionState = await DeviceOrientationEvent.requestPermission();
-                    if (permissionState === 'granted') {
-                        enableGyro();
-                    }
-                } catch (error) {
-                    console.error("Device orientation permission request failed:", error);
-                }
-            };
-            document.body.addEventListener('click', requestPermission, { once: true });
-            document.body.addEventListener('touchstart', requestPermission, { once: true });
-        } else {
-            enableGyro();
-        }
-      };
-
-      // --- Initialization ---
-      const init = () => {
-        if (cardContainer) {
-          cardContainer.addEventListener('mousemove', handleMouseMove);
-          cardContainer.addEventListener('mouseleave', handleMouseLeave);
-        }
-        tryEnableGyro();
-        updateCardStyles();
-      };
-
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-      } else {
-        init();
+        px = 0; py = 0;
+        requestAnimationFrame(tickPointer);
       }
+
+      // Teclado (accesibilidad)
+      function onKeyDown(e) {
+        const step = 1.5;
+        if (e.key === 'ArrowLeft') rotation.y -= step;
+        if (e.key === 'ArrowRight') rotation.y += step;
+        if (e.key === 'ArrowUp') rotation.x -= step;
+        if (e.key === 'ArrowDown') rotation.x += step;
+        if (!isGyroActive) requestAnimationFrame(tickPointer);
+      }
+
+      // Giroscopio
+      function handleDeviceOrientation(event) {
+        const { beta, gamma } = event;
+        if (beta == null || gamma == null) return;
+        if (initialOrientation.beta == null) {
+          initialOrientation.beta = beta;
+          initialOrientation.gamma = gamma;
+        }
+        const deltaBeta = beta - initialOrientation.beta; // X
+        const deltaGamma = gamma - initialOrientation.gamma; // Y
+        targetRotation.x = Math.max(-settings.gyroMaxRotX, Math.min(deltaBeta, settings.gyroMaxRotX));
+        targetRotation.y = Math.max(-settings.gyroMaxRotY, Math.min(-deltaGamma, settings.gyroMaxRotY));
+      }
+
+      function enableGyro() {
+        if (isGyroActive) return;
+        isGyroActive = true;
+        initialOrientation = { beta: null, gamma: null };
+        rotation = { x: 0, y: 0 };
+        targetRotation = { x: 0, y: 0 };
+        window.addEventListener('deviceorientation', handleDeviceOrientation);
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(tickGyro);
+      }
+
+      async function requestGyro() {
+        if (!('DeviceOrientationEvent' in window)) { gyroBtn.textContent = 'No disponible'; return; }
+        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+          try {
+            const p = await DeviceOrientationEvent.requestPermission();
+            if (p === 'granted') { enableGyro(); gyroBtn.textContent = 'Giroscopio activo'; }
+            else { gyroBtn.textContent = 'Permiso denegado'; }
+          } catch {
+            gyroBtn.textContent = 'Permiso denegado';
+          }
+        } else {
+          enableGyro(); gyroBtn.textContent = 'Giroscopio activo';
+        }
+      }
+
+      // Visibilidad de pestaña y orientación
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden && rafId) {
+          cancelAnimationFrame(rafId);
+          rafId = null;
+        } else if (isGyroActive && !rafId) {
+          rafId = requestAnimationFrame(tickGyro);
+        }
+      });
+      window.addEventListener('orientationchange', () => { initialOrientation = { beta: null, gamma: null }; });
+
+      // Limpieza
+      window.addEventListener('beforeunload', () => {
+        cardContainer.removeEventListener('pointermove', onPointerMove);
+        cardContainer.removeEventListener('pointerleave', onPointerLeave);
+        cardContainer.removeEventListener('keydown', onKeyDown);
+        window.removeEventListener('deviceorientation', handleDeviceOrientation);
+        if (rafId) cancelAnimationFrame(rafId);
+      });
+
+      // Init
+      function init() {
+        applyStaticStyles();
+        cardContainer.addEventListener('pointermove', onPointerMove, { passive: true });
+        cardContainer.addEventListener('pointerleave', onPointerLeave, { passive: true });
+        cardContainer.addEventListener('keydown', onKeyDown);
+        gyroBtn.addEventListener('click', requestGyro);
+      }
+
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+      else init();
     </script>
   </body>
 </html>
