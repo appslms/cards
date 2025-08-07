@@ -126,7 +126,9 @@
         const deltaBeta = beta - initialOrientation.beta;
         const deltaGamma = gamma - initialOrientation.gamma;
         
-        targetRotation.x = Math.min(Math.max(-deltaBeta, -GYRO_MAX_ROTATION_X), GYRO_MAX_ROTATION_X);
+        // "Opposed" top-down rotation (tilting phone forward tilts card top backward)
+        targetRotation.x = Math.min(Math.max(deltaBeta, -GYRO_MAX_ROTATION_X), GYRO_MAX_ROTATION_X);
+        // "Opposed" left-right rotation (tilting phone right tilts card left)
         targetRotation.y = Math.min(Math.max(-deltaGamma, -GYRO_MAX_ROTATION_Y), GYRO_MAX_ROTATION_Y);
       };
       
