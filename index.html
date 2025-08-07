@@ -45,15 +45,66 @@
           <div class="glare-effect absolute inset-0 mix-blend-overlay"></div>
         </div>
       </div>
+
+      <!-- Temporary Control Panel -->
+      <div id="control-panel" class="bg-gray-100 p-6 rounded-lg shadow-lg w-full max-w-2xl mt-8">
+          <h3 class="text-xl font-bold mb-4 text-center text-gray-700">Live Adjustment Controls</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+              <div>
+                  <label for="perspective" class="font-medium text-gray-600">Perspective: <span id="perspective-value" class="font-bold text-blue-600">1500</span>px</label>
+                  <input type="range" id="perspective" min="500" max="4000" value="1500" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+              </div>
+              <div>
+                  <label for="smoothing" class="font-medium text-gray-600">Gyro Smoothing: <span id="smoothing-value" class="font-bold text-blue-600">0.08</span></label>
+                  <input type="range" id="smoothing" min="0.01" max="0.3" step="0.01" value="0.08" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+              </div>
+              <div>
+                  <label for="holo-opacity" class="font-medium text-gray-600">Holo Opacity: <span id="holo-opacity-value" class="font-bold text-blue-600">0.9</span></label>
+                  <input type="range" id="holo-opacity" min="0" max="1" step="0.05" value="0.9" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+              </div>
+              <div>
+                  <label for="holo-bg-size" class="font-medium text-gray-600">Holo BG Size: <span id="holo-bg-size-value" class="font-bold text-blue-600">300</span>%</label>
+                  <input type="range" id="holo-bg-size" min="100" max="500" step="10" value="300" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+              </div>
+              <div>
+                  <label for="holo-move-factor" class="font-medium text-gray-600">Holo Move Factor: <span id="holo-move-factor-value" class="font-bold text-blue-600">40</span></label>
+                  <input type="range" id="holo-move-factor" min="0" max="100" value="40" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+              </div>
+              <div>
+                  <label for="glare-opacity" class="font-medium text-gray-600">Glare Opacity: <span id="glare-opacity-value" class="font-bold text-blue-600">0.4</span></label>
+                  <input type="range" id="glare-opacity" min="0" max="1" step="0.05" value="0.4" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+              </div>
+              <div>
+                  <label for="glare-size" class="font-medium text-gray-600">Glare Size: <span id="glare-size-value" class="font-bold text-blue-600">50</span>%</label>
+                  <input type="range" id="glare-size" min="10" max="100" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+              </div>
+              <div>
+                  <label for="mouse-rot-x" class="font-medium text-gray-600">Mouse Max Rot X: <span id="mouse-rot-x-value" class="font-bold text-blue-600">20</span></label>
+                  <input type="range" id="mouse-rot-x" min="0" max="45" value="20" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+              </div>
+              <div>
+                  <label for="mouse-rot-y" class="font-medium text-gray-600">Mouse Max Rot Y: <span id="mouse-rot-y-value" class="font-bold text-blue-600">30</span></label>
+                  <input type="range" id="mouse-rot-y" min="0" max="45" value="30" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+              </div>
+          </div>
+      </div>
     </main>
     
     <script type="module">
-      // --- Constants ---
-      const MOUSE_MAX_ROTATION_X = 20;
-      const MOUSE_MAX_ROTATION_Y = 30;
-      const GYRO_MAX_ROTATION_X = 15;
-      const GYRO_MAX_ROTATION_Y = 20;
-      const SMOOTHING_FACTOR = 0.08;
+      // --- Configurable Settings ---
+      let settings = {
+        perspective: 1500,
+        smoothing: 0.08,
+        mouseMaxRotX: 20,
+        mouseMaxRotY: 30,
+        gyroMaxRotX: 15, // Not in UI, but kept for logic
+        gyroMaxRotY: 20, // Not in UI, but kept for logic
+        holoOpacity: 0.9,
+        holoBgSize: 300,
+        holoMoveFactor: 40,
+        glareOpacity: 0.4,
+        glareSize: 50,
+      };
 
       // --- DOM Element Selection ---
       const cardContainer = document.querySelector('.virtual-card-container');
@@ -69,25 +120,29 @@
 
       // --- Style Update Function ---
       const updateCardStyles = () => {
-        const yMax = isGyroActive ? GYRO_MAX_ROTATION_Y : MOUSE_MAX_ROTATION_Y;
-        const xMax = isGyroActive ? GYRO_MAX_ROTATION_X : MOUSE_MAX_ROTATION_X;
+        const yMax = isGyroActive ? settings.gyroMaxRotY : settings.mouseMaxRotY;
+        const xMax = isGyroActive ? settings.gyroMaxRotX : settings.mouseMaxRotX;
 
         const clampedY = Math.min(Math.max(rotation.y, -yMax), yMax);
         const clampedX = Math.min(Math.max(rotation.x, -xMax), xMax);
 
         const glareX = (clampedY / yMax) * 100 + 50;
         const glareY = (-clampedX / xMax) * 100 + 50;
-        const holoX = 50 - (clampedY / yMax) * 40;
-        const holoY = 50 - (-clampedX / xMax) * 40;
+        const holoX = 50 - (clampedY / yMax) * settings.holoMoveFactor;
+        const holoY = 50 - (-clampedX / xMax) * settings.holoMoveFactor;
         
-        cardContainer.style.transform = `perspective(1500px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`;
+        cardContainer.style.transform = `perspective(${settings.perspective}px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`;
+        
+        holoEffect.style.opacity = settings.holoOpacity;
+        holoEffect.style.backgroundSize = `${settings.holoBgSize}% ${settings.holoBgSize}%`;
         holoEffect.style.backgroundPosition = `${holoX}% ${holoY}%`;
-        glareEffect.style.background = `radial-gradient(circle at ${glareX}% ${glareY}%, hsla(0,0%,100%,0.4) 0%, hsla(0,0%,100%,0) 50%)`;
+        
+        glareEffect.style.background = `radial-gradient(circle at ${glareX}% ${glareY}%, hsla(0,0%,100%,${settings.glareOpacity}) 0%, hsla(0,0%,100%,0) ${settings.glareSize}%)`;
       };
 
       const updateLoop = () => {
-        rotation.x += (targetRotation.x - rotation.x) * SMOOTHING_FACTOR;
-        rotation.y += (targetRotation.y - rotation.y) * SMOOTHING_FACTOR;
+        rotation.x += (targetRotation.x - rotation.x) * settings.smoothing;
+        rotation.y += (targetRotation.y - rotation.y) * settings.smoothing;
         updateCardStyles();
         if (isGyroActive) {
             animationFrameId = requestAnimationFrame(updateLoop);
@@ -103,8 +158,8 @@
         const x = clientX - left;
         const y = clientY - top;
         
-        rotation.y = MOUSE_MAX_ROTATION_Y * (x / width - 0.5);
-        rotation.x = -MOUSE_MAX_ROTATION_X * (y / height - 0.5);
+        rotation.y = settings.mouseMaxRotY * (x / width - 0.5);
+        rotation.x = -settings.mouseMaxRotX * (y / height - 0.5);
         updateCardStyles();
       };
 
@@ -126,10 +181,8 @@
         const deltaBeta = beta - initialOrientation.beta;
         const deltaGamma = gamma - initialOrientation.gamma;
         
-        // "Opposed" top-down rotation (tilting phone forward tilts card top backward)
-        targetRotation.x = Math.min(Math.max(deltaBeta, -GYRO_MAX_ROTATION_X), GYRO_MAX_ROTATION_X);
-        // "Opposed" left-right rotation (tilting phone right tilts card left)
-        targetRotation.y = Math.min(Math.max(-deltaGamma, -GYRO_MAX_ROTATION_Y), GYRO_MAX_ROTATION_Y);
+        targetRotation.x = Math.min(Math.max(deltaBeta, -settings.gyroMaxRotX), settings.gyroMaxRotX);
+        targetRotation.y = Math.min(Math.max(-deltaGamma, -settings.gyroMaxRotY), settings.gyroMaxRotY);
       };
       
       const enableGyro = () => {
@@ -146,11 +199,9 @@
       };
 
       const tryEnableGyro = async () => {
-        if (!('DeviceOrientationEvent' in window)) return; // Not supported
+        if (!('DeviceOrientationEvent' in window)) return;
 
         if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-            // iOS 13+ requires user gesture for permission.
-            // A one-time listener prompts the user on first interaction.
             const requestPermission = async () => {
                 try {
                     const permissionState = await DeviceOrientationEvent.requestPermission();
@@ -164,22 +215,48 @@
             document.body.addEventListener('click', requestPermission, { once: true });
             document.body.addEventListener('touchstart', requestPermission, { once: true });
         } else {
-            // Non-iOS 13+ browsers (like Android) can enable directly.
             enableGyro();
+        }
+      };
+      
+      // --- Control Panel Setup ---
+      const initControls = () => {
+        const controls = {
+          perspective: { setting: 'perspective', immediate: true },
+          smoothing: { setting: 'smoothing' },
+          'holo-opacity': { setting: 'holoOpacity', immediate: true },
+          'holo-bg-size': { setting: 'holoBgSize', immediate: true },
+          'holo-move-factor': { setting: 'holoMoveFactor' },
+          'glare-opacity': { setting: 'glareOpacity', immediate: true },
+          'glare-size': { setting: 'glareSize', immediate: true },
+          'mouse-rot-x': { setting: 'mouseMaxRotX' },
+          'mouse-rot-y': { setting: 'mouseMaxRotY' },
+        };
+
+        for (const id in controls) {
+          const input = document.getElementById(id);
+          const valueSpan = document.getElementById(`${id}-value`);
+          const { setting, immediate } = controls[id];
+
+          input.addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            settings[setting] = value;
+            valueSpan.textContent = value;
+            if (immediate) {
+              updateCardStyles();
+            }
+          });
         }
       };
 
       // --- Initialization ---
       const init = () => {
-        // Set up mouse controls as a fallback
         if (cardContainer) {
           cardContainer.addEventListener('mousemove', handleMouseMove);
           cardContainer.addEventListener('mouseleave', handleMouseLeave);
         }
-
-        // Attempt to enable gyroscope controls by default
         tryEnableGyro();
-        
+        initControls();
         updateCardStyles();
       };
 
