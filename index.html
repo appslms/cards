@@ -13,22 +13,13 @@
         transform-style: preserve-3d;
       }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.1.1",
-    "react-dom/": "https://esm.sh/react-dom@^19.1.1/",
-    "react/": "https://esm.sh/react@^19.1.1/"
-  }
-}
-</script>
 <link rel="stylesheet" href="/index.css">
 </head>
   <body class="bg-gray-900">
     <main class="flex flex-col items-center justify-center min-h-screen w-full text-white p-4 overflow-hidden">
       <div class="w-full max-w-md mx-auto text-center mb-8">
           <h1 class="text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400 sm:text-5xl">Holographic Card FX</h1>
-          <p class="mt-4 text-lg text-gray-300">Move your mouse over the card or tilt your phone to see the magic.</p>
+          <p class="mt-4 text-lg text-gray-300">Move your mouse over the tarjeta or tilt your phone to see the magic.</p>
       </div>
       
       <div class="flex flex-col items-center justify-center gap-6">
@@ -39,7 +30,7 @@
           <div class="w-full h-full transform-style-preserve-3d rounded-3xl overflow-hidden shadow-2xl shadow-black/60">
             <!-- Layer 1: Card Artwork -->
             <img 
-              src="/assets/card.png"
+              src="assets/card.png"
               alt="Virtual Card" 
               class="absolute inset-0 w-full h-full object-cover rounded-3xl"
             />
@@ -49,8 +40,8 @@
               style="
                 background-image: conic-gradient(from 180deg at 50% 50%, #2a8af6 0deg, #a33cf3 70deg, #f05285 130deg, #f7d268 200deg, #81f7ab 270deg, #2a8af6 360deg);
                 background-size: 200% 200%;
-                mask-image: url(/assets/mask.png);
-                -webkit-mask-image: url(/assets/mask.png);
+                mask-image: url(assets/mask.png);
+                -webkit-mask-image: url(assets/mask.png);
                 mask-size: cover;
                 -webkit-mask-size: cover;
                 mask-position: center;
@@ -148,6 +139,7 @@
             alert("Failed to get gyroscope permission.");
           }
         } else if ('DeviceOrientationEvent' in window) {
+          // For browsers that don't require explicit permission
           window.addEventListener('deviceorientation', handleDeviceOrientation);
           isGyroActive = true;
           gyroButton.style.display = 'none';
