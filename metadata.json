@@ -1,0 +1,5 @@
+{
+  "name": "Interactive Holographic Card",
+  "description": "A stunning virtual card that reacts to mouse or gyroscope input, featuring dynamic lighting, 3D perspective shifts, and a vibrant holographic foil effect.",
+  "requestFramePermissions": []
+}

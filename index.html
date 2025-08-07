@@ -1,145 +1,24 @@
+
 <!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Mi Tarjeta Virtual Holográfica</title>
-    <style>
-        :root {
-            --pointer-x: 0.5;
-            --pointer-y: 0.5;
-            --pointer-from-center-x: 0;
-            --pointer-from-center-y: 0;
-            --card-opacity: 0.8; /* Ligeramente más transparente para ver la carta debajo */
-            --holo-opacity: 1;
-            --rotate-x: calc(var(--pointer-from-center-y) * -25deg);
-            --rotate-y: calc(var(--pointer-from-center-x) * 25deg);
-            --holo-bg-x: calc(var(--pointer-x) * 100%);
-            --holo-bg-y: calc(var(--pointer-y) * 100%);
-            --shine-deg: calc(var(--pointer-from-center-x) * 40deg + 135deg);
-        }
-
-        body {
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #1a1a1a;
-            perspective: 2000px;
-        }
-
-        .card {
-            width: 320px;
-            height: 480px; /* Ajusta estas dimensiones si tu imagen tiene una proporción diferente */
-            position: relative;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            transform: rotateX(var(--rotate-x)) rotateY(var(--rotate-y));
-            transform-style: preserve-3d;
-            transition: transform 0.1s ease-out;
-            cursor: pointer;
-
-            /* --- CAMBIO 1: Imagen de fondo de la tarjeta --- */
-            background-image: url('card.png');
-            background-size: cover; /* Asegura que la imagen cubra toda la tarjeta */
-            background-position: center;
-        }
-        
-        /* Capa de Brillo (Shine) - Sin cambios */
-        .card.holo::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            z-index: 2;
-            opacity: var(--card-opacity);
-            background: linear-gradient( var(--shine-deg), rgba(255, 255, 255, 0) 20%, rgba(255, 255, 255, 0.4) 50%, rgba(255, 255, 255, 0) 80% );
-        }
-
-        /* Capa Holográfica (Holo) */
-        .card.holo::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            z-index: 3;
-            opacity: var(--holo-opacity);
-            
-            background-image: repeating-linear-gradient(0deg, #ff7773 0%, #ffed5f 15%, #a8ff5f 30%, #83fff7 45%, #7894ff 60%, #d875ff 75%, #ff7773 100%);
-            background-size: 200% 200%;
-            background-position: var(--holo-bg-x) var(--holo-bg-y);
-            mix-blend-mode: color-dodge;
-
-            /* --- CAMBIO 2: Aplicamos la máscara --- */
-            mask-image: url('mask.png');
-            mask-size: cover; /* La máscara se estira para cubrir toda la tarjeta */
-            mask-position: center;
-            /* Opcional: define cómo se repite la máscara si es más pequeña */
-            /* mask-repeat: no-repeat; */ 
-        }
-    </style>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Holographic Card</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.1.1/",
+    "react": "https://esm.sh/react@^19.1.1",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.1/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
 </head>
-<body>
-
-    <!--
-        HTML simplificado. La clase "holo" activa los efectos.
-        No necesitamos el div de contenido porque la imagen está en el CSS.
-    -->
-    <div class="card holo" id="card"></div>
-
-    <script>
-        // El JavaScript no necesita ningún cambio.
-        // Su única función es actualizar las variables CSS, y eso sigue siendo igual.
-        const card = document.getElementById('card');
-        const root = document.documentElement;
-
-        function updateCardVariables(x, y) {
-            const pointerX = x;
-            const pointerY = y;
-            const pointerFromCenterX = pointerX - 0.5;
-            const pointerFromCenterY = pointerY - 0.5;
-
-            root.style.setProperty('--pointer-x', pointerX);
-            root.style.setProperty('--pointer-y', pointerY);
-            root.style.setProperty('--pointer-from-center-x', pointerFromCenterX);
-            root.style.setProperty('--pointer-from-center-y', pointerFromCenterY);
-        }
-
-        card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = (e.clientX - rect.left) / rect.width;
-            const y = (e.clientY - rect.top) / rect.height;
-            updateCardVariables(x, y);
-        });
-        
-        card.addEventListener('mouseleave', () => {
-            updateCardVariables(0.5, 0.5);
-        });
-
-        function handleOrientation(event) {
-            let { beta, gamma } = event;
-            const clampedBeta = Math.max(-45, Math.min(45, beta));
-            const clampedGamma = Math.max(-45, Math.min(45, gamma));
-            
-            const pointerX = (clampedGamma / 90) + 0.5;
-            const pointerY = (clampedBeta / 90) + 0.5;
-
-            updateCardVariables(pointerX, pointerY);
-        }
-
-        function requestDeviceOrientation() {
-            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                DeviceOrientationEvent.requestPermission().then(permissionState => {
-                    if (permissionState === 'granted') {
-                        window.addEventListener('deviceorientation', handleOrientation);
-                    }
-                }).catch(console.error);
-            } else {
-                window.addEventListener('deviceorientation', handleOrientation);
-            }
-        }
-        
-        card.addEventListener('click', requestDeviceOrientation);
-    </script>
-</body>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
 </html>
