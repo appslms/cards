@@ -4,76 +4,125 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tarjeta Holográfica Interactiva</title>
+
+  <!-- Tailwind (para layout rápido). Si quieres prod, compílalo local. -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <link rel="preload" as="image" href="assets/mask.png" crossorigin="anonymous">
-  <link rel="preload" as="image" href="assets/card.png" fetchpriority="high">
+  <!-- Preloads coherentes -->
+  <link rel="preload" as="image" href="assets/card.png" fetchpriority="high" />
+  <link rel="preload" as="image" href="assets/mask.png" crossorigin="anonymous" />
 
   <style>
-    body { touch-action: manipulation; }
+    :root { --card-radius: 1.5rem; } /* equiv. a rounded-3xl */
+
+    body { touch-action: manipulation; background: #fff; }
+
+    /* Contenedor 3D + aislamiento para blends en iOS */
     .virtual-card-container {
-      --rx: 0deg;
-      --ry: 0deg;
-      --holoX: 50%;
-      --holoY: 50%;
-      --glareX: 50%;
-      --glareY: 50%;
+      --rx: 0deg;          /* rotateX */
+      --ry: 0deg;          /* rotateY */
+      --holoX: 50%;        /* posición X del gradiente */
+      --holoY: 50%;        /* posición Y del gradiente */
+      --glareX: 50%;       /* glare X */
+      --glareY: 50%;       /* glare Y */
       --persp: 1500px;
-      will-change: transform;
-    }
-    .virtual-card-container {
       transform: perspective(var(--persp)) rotateX(var(--rx)) rotateY(var(--ry));
+      will-change: transform;
+      isolation: isolate;  /* mejora mix-blend en iOS */
     }
     .transform-style-preserve-3d { transform-style: preserve-3d; }
 
+    /* Capas deben respetar esquinas redondeadas en iPhone */
+    .holo-effect,
+    .glare-effect,
+    .noise {
+      clip-path: inset(0 round var(--card-radius)); /* fuerza recorte redondeado */
+      border-radius: var(--card-radius);
+    }
+
+    /* Efecto holográfico: SOLO gradiente psicodélico + máscara alfa */
     .holo-effect {
-      background-image: conic-gradient(from 180deg at 50% 50%,
-        #00a2ff 0deg, #0066ff 30deg, #6b00ff 60deg, #c800ff 90deg,
-        #ff00c8 120deg, #ff0066 150deg, #ff4d00 180deg, #ffb800 210deg,
-        #ffff00 240deg, #66ff00 270deg, #00ffbf 300deg, #00e6ff 330deg, #00a2ff 360deg
-      );
-      background-size: 200% 200%;
+      background-image:
+        conic-gradient(from 180deg at 50% 50%,
+          #00a2ff 0deg, #0066ff 30deg, #6b00ff 60deg, #c800ff 90deg,
+          #ff00c8 120deg, #ff0066 150deg, #ff4d00 180deg, #ffb800 210deg,
+          #ffff00 240deg, #66ff00 270deg, #00ffbf 300deg, #00e6ff 330deg, #00a2ff 360deg
+        );
+      background-size: 220% 220%;
       background-position: var(--holoX) var(--holoY);
+
+      /* blend por defecto (desktop y browsers no-iOS) */
       mix-blend-mode: color-dodge;
+      filter: saturate(2.0) contrast(1.2) brightness(1.05);
       opacity: 1;
       will-change: background-position, opacity;
 
-      /* Máscara por alfa (funciona en Safari/iOS) */
+      /* Máscara por canal ALFA (fix para iOS/Safari) */
       -webkit-mask-image: url("assets/mask.png");
       mask-image: url("assets/mask.png");
       -webkit-mask-mode: alpha;
       mask-mode: alpha;
-
       -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
       -webkit-mask-size: cover;      mask-size: cover;
       -webkit-mask-position: center; mask-position: center;
     }
 
-    .glare-effect {
-      background: radial-gradient(circle at var(--glareX) var(--glareY),
-        hsla(0,0%,100%,.9) 0%, hsla(0,0%,100%,0) 70%);
+    /* iOS Safari: usar 'screen' en lugar de 'color-dodge' para evitar apagón */
+    @supports (-webkit-touch-callout: none) {
+      .holo-effect {
+        mix-blend-mode: screen;
+        filter: saturate(1.9) contrast(1.2) brightness(1.06);
+      }
     }
 
-    .noise {
-      opacity: .08;
+    /* Glare */
+    .glare-effect {
+      background: radial-gradient(circle at var(--glareX) var(--glareY),
+        hsla(0,0%,100%,0.95) 0%,
+        hsla(0,0%,100%,0) 80%);
       mix-blend-mode: overlay;
-      pointer-events: none;
-      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140"><filter id="n"><feTurbulence baseFrequency="0.7" numOctaves="2" seed="3" /></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.4"/></svg>');
+    }
+
+    /* Ruido sutil */
+    .noise {
+      opacity: .10; mix-blend-mode: overlay; pointer-events: none;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140"><filter id="n"><feTurbulence baseFrequency="0.85" numOctaves="2" seed="5" /></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.45"/></svg>');
       background-size: 200px 200px;
+    }
+
+    /* Sombra general de la card */
+    #card { filter: drop-shadow(0 12px 24px rgba(0,0,0,.25)) drop-shadow(0 2px 6px rgba(0,0,0,.2)); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .virtual-card-container { transition: none !important; }
     }
   </style>
 </head>
-<body class="bg-white">
+<body>
   <main class="flex flex-col items-center justify-center min-h-screen w-full p-4 overflow-hidden">
-    <div id="card" class="virtual-card-container relative rounded-3xl transition-transform duration-100 ease-out"
-         style="width: 420px; height: 520px;" tabindex="0"
-         role="img" aria-label="Tarjeta holográfica interactiva">
-      <div class="w-full h-full transform-style-preserve-3d rounded-3xl overflow-hidden shadow-xl">
-        <img src="assets/card.png" alt="Ilustración de tarjeta"
-             class="absolute inset-0 w-full h-full object-cover rounded-3xl"
-             loading="eager" decoding="async" fetchpriority="high" />
-        <div class="holo-effect absolute inset-0"></div>
-        <div class="glare-effect absolute inset-0 mix-blend-overlay"></div>
+    <div
+      id="card"
+      class="virtual-card-container relative rounded-3xl transition-transform duration-100 ease-out"
+      style="width: 420px; height: 520px; border-radius: var(--card-radius);"
+      tabindex="0"
+      role="img"
+      aria-label="Tarjeta holográfica interactiva"
+    >
+      <div class="w-full h-full transform-style-preserve-3d rounded-3xl overflow-hidden shadow-xl bg-white"
+           style="border-radius: var(--card-radius)">
+        <!-- Capa 1: Arte base -->
+        <img
+          src="assets/card.png"
+          alt="Ilustración de tarjeta"
+          class="absolute inset-0 w-full h-full object-cover rounded-3xl"
+          style="border-radius: var(--card-radius)"
+          loading="eager" decoding="async" fetchpriority="high"
+        />
+        <!-- Capa 2: Holograma (gradiente), recortado por máscara -->
+        <div class="holo-effect absolute inset-0 opacity-100"></div>
+        <!-- Capa 3: Brillo/glare -->
+        <div class="glare-effect absolute inset-0"></div>
+        <!-- Capa 4: Ruido sutil -->
         <div class="noise absolute inset-0"></div>
       </div>
     </div>
@@ -82,136 +131,154 @@
   <script type="module">
     const settings = {
       perspective: 1500,
-      smoothing: 0.3,
+      smoothing: 0.30,
       mouseMaxRotX: 20,
       mouseMaxRotY: 20,
       gyroMaxRotX: 20,
       gyroMaxRotY: 20,
-      holoOpacity: 1,
-      holoBgSize: 200,
-      holoMoveFactor: 50,
-      glareOpacity: 0.9,
-      glareSize: 70
+      holoOpacity: 1.0,
+      holoBgSize: 220,
+      holoMoveFactor: 70,
+      glareOpacity: 0.95,
+      glareSize: 80,
     };
 
+    // DOM
     const cardContainer = document.getElementById('card');
     const holoEffect = cardContainer.querySelector('.holo-effect');
     const glareEffect = cardContainer.querySelector('.glare-effect');
 
-    let rotation = { x: 0, y: 0 },
-        targetRotation = { x: 0, y: 0 },
-        initialOrientation = { beta: null, gamma: null },
-        isGyroActive = false,
-        rafId = null,
-        needsFrame = false,
-        px = 0, py = 0;
+    // Estado
+    let rotation = { x: 0, y: 0 };
+    let targetRotation = { x: 0, y: 0 };
+    let initialOrientation = { beta: null, gamma: null };
+    let isGyroActive = false;
+    let rafId = null;
+    let needsFrame = false;
+    let px = 0, py = 0;
 
-    function applyStaticStyles(){
-      cardContainer.style.setProperty('--persp', settings.perspective+'px');
+    // Estilos base
+    function applyStaticStyles() {
+      cardContainer.style.setProperty('--persp', settings.perspective + 'px');
       holoEffect.style.opacity = settings.holoOpacity;
-      holoEffect.style.backgroundSize = settings.holoBgSize+'% '+settings.holoBgSize+'%';
+      holoEffect.style.backgroundSize = settings.holoBgSize + '% ' + settings.holoBgSize + '%';
       glareEffect.style.background =
         `radial-gradient(circle at var(--glareX) var(--glareY),
-        hsla(0,0%,100%,${settings.glareOpacity}) 0%,
-        hsla(0,0%,100%,0) ${settings.glareSize}%)`;
+          hsla(0,0%,100%,${settings.glareOpacity}) 0%,
+          hsla(0,0%,100%,0) ${settings.glareSize}%)`;
     }
 
-    function render(xMax, yMax){
+    // Render
+    function render(xMax, yMax) {
       const clampedY = Math.max(-yMax, Math.min(rotation.y, yMax));
       const clampedX = Math.max(-xMax, Math.min(rotation.x, xMax));
+
       const glareX = (clampedY / yMax) * 100 + 50;
       const glareY = (-clampedX / xMax) * 100 + 50;
-      const holoX = 50 - (clampedY / yMax) * settings.holoMoveFactor;
-      const holoY = 50 - (-clampedX / xMax) * settings.holoMoveFactor;
+      const holoX  = 50 - (clampedY / yMax) * settings.holoMoveFactor;
+      const holoY  = 50 - (-clampedX / xMax) * settings.holoMoveFactor;
 
-      cardContainer.style.setProperty('--rx', clampedX+'deg');
-      cardContainer.style.setProperty('--ry', clampedY+'deg');
-      cardContainer.style.setProperty('--holoX', holoX+'%');
-      cardContainer.style.setProperty('--holoY', holoY+'%');
-      cardContainer.style.setProperty('--glareX', glareX+'%');
-      cardContainer.style.setProperty('--glareY', glareY+'%');
+      cardContainer.style.setProperty('--rx',     clampedX + 'deg');
+      cardContainer.style.setProperty('--ry',     clampedY + 'deg');
+      cardContainer.style.setProperty('--holoX',  holoX + '%');
+      cardContainer.style.setProperty('--holoY',  holoY + '%');
+      cardContainer.style.setProperty('--glareX', glareX + '%');
+      cardContainer.style.setProperty('--glareY', glareY + '%');
     }
 
-    function tickPointer(){
+    // Puntero (a demanda)
+    function tickPointer() {
       rotation.y += ((settings.mouseMaxRotY * px) - rotation.y) * settings.smoothing;
       rotation.x += ((-settings.mouseMaxRotX * py) - rotation.x) * settings.smoothing;
       render(settings.mouseMaxRotX, settings.mouseMaxRotY);
       needsFrame = false;
     }
 
-    function tickGyro(){
+    function onPointerMove(e) {
+      const rect = cardContainer.getBoundingClientRect();
+      px = (e.clientX - rect.left) / rect.width - 0.5;
+      py = (e.clientY - rect.top) / rect.height - 0.5;
+      if (!isGyroActive && !needsFrame) {
+        needsFrame = true;
+        requestAnimationFrame(tickPointer);
+      }
+    }
+
+    function onPointerLeave() {
+      if (isGyroActive) return;
+      rotation = { x: 0, y: 0 };
+      px = 0; py = 0;
+      requestAnimationFrame(tickPointer);
+    }
+
+    // Giroscopio
+    function handleDeviceOrientation(event) {
+      const { beta, gamma } = event;
+      if (beta == null || gamma == null) return;
+      if (initialOrientation.beta == null) {
+        initialOrientation.beta = beta;
+        initialOrientation.gamma = gamma;
+      }
+      const deltaBeta  = beta  - initialOrientation.beta;
+      const deltaGamma = gamma - initialOrientation.gamma;
+      targetRotation.x = Math.max(-settings.gyroMaxRotX, Math.min(deltaBeta,  settings.gyroMaxRotX));
+      targetRotation.y = Math.max(-settings.gyroMaxRotY, Math.min(-deltaGamma, settings.gyroMaxRotY));
+    }
+
+    function tickGyro() {
       rotation.x += (targetRotation.x - rotation.x) * settings.smoothing;
       rotation.y += (targetRotation.y - rotation.y) * settings.smoothing;
       render(settings.gyroMaxRotX, settings.gyroMaxRotY);
       rafId = requestAnimationFrame(tickGyro);
     }
 
-    function onPointerMove(e){
-      const rect = cardContainer.getBoundingClientRect();
-      px = (e.clientX - rect.left) / rect.width - 0.5;
-      py = (e.clientY - rect.top) / rect.height - 0.5;
-      if(!isGyroActive && !needsFrame){
-        needsFrame = true;
-        requestAnimationFrame(tickPointer);
-      }
-    }
-
-    function onPointerLeave(){
-      if(isGyroActive) return;
-      rotation = { x:0, y:0 }; px = 0; py = 0;
-      requestAnimationFrame(tickPointer);
-    }
-
-    function handleDeviceOrientation(event){
-      const { beta, gamma } = event;
-      if(beta == null || gamma == null) return;
-      if(initialOrientation.beta == null){
-        initialOrientation.beta = beta;
-        initialOrientation.gamma = gamma;
-      }
-      const deltaBeta = beta - initialOrientation.beta;
-      const deltaGamma = gamma - initialOrientation.gamma;
-      targetRotation.x = Math.max(-settings.gyroMaxRotX, Math.min(deltaBeta, settings.gyroMaxRotX));
-      targetRotation.y = Math.max(-settings.gyroMaxRotY, Math.min(-deltaGamma, settings.gyroMaxRotY));
-    }
-
-    function enableGyro(){
-      if(isGyroActive) return;
+    function enableGyro() {
+      if (isGyroActive) return;
       isGyroActive = true;
-      initialOrientation = { beta:null, gamma:null };
-      rotation = { x:0, y:0 };
-      targetRotation = { x:0, y:0 };
+      initialOrientation = { beta: null, gamma: null };
+      rotation = { x: 0, y: 0 };
+      targetRotation = { x: 0, y: 0 };
       window.addEventListener('deviceorientation', handleDeviceOrientation);
-      if(rafId) cancelAnimationFrame(rafId);
+      if (rafId) cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(tickGyro);
     }
 
-    async function requestGyro(){
-      if(!('DeviceOrientationEvent' in window)) return;
-      if(typeof DeviceOrientationEvent.requestPermission === 'function'){
+    async function requestGyro() {
+      if (!('DeviceOrientationEvent' in window)) return;
+      if (typeof DeviceOrientationEvent.requestPermission === 'function') {
         try {
           const p = await DeviceOrientationEvent.requestPermission();
-          if(p === 'granted') enableGyro();
+          if (p === 'granted') enableGyro();
         } catch {}
       } else {
         enableGyro();
       }
     }
 
-    function init(){
-      applyStaticStyles();
-      cardContainer.addEventListener('pointermove', onPointerMove, {passive:true});
-      cardContainer.addEventListener('pointerleave', onPointerLeave, {passive:true});
-      cardContainer.addEventListener('pointerdown', requestGyro, {once:true});
-      cardContainer.addEventListener('touchstart', requestGyro, {once:true, passive:true});
-      cardContainer.addEventListener('click', requestGyro, {once:true});
-    }
+    // Gestión de visibilidad/orientación y limpieza
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && rafId) { cancelAnimationFrame(rafId); rafId = null; }
+      else if (isGyroActive && !rafId) { rafId = requestAnimationFrame(tickGyro); }
+    });
+    window.addEventListener('orientationchange', () => { initialOrientation = { beta: null, gamma: null }; });
+    window.addEventListener('beforeunload', () => {
+      cardContainer.removeEventListener('pointermove', onPointerMove);
+      cardContainer.removeEventListener('pointerleave', onPointerLeave);
+      window.removeEventListener('deviceorientation', handleDeviceOrientation);
+      if (rafId) cancelAnimationFrame(rafId);
+    });
 
-    if(document.readyState === 'loading'){
-      document.addEventListener('DOMContentLoaded', init);
-    } else {
-      init();
+    // Init
+    function init() {
+      applyStaticStyles();
+      cardContainer.addEventListener('pointermove', onPointerMove, { passive: true });
+      cardContainer.addEventListener('pointerleave', onPointerLeave, { passive: true });
+      // Gyro al tocar
+      cardContainer.addEventListener('pointerdown', requestGyro, { once: true });
+      cardContainer.addEventListener('touchstart', requestGyro, { once: true, passive: true });
+      cardContainer.addEventListener('click', requestGyro, { once: true });
     }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
   </script>
 </body>
 </html>
