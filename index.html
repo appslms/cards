@@ -18,21 +18,21 @@
     <main class="flex flex-col items-center justify-center min-h-screen w-full p-4 overflow-hidden">
       <div 
         class="virtual-card-container relative rounded-3xl transition-transform duration-100 ease-out"
-        style="width: 420px; height: 520px; transform: perspective(1500px) rotateX(0deg) rotateY(0deg);"
+        style="width: 420px; height: 520px; transform: perspective(1166px) rotateX(0deg) rotateY(0deg);"
       >
         <div class="w-full h-full transform-style-preserve-3d rounded-3xl overflow-hidden shadow-xl">
           <!-- Layer 1: Card Artwork -->
           <img 
             src="assets/card.png"
             alt="Virtual Card" 
-            class="absolute inset-0 w-full h-full object-cover rounded-3xl"
+            class="absolute inset-[15px] object-cover rounded-lg"
           />
           <!-- Layer 2: Holographic Effect Layer -->
           <div 
-            class="holo-effect absolute inset-0 opacity-90 mix-blend-color-dodge" 
+            class="holo-effect absolute inset-[15px] opacity-65 mix-blend-color-dodge rounded-lg" 
             style="
               background-image: conic-gradient(from 180deg at 50% 50%, #2a8af6 0deg, #a33cf3 70deg, #f05285 130deg, #f7d268 200deg, #81f7ab 270deg, #2a8af6 360deg);
-              background-size: 300% 300%;
+              background-size: 160% 160%;
               mask-image: url(assets/mask.png);
               -webkit-mask-image: url(assets/mask.png);
               mask-size: cover;
@@ -42,68 +42,25 @@
             "
           ></div>
           <!-- Layer 3: Glare Effect -->
-          <div class="glare-effect absolute inset-0 mix-blend-overlay"></div>
+          <div class="glare-effect absolute inset-[15px] mix-blend-overlay rounded-lg"></div>
         </div>
-      </div>
-
-      <!-- Temporary Control Panel -->
-      <div id="control-panel" class="bg-gray-100 p-6 rounded-lg shadow-lg w-full max-w-2xl mt-8">
-          <h3 class="text-xl font-bold mb-4 text-center text-gray-700">Live Adjustment Controls</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm">
-              <div>
-                  <label for="perspective" class="font-medium text-gray-600">Perspective: <span id="perspective-value" class="font-bold text-blue-600">1500</span>px</label>
-                  <input type="range" id="perspective" min="500" max="4000" value="1500" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-              </div>
-              <div>
-                  <label for="smoothing" class="font-medium text-gray-600">Gyro Smoothing: <span id="smoothing-value" class="font-bold text-blue-600">0.08</span></label>
-                  <input type="range" id="smoothing" min="0.01" max="0.3" step="0.01" value="0.08" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-              </div>
-              <div>
-                  <label for="holo-opacity" class="font-medium text-gray-600">Holo Opacity: <span id="holo-opacity-value" class="font-bold text-blue-600">0.9</span></label>
-                  <input type="range" id="holo-opacity" min="0" max="1" step="0.05" value="0.9" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-              </div>
-              <div>
-                  <label for="holo-bg-size" class="font-medium text-gray-600">Holo BG Size: <span id="holo-bg-size-value" class="font-bold text-blue-600">300</span>%</label>
-                  <input type="range" id="holo-bg-size" min="100" max="500" step="10" value="300" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-              </div>
-              <div>
-                  <label for="holo-move-factor" class="font-medium text-gray-600">Holo Move Factor: <span id="holo-move-factor-value" class="font-bold text-blue-600">40</span></label>
-                  <input type="range" id="holo-move-factor" min="0" max="100" value="40" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-              </div>
-              <div>
-                  <label for="glare-opacity" class="font-medium text-gray-600">Glare Opacity: <span id="glare-opacity-value" class="font-bold text-blue-600">0.4</span></label>
-                  <input type="range" id="glare-opacity" min="0" max="1" step="0.05" value="0.4" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-              </div>
-              <div>
-                  <label for="glare-size" class="font-medium text-gray-600">Glare Size: <span id="glare-size-value" class="font-bold text-blue-600">50</span>%</label>
-                  <input type="range" id="glare-size" min="10" max="100" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-              </div>
-              <div>
-                  <label for="mouse-rot-x" class="font-medium text-gray-600">Mouse Max Rot X: <span id="mouse-rot-x-value" class="font-bold text-blue-600">20</span></label>
-                  <input type="range" id="mouse-rot-x" min="0" max="45" value="20" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-              </div>
-              <div>
-                  <label for="mouse-rot-y" class="font-medium text-gray-600">Mouse Max Rot Y: <span id="mouse-rot-y-value" class="font-bold text-blue-600">30</span></label>
-                  <input type="range" id="mouse-rot-y" min="0" max="45" value="30" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-              </div>
-          </div>
       </div>
     </main>
     
     <script type="module">
-      // --- Configurable Settings ---
-      let settings = {
-        perspective: 1500,
-        smoothing: 0.08,
-        mouseMaxRotX: 20,
-        mouseMaxRotY: 30,
-        gyroMaxRotX: 15, // Not in UI, but kept for logic
-        gyroMaxRotY: 20, // Not in UI, but kept for logic
-        holoOpacity: 0.9,
-        holoBgSize: 300,
-        holoMoveFactor: 40,
-        glareOpacity: 0.4,
-        glareSize: 50,
+      // --- Finalized Settings ---
+      const settings = {
+        perspective: 1166,
+        smoothing: 0.20,
+        mouseMaxRotX: 30,
+        mouseMaxRotY: 25,
+        gyroMaxRotX: 30, 
+        gyroMaxRotY: 25,
+        holoOpacity: 0.65,
+        holoBgSize: 160,
+        holoMoveFactor: 50,
+        glareOpacity: 0.75,
+        glareSize: 60,
       };
 
       // --- DOM Element Selection ---
@@ -218,36 +175,6 @@
             enableGyro();
         }
       };
-      
-      // --- Control Panel Setup ---
-      const initControls = () => {
-        const controls = {
-          perspective: { setting: 'perspective', immediate: true },
-          smoothing: { setting: 'smoothing' },
-          'holo-opacity': { setting: 'holoOpacity', immediate: true },
-          'holo-bg-size': { setting: 'holoBgSize', immediate: true },
-          'holo-move-factor': { setting: 'holoMoveFactor' },
-          'glare-opacity': { setting: 'glareOpacity', immediate: true },
-          'glare-size': { setting: 'glareSize', immediate: true },
-          'mouse-rot-x': { setting: 'mouseMaxRotX' },
-          'mouse-rot-y': { setting: 'mouseMaxRotY' },
-        };
-
-        for (const id in controls) {
-          const input = document.getElementById(id);
-          const valueSpan = document.getElementById(`${id}-value`);
-          const { setting, immediate } = controls[id];
-
-          input.addEventListener('input', (e) => {
-            const value = parseFloat(e.target.value);
-            settings[setting] = value;
-            valueSpan.textContent = value;
-            if (immediate) {
-              updateCardStyles();
-            }
-          });
-        }
-      };
 
       // --- Initialization ---
       const init = () => {
@@ -256,7 +183,6 @@
           cardContainer.addEventListener('mouseleave', handleMouseLeave);
         }
         tryEnableGyro();
-        initControls();
         updateCardStyles();
       };
 
