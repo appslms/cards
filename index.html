@@ -14,48 +14,36 @@
       }
     </style>
 </head>
-  <body class="bg-gray-900">
-    <main class="flex flex-col items-center justify-center min-h-screen w-full text-white p-4 overflow-hidden">
-      <div class="w-full max-w-md mx-auto text-center mb-8">
-          <h1 class="text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400 sm:text-5xl">Holographic Card FX</h1>
-          <p class="mt-4 text-lg text-gray-300">Move your mouse over the card or tilt your phone to see the magic.</p>
-      </div>
-      
-      <div class="flex flex-col items-center justify-center gap-6">
-        <div 
-          class="virtual-card-container relative rounded-3xl transition-transform duration-100 ease-out"
-          style="width: 420px; height: 520px; transform: perspective(1500px) rotateX(0deg) rotateY(0deg);"
-        >
-          <div class="w-full h-full transform-style-preserve-3d rounded-3xl overflow-hidden shadow-2xl shadow-black/60">
-            <!-- Layer 1: Card Artwork -->
-            <img 
-              src="assets/card.png"
-              alt="Virtual Card" 
-              class="absolute inset-0 w-full h-full object-cover rounded-3xl"
-            />
-            <!-- Layer 2: Holographic Effect Layer -->
-            <div 
-              class="holo-effect absolute inset-0 opacity-90 mix-blend-color-dodge" 
-              style="
-                background-image: conic-gradient(from 180deg at 50% 50%, #2a8af6 0deg, #a33cf3 70deg, #f05285 130deg, #f7d268 200deg, #81f7ab 270deg, #2a8af6 360deg);
-                background-size: 300% 300%;
-                mask-image: url(assets/mask.png);
-                -webkit-mask-image: url(assets/mask.png);
-                mask-size: cover;
-                -webkit-mask-size: cover;
-                mask-position: center;
-                -webkit-mask-position: center;
-              "
-            ></div>
-            <!-- Layer 3: Glare Effect -->
-            <div class="glare-effect absolute inset-0 mix-blend-overlay"></div>
-          </div>
+  <body class="bg-white">
+    <main class="flex flex-col items-center justify-center min-h-screen w-full p-4 overflow-hidden">
+      <div 
+        class="virtual-card-container relative rounded-3xl transition-transform duration-100 ease-out"
+        style="width: 420px; height: 520px; transform: perspective(1500px) rotateX(0deg) rotateY(0deg);"
+      >
+        <div class="w-full h-full transform-style-preserve-3d rounded-3xl overflow-hidden shadow-xl">
+          <!-- Layer 1: Card Artwork -->
+          <img 
+            src="assets/card.png"
+            alt="Virtual Card" 
+            class="absolute inset-0 w-full h-full object-cover rounded-3xl"
+          />
+          <!-- Layer 2: Holographic Effect Layer -->
+          <div 
+            class="holo-effect absolute inset-0 opacity-90 mix-blend-color-dodge" 
+            style="
+              background-image: conic-gradient(from 180deg at 50% 50%, #2a8af6 0deg, #a33cf3 70deg, #f05285 130deg, #f7d268 200deg, #81f7ab 270deg, #2a8af6 360deg);
+              background-size: 300% 300%;
+              mask-image: url(assets/mask.png);
+              -webkit-mask-image: url(assets/mask.png);
+              mask-size: cover;
+              -webkit-mask-size: cover;
+              mask-position: center;
+              -webkit-mask-position: center;
+            "
+          ></div>
+          <!-- Layer 3: Glare Effect -->
+          <div class="glare-effect absolute inset-0 mix-blend-overlay"></div>
         </div>
-        <button 
-          class="gyro-button mt-4 px-6 py-3 bg-white/10 border border-white/20 rounded-lg text-white font-semibold backdrop-blur-sm hover:bg-white/20 transition-colors duration-200"
-        >
-          Enable Gyroscope Control
-        </button>
       </div>
     </main>
     
@@ -69,7 +57,6 @@
 
       // --- DOM Element Selection ---
       const cardContainer = document.querySelector('.virtual-card-container');
-      const gyroButton = document.querySelector('.gyro-button');
       const holoEffect = cardContainer.querySelector('.holo-effect');
       const glareEffect = cardContainer.querySelector('.glare-effect');
 
@@ -142,28 +129,10 @@
         targetRotation.x = Math.min(Math.max(deltaBeta, -GYRO_MAX_ROTATION_X), GYRO_MAX_ROTATION_X);
         targetRotation.y = Math.min(Math.max(deltaGamma, -GYRO_MAX_ROTATION_Y), GYRO_MAX_ROTATION_Y);
       };
-
-      const requestDeviceOrientationPermission = async () => {
-        if ('DeviceOrientationEvent' in window && typeof DeviceOrientationEvent.requestPermission === 'function') {
-          try {
-            const permissionState = await DeviceOrientationEvent.requestPermission();
-            if (permissionState === 'granted') {
-              enableGyro();
-            }
-          } catch (error) {
-            console.error("Device orientation permission request failed:", error);
-            alert("Failed to get gyroscope permission.");
-          }
-        } else if ('DeviceOrientationEvent' in window) {
-          enableGyro();
-        } else {
-          alert("Gyroscope control is not supported on your device/browser.");
-        }
-      };
-
+      
       const enableGyro = () => {
+          if (isGyroActive) return;
           isGyroActive = true;
-          gyroButton.style.display = 'none';
           initialOrientation = { beta: null, gamma: null };
           rotation = { x: 0, y: 0 };
           targetRotation = { x: 0, y: 0 };
@@ -172,17 +141,43 @@
           
           if (animationFrameId) cancelAnimationFrame(animationFrameId);
           animationFrameId = requestAnimationFrame(updateLoop);
-      }
+      };
+
+      const tryEnableGyro = async () => {
+        if (!('DeviceOrientationEvent' in window)) return; // Not supported
+
+        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+            // iOS 13+ requires user gesture for permission.
+            // A one-time listener prompts the user on first interaction.
+            const requestPermission = async () => {
+                try {
+                    const permissionState = await DeviceOrientationEvent.requestPermission();
+                    if (permissionState === 'granted') {
+                        enableGyro();
+                    }
+                } catch (error) {
+                    console.error("Device orientation permission request failed:", error);
+                }
+            };
+            document.body.addEventListener('click', requestPermission, { once: true });
+            document.body.addEventListener('touchstart', requestPermission, { once: true });
+        } else {
+            // Non-iOS 13+ browsers (like Android) can enable directly.
+            enableGyro();
+        }
+      };
 
       // --- Initialization ---
       const init = () => {
+        // Set up mouse controls as a fallback
         if (cardContainer) {
           cardContainer.addEventListener('mousemove', handleMouseMove);
           cardContainer.addEventListener('mouseleave', handleMouseLeave);
         }
-        if (gyroButton) {
-          gyroButton.addEventListener('click', requestDeviceOrientationPermission);
-        }
+
+        // Attempt to enable gyroscope controls by default
+        tryEnableGyro();
+        
         updateCardStyles();
       };
 
