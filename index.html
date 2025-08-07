@@ -4,264 +4,88 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tarjeta Holográfica Interactiva – estilo Pokémon</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="tailwind.min.css" />
 
-    <link rel="preload" as="image" href="assets/mask.png" />
-    <link rel="preload" as="image" href="assets/card.png" />
+    <link rel="preload" as="image" href="assets/mask@2x.png" crossorigin="anonymous" />
+    <link rel="preload" as="image" href="assets/card.png" crossorigin="anonymous" />
 
     <style>
       body { touch-action: manipulation; }
-
-      /* Variables y transform principal */
       .virtual-card-container {
-        --rx: 0deg;           /* rotateX */
-        --ry: 0deg;           /* rotateY */
-        --holoX: 50%;         /* fondo arcoíris X */
-        --holoY: 50%;         /* fondo arcoíris Y */
-        --glareX: 50%;        /* glare X */
-        --glareY: 50%;        /* glare Y */
-        --foil-angle: 0deg;   /* bandas de difracción (rota con tilt) */
+        --rx: 0deg;
+        --ry: 0deg;
+        --holoX: 50%;
+        --holoY: 50%;
+        --glareX: 50%;
+        --glareY: 50%;
+        --foil-angle: 0deg;
         --persp: 1500px;
-        will-change: transform;
         transform: perspective(var(--persp)) rotateX(var(--rx)) rotateY(var(--ry));
       }
       .transform-style-preserve-3d { transform-style: preserve-3d; }
-
-      /* Efecto holográfico inspirado en pokemon-cards-css */
       .holo-effect {
-        /* Capa 1: arcoíris iridiscente, muy saturado */
         background-image:
           conic-gradient(from 180deg at 50% 50%,
             #00a2ff 0deg, #0066ff 30deg, #6b00ff 60deg, #c800ff 90deg,
             #ff00c8 120deg, #ff0066 150deg, #ff4d00 180deg, #ffb800 210deg,
             #ffff00 240deg, #66ff00 270deg, #00ffbf 300deg, #00e6ff 330deg, #00a2ff 360deg
           ),
-          /* Capa 2: bandas de difracción (rejilla) */
           repeating-linear-gradient(var(--foil-angle),
             rgba(255,255,255,0.18) 0px, rgba(255,255,255,0.18) 1px,
             rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 4px
-          ),
-          /* Capa 3 opcional: textura real de foil si existe (puedes quitarla) */
-          url('assets/foil.jpg');
-
-        background-size: 240% 240%, 200% 200%, cover;
-        background-position: var(--holoX) var(--holoY), var(--holoX) var(--holoY), center;
-        background-blend-mode: color-dodge, color-dodge, soft-light;
-
-        /* Intensidad 120% */
+          );
+        background-size: 240% 240%, 200% 200%;
+        background-position: var(--holoX) var(--holoY), var(--holoX) var(--holoY);
+        background-blend-mode: color-dodge, color-dodge;
         filter: saturate(2.1) contrast(1.25) brightness(1.08);
-        mix-blend-mode: color-dodge;
-        will-change: background-position, opacity;
-
-        /* Limitar a la máscara */
-        -webkit-mask-image: url(assets/mask.png);
-        mask-image: url(assets/mask.png);
+        -webkit-mask-image: url(assets/mask@2x.png);
+        mask-image: url(assets/mask@2x.png);
         -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
         -webkit-mask-size: cover; mask-size: cover;
         -webkit-mask-position: center; mask-position: center;
       }
-
-      /* Brillo de lente */
       .glare-effect {
         background: radial-gradient(circle at var(--glareX) var(--glareY), hsla(0,0%,100%,0.95) 0%, hsla(0,0%,100%,0) 80%);
         mix-blend-mode: overlay;
       }
-
-      /* Ruido sutil para materialidad */
       .noise {
         opacity: .1; mix-blend-mode: overlay; pointer-events: none;
         background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140"><filter id="n"><feTurbulence baseFrequency="0.85" numOctaves="2" seed="5" /></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.45"/></svg>');
         background-size: 200px 200px;
       }
-
       #card { filter: drop-shadow(0 12px 24px rgba(0,0,0,.25)) drop-shadow(0 2px 6px rgba(0,0,0,.2)); }
-
-      @media (prefers-reduced-motion: reduce) {
-        .virtual-card-container { transition: none !important; }
-      }
     </style>
   </head>
   <body class="bg-white">
     <main class="flex flex-col items-center justify-center min-h-screen w-full p-4 overflow-hidden">
-      <div id="card" class="virtual-card-container relative rounded-3xl transition-transform duration-100 ease-out" style="width: 420px; height: 520px;" tabindex="0" role="img" aria-label="Tarjeta holográfica interactiva estilo Pokémon">
+      <div id="card" class="virtual-card-container relative rounded-3xl transition-transform duration-100 ease-out" style="width: 420px; height: 520px;" tabindex="0">
         <div class="w-full h-full transform-style-preserve-3d rounded-3xl overflow-hidden shadow-xl">
-          <!-- Capa 1: Arte base -->
-          <img src="assets/card.png" alt="Ilustración de tarjeta" class="absolute inset-0 w-full h-full object-cover rounded-3xl" loading="eager" />
-          <!-- Capa 2: Holograma (con máscara) -->
+          <img src="assets/card.png" alt="Ilustración de tarjeta" class="absolute inset-0 w-full h-full object-cover rounded-3xl" />
           <div class="holo-effect absolute inset-0 opacity-100"></div>
-          <!-- Capa 3: Brillo/glare -->
           <div class="glare-effect absolute inset-0"></div>
-          <!-- Capa 4: Ruido sutil -->
           <div class="noise absolute inset-0"></div>
         </div>
       </div>
     </main>
 
-    <script type="module">
-      // Ajustes
-      const settings = {
-        perspective: 1500,
-        smoothing: 0.30,
-        mouseMaxRotX: 20,
-        mouseMaxRotY: 20,
-        gyroMaxRotX: 20,
-        gyroMaxRotY: 20,
-        holoOpacity: 1.0,
-        holoBgSize: 240,
-        holoMoveFactor: 70,
-        glareOpacity: 0.95,
-        glareSize: 80,
-      };
-
-      // DOM
-      const cardContainer = document.getElementById('card');
-      const holoEffect = cardContainer.querySelector('.holo-effect');
-      const glareEffect = cardContainer.querySelector('.glare-effect');
-
-      // Estado
-      let rotation = { x: 0, y: 0 };
-      let targetRotation = { x: 0, y: 0 };
-      let initialOrientation = { beta: null, gamma: null };
-      let isGyroActive = false;
-      let rafId = null;
-      let needsFrame = false;
-      let px = 0, py = 0; // puntero normalizado
-
-      // Estilos base
-      function applyStaticStyles() {
-        cardContainer.style.setProperty('--persp', settings.perspective + 'px');
-        holoEffect.style.opacity = settings.holoOpacity;
-        holoEffect.style.backgroundSize = settings.holoBgSize + '% ' + settings.holoBgSize + '%';
-        glareEffect.style.background = `radial-gradient(circle at var(--glareX) var(--glareY), hsla(0,0%,100%,${settings.glareOpacity}) 0%, hsla(0,0%,100%,0) ${settings.glareSize}%)`;
-      }
-
-      // Render (solo por tilt, sin animaciones temporales)
-      function render(xMax, yMax) {
-        const clampedY = Math.max(-yMax, Math.min(rotation.y, yMax));
-        const clampedX = Math.max(-xMax, Math.min(rotation.x, xMax));
-
-        const glareX = (clampedY / yMax) * 100 + 50;
-        const glareY = (-clampedX / xMax) * 100 + 50;
-        const holoX = 50 - (clampedY / yMax) * settings.holoMoveFactor;
-        const holoY = 50 - (-clampedX / xMax) * settings.holoMoveFactor;
-        const foilAngle = (clampedY * 2 - clampedX * 2); // rota rejilla
-
-        cardContainer.style.setProperty('--rx', clampedX + 'deg');
-        cardContainer.style.setProperty('--ry', clampedY + 'deg');
-        cardContainer.style.setProperty('--holoX', holoX + '%');
-        cardContainer.style.setProperty('--holoY', holoY + '%');
-        cardContainer.style.setProperty('--glareX', glareX + '%');
-        cardContainer.style.setProperty('--glareY', glareY + '%');
-        cardContainer.style.setProperty('--foil-angle', foilAngle + 'deg');
-      }
-
-      // Bucle por puntero (a demanda)
-      function tickPointer() {
-        rotation.y += ((settings.mouseMaxRotY * px) - rotation.y) * settings.smoothing;
-        rotation.x += ((-settings.mouseMaxRotX * py) - rotation.x) * settings.smoothing;
-        render(settings.mouseMaxRotX, settings.mouseMaxRotY);
-        needsFrame = false;
-      }
-
-      // Bucle continuo para giroscopio
-      function tickGyro() {
-        rotation.x += (targetRotation.x - rotation.x) * settings.smoothing;
-        rotation.y += (targetRotation.y - rotation.y) * settings.smoothing;
-        render(settings.gyroMaxRotX, settings.gyroMaxRotY);
-        rafId = requestAnimationFrame(tickGyro);
-      }
-
-      // Eventos puntero
-      function onPointerMove(e) {
-        const rect = cardContainer.getBoundingClientRect();
-        px = (e.clientX - rect.left) / rect.width - 0.5;
-        py = (e.clientY - rect.top) / rect.height - 0.5;
-        if (!isGyroActive && !needsFrame) {
-          needsFrame = true;
-          requestAnimationFrame(tickPointer);
-        }
-      }
-      function onPointerLeave() {
-        if (isGyroActive) return;
-        rotation = { x: 0, y: 0 };
-        px = 0; py = 0;
-        requestAnimationFrame(tickPointer);
-      }
-
-      // Accesibilidad por teclado
-      function onKeyDown(e) {
-        const step = 1.5;
-        if (e.key === 'ArrowLeft') rotation.y -= step;
-        if (e.key === 'ArrowRight') rotation.y += step;
-        if (e.key === 'ArrowUp') rotation.x -= step;
-        if (e.key === 'ArrowDown') rotation.x += step;
-        if (!isGyroActive) requestAnimationFrame(tickPointer);
-      }
-
-      // Giroscopio con tap en la carta
-      function handleDeviceOrientation(event) {
-        const { beta, gamma } = event;
-        if (beta == null || gamma == null) return;
-        if (initialOrientation.beta == null) {
-          initialOrientation.beta = beta;
-          initialOrientation.gamma = gamma;
-        }
-        const deltaBeta = beta - initialOrientation.beta;
-        const deltaGamma = gamma - initialOrientation.gamma;
-        targetRotation.x = Math.max(-settings.gyroMaxRotX, Math.min(deltaBeta, settings.gyroMaxRotX));
-        targetRotation.y = Math.max(-settings.gyroMaxRotY, Math.min(-deltaGamma, settings.gyroMaxRotY));
-      }
-      function enableGyro() {
-        if (isGyroActive) return;
-        isGyroActive = true;
-        initialOrientation = { beta: null, gamma: null };
-        rotation = { x: 0, y: 0 };
-        targetRotation = { x: 0, y: 0 };
-        window.addEventListener('deviceorientation', handleDeviceOrientation);
-        if (rafId) cancelAnimationFrame(rafId);
-        rafId = requestAnimationFrame(tickGyro);
-      }
-      async function requestGyro() {
-        if (!('DeviceOrientationEvent' in window)) return;
-        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-          try {
-            const p = await DeviceOrientationEvent.requestPermission();
-            if (p === 'granted') enableGyro();
-          } catch {}
-        } else {
-          enableGyro();
-        }
-      }
-
-      // Gestión de visibilidad/orientación
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden && rafId) {
-          cancelAnimationFrame(rafId); rafId = null;
-        } else if (isGyroActive && !rafId) {
-          rafId = requestAnimationFrame(tickGyro);
-        }
-      });
-      window.addEventListener('orientationchange', () => { initialOrientation = { beta: null, gamma: null }; });
-      window.addEventListener('beforeunload', () => {
-        cardContainer.removeEventListener('pointermove', onPointerMove);
-        cardContainer.removeEventListener('pointerleave', onPointerLeave);
-        cardContainer.removeEventListener('keydown', onKeyDown);
-        window.removeEventListener('deviceorientation', handleDeviceOrientation);
-        if (rafId) cancelAnimationFrame(rafId);
-      });
-
-      // Init
-      function init() {
-        applyStaticStyles();
-        cardContainer.addEventListener('pointermove', onPointerMove, { passive: true });
-        cardContainer.addEventListener('pointerleave', onPointerLeave, { passive: true });
-        cardContainer.addEventListener('keydown', onKeyDown);
-        // Activar giroscopio con tap directo en la carta
-        cardContainer.addEventListener('pointerdown', requestGyro, { once: true });
-        cardContainer.addEventListener('touchstart', requestGyro, { once: true, passive: true });
-        cardContainer.addEventListener('click', requestGyro, { once: true });
-      }
-      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+    <script>
+      const settings={perspective:1500,smoothing:.3,mouseMaxRotX:20,mouseMaxRotY:20,gyroMaxRotX:20,gyroMaxRotY:20,holoOpacity:1,holoBgSize:240,holoMoveFactor:70,glareOpacity:.95,glareSize:80};
+      const cardContainer=document.getElementById('card');
+      let rotation={x:0,y:0},targetRotation={x:0,y:0},initialOrientation={beta:null,gamma:null},isGyroActive=false,rafId=null,needsFrame=false,px=0,py=0;
+      function applyStaticStyles(){cardContainer.style.setProperty('--persp',settings.perspective+'px');}
+      function render(xMax,yMax){const clampedY=Math.max(-yMax,Math.min(rotation.y,yMax));const clampedX=Math.max(-xMax,Math.min(rotation.x,xMax));const glareX=(clampedY/yMax)*100+50;const glareY=(-clampedX/xMax)*100+50;const holoX=50-(clampedY/yMax)*settings.holoMoveFactor;const holoY=50-(-clampedX/xMax)*settings.holoMoveFactor;const foilAngle=(clampedY*2-clampedX*2);cardContainer.style.setProperty('--rx',clampedX+'deg');cardContainer.style.setProperty('--ry',clampedY+'deg');cardContainer.style.setProperty('--holoX',holoX+'%');cardContainer.style.setProperty('--holoY',holoY+'%');cardContainer.style.setProperty('--glareX',glareX+'%');cardContainer.style.setProperty('--glareY',glareY+'%');cardContainer.style.setProperty('--foil-angle',foilAngle+'deg');}
+      function tickPointer(){rotation.y+=((settings.mouseMaxRotY*px)-rotation.y)*settings.smoothing;rotation.x+=((-settings.mouseMaxRotX*py)-rotation.x)*settings.smoothing;render(settings.mouseMaxRotX,settings.mouseMaxRotY);needsFrame=false;}
+      function tickGyro(){rotation.x+=(targetRotation.x-rotation.x)*settings.smoothing;rotation.y+=(targetRotation.y-rotation.y)*settings.smoothing;render(settings.gyroMaxRotX,settings.gyroMaxRotY);rafId=requestAnimationFrame(tickGyro);}
+      function onPointerMove(e){const rect=cardContainer.getBoundingClientRect();px=(e.clientX-rect.left)/rect.width-.5;py=(e.clientY-rect.top)/rect.height-.5;if(!isGyroActive&&!needsFrame){needsFrame=true;requestAnimationFrame(tickPointer);}}
+      function onPointerLeave(){if(isGyroActive)return;rotation={x:0,y:0};px=0;py=0;requestAnimationFrame(tickPointer);}
+      function onKeyDown(e){const step=1.5;if(e.key==='ArrowLeft')rotation.y-=step;if(e.key==='ArrowRight')rotation.y+=step;if(e.key==='ArrowUp')rotation.x-=step;if(e.key==='ArrowDown')rotation.x+=step;if(!isGyroActive)requestAnimationFrame(tickPointer);}
+      function handleDeviceOrientation(e){const{beta,gamma}=e;if(beta==null||gamma==null)return;if(initialOrientation.beta==null){initialOrientation.beta=beta;initialOrientation.gamma=gamma;}const dB=beta-initialOrientation.beta;const dG=gamma-initialOrientation.gamma;targetRotation.x=Math.max(-settings.gyroMaxRotX,Math.min(dB,settings.gyroMaxRotX));targetRotation.y=Math.max(-settings.gyroMaxRotY,Math.min(-dG,settings.gyroMaxRotY));}
+      function enableGyro(){if(isGyroActive)return;isGyroActive=true;initialOrientation={beta:null,gamma:null};rotation={x:0,y:0};targetRotation={x:0,y:0};window.addEventListener('deviceorientation',handleDeviceOrientation);if(rafId)cancelAnimationFrame(rafId);rafId=requestAnimationFrame(tickGyro);}
+      async function requestGyro(){if(!('DeviceOrientationEvent'in window))return;if(typeof DeviceOrientationEvent.requestPermission==='function'){try{const p=await DeviceOrientationEvent.requestPermission();if(p==='granted')enableGyro();}catch{}}else{enableGyro();}}
+      document.addEventListener('visibilitychange',()=>{if(document.hidden&&rafId){cancelAnimationFrame(rafId);rafId=null;}else if(isGyroActive&&!rafId){rafId=requestAnimationFrame(tickGyro);}});
+      window.addEventListener('orientationchange',()=>{initialOrientation={beta:null,gamma:null};});
+      function init(){applyStaticStyles();cardContainer.addEventListener('pointermove',onPointerMove,{passive:true});cardContainer.addEventListener('pointerleave',onPointerLeave,{passive:true});cardContainer.addEventListener('keydown',onKeyDown);cardContainer.addEventListener('pointerdown',requestGyro,{once:true});cardContainer.addEventListener('touchstart',requestGyro,{once:true,passive:true});}
+      if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
     </script>
   </body>
 </html>
