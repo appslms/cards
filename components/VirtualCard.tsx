@@ -2,8 +2,8 @@ import React from 'react';
 import { useCardRotation } from '../hooks/useCardRotation';
 import { MAX_ROTATION_X, MAX_ROTATION_Y } from '../constants';
 
-const cardWidth = 350;
-const cardHeight = 600;
+const cardWidth = 420;
+const cardHeight = 520;
 
 export const VirtualCard = () => {
   const { rotation, handleMouseMove, handleMouseLeave, requestDeviceOrientationPermission, isGyroActive } = useCardRotation();
