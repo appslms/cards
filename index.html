@@ -6,6 +6,10 @@
   <meta name="theme-color" content="#07090f" />
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <link rel="dns-prefetch" href="https://www.gstatic.com">
+  <link rel="preload" as="image" href="assets/card1.png"/>
+  <link rel="preload" as="image" href="assets/card2.png"/>
+  <link rel="preload" as="image" href="assets/card3.png"/>
+  <link rel="preload" as="image" href="assets/card4.png"/>
   <title>GAME OVER · Rewards CRM</title>
   <style>
     :root {
@@ -41,10 +45,23 @@
     .gameover {
       font-weight: 900; font-size: 42px; letter-spacing: 1px; text-transform: uppercase; color: var(--neon-yellow);
       text-shadow: 0 2px 0 #000, 0 0 8px rgba(246,242,0,.6), 0 0 22px rgba(246,242,0,.35);
+      position: relative;
     }
+    /* Efecto glitch por capas RGB en el título */
+    .gameover::before,
+    .gameover::after { content: attr(data-text); position: absolute; inset: 0; pointer-events:none; mix-blend-mode: screen; opacity: 0; }
+    .gameover::before { color: #00e5ff; transform: translate(0,0); }
+    .gameover::after  { color: #ff2bbf; transform: translate(0,0); }
+    .gameover.glitching::before { animation: rgb-shift 480ms steps(2,end); }
+    .gameover.glitching::after  { animation: rgb-shift 480ms steps(2,end) reverse; }
+
+    @keyframes rgb-shift { 0%,100%{opacity:0; transform: translate(0,0);} 10%{opacity:.9; transform: translate(-1px,1px);} 20%{transform: translate(2px,-1px);} 30%{transform: translate(-1px,2px);} 40%{transform: translate(1px,-2px);} 50%{opacity:0;} }
 
     .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
-    .card { background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015)); border: 1px solid var(--border); border-radius: 18px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+    .card { background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015)); border: 1px solid var(--border); border-radius: 18px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.35); position:relative; overflow:hidden; }
+    .card.loginCard::after { /* scanlines sutiles */ content:""; position:absolute; inset:0; pointer-events:none; background: repeating-linear-gradient(0deg, rgba(255,255,255,.03), rgba(255,255,255,.03) 1px, transparent 1px, transparent 3px); opacity:.18; mix-blend-mode:soft-light; animation: scan 6s linear infinite; }
+    @keyframes scan { 0%{transform: translateY(-10%);} 100%{transform: translateY(10%);} }
+
     .card h2 { margin: 0 0 8px; font-size: 18px; text-transform: uppercase; letter-spacing: .5px; color: var(--text); }
     .muted { color: var(--muted); font-size: 14px; }
 
@@ -57,6 +74,19 @@
     .bracket input { width: 100%; border: 0; outline: 0; background: transparent; color: var(--text); font-size: 16px; }
     .bracket .submit { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border: 1px solid var(--border); background: rgba(255,255,255,.06); border-radius: 10px; padding: 6px 10px; cursor: pointer; color: var(--text); }
     .bracket .submit:hover { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); }
+    .bracket.shake { animation: shakeX 420ms cubic-bezier(.36,.07,.19,.97) both; }
+
+    @keyframes shakeX { 10%,90%{ transform: translateX(-1px);} 20%,80%{ transform: translateX(2px);} 30%,50%,70%{ transform: translateX(-4px);} 40%,60%{ transform: translateX(4px);} }
+
+    /* Botones */
+    .btn { display: inline-flex; gap: 8px; align-items: center; padding: 10px 14px; color: var(--text); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; text-decoration: none; transition: transform .05s ease, filter .2s ease, box-shadow .2s ease; background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06)); }
+    .btn:hover { filter: brightness(1.08); box-shadow: var(--glow); }
+    .btn:active { transform: translateY(1px); }
+    .btn.brand { background: linear-gradient(180deg, rgba(0,229,255,.22), rgba(0,229,255,.10)); border-color: rgba(0,229,255,.6); }
+    .btn.accent { background: linear-gradient(180deg, rgba(255,43,191,.22), rgba(255,43,191,.10)); border-color: rgba(255,43,191,.6); }
+    .btn.danger { background: linear-gradient(180deg, rgba(255,79,79,.2), rgba(255,79,79,.1)); border-color: rgba(255,79,79,.55); }
+
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
     /* Chips de admin (solo texto) */
     .chips { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -66,13 +96,14 @@
 
     /* Galería para miembros */
     .gallery { display:grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap:12px; }
-    .gallery .cardart { border-radius: 16px; overflow:hidden; border:1px solid var(--border); box-shadow: 0 8px 20px rgba(0,0,0,.35); background:#0d1222; }
+    .gallery .cardart { border-radius: 16px; overflow:hidden; border:1px solid var(--border); box-shadow: 0 8px 20px rgba(0,0,0,.35); background:#0d1222; opacity:0; transform: translateY(6px) scale(.995); animation: card-in .5s ease forwards; }
     .gallery .cardart img { width:100%; display:block; aspect-ratio: 2/3; object-fit: cover; filter: contrast(1.05); }
     .gallery .label { padding:6px 8px; font-size:12px; color:#0b0b0b; background: linear-gradient(90deg, var(--neon-yellow), var(--neon-cyan)); font-weight: 700; }
+    @keyframes card-in { to { opacity:1; transform: none; } }
 
     .list { display: grid; gap: 8px; margin-top: 8px; max-height: 340px; overflow: auto; }
     .item { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.03); }
-    .item small { color: var(--muted); }
+    .item small { color: var(--muted); cursor: copy; }
 
     .sep { height: 1px; background: linear-gradient(90deg, rgba(255,255,255,.0), rgba(255,255,255,.22), rgba(255,255,255,.0)); margin: 12px 0; }
 
@@ -81,21 +112,38 @@
     /* Toasts */
     .toast { position: fixed; right: 16px; top: 16px; display: grid; gap: 8px; z-index: 50; }
     .toast-item { background: #0b1120; border: 1px solid rgba(255,255,255,.14); padding: 10px 12px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,.35); }
+
+    /* Respeto accesibilidad */
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; }
+    }
   </style>
 </head>
 <body>
   <div class="bg-tech"></div>
+
+  <!-- Filtros SVG para glitch/desplazamiento -->
+  <svg aria-hidden="true" focusable="false" width="0" height="0" style="position:absolute; overflow:hidden">
+    <filter id="g-noise">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="2" result="noise"/>
+    </filter>
+    <filter id="g-glitch">
+      <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="1" seed="3" result="t"/>
+      <feDisplacementMap in="SourceGraphic" in2="t" scale="18" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </svg>
+
   <div class="wrap">
     <div class="hero">
-      <div class="gameover">Game Over · Rewards</div>
+      <div class="gameover" id="title" data-text="Game Over · Rewards">Game Over · Rewards</div>
     </div>
 
     <!-- Login unificado (inteligente) -->
     <div class="grid" id="authGrid">
-      <div class="card">
+      <div class="card loginCard">
         <div class="loginRow">
           <span class="loginLabel">LOGIN</span>
-          <div class="bracket">
+          <div class="bracket" id="loginBracket">
             <input id="loginKey" type="text" placeholder="Ingresa tu teléfono" autocomplete="off" inputmode="numeric" aria-label="Teléfono" aria-describedby="loginMsg" />
             <button id="loginBtn" class="submit" aria-label="Entrar">→</button>
           </div>
@@ -164,7 +212,7 @@
     </div>
   </div>
 
-  <div class="toast" id="toast"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
@@ -212,6 +260,8 @@
       const host = document.getElementById('toast');
       const item = el('div', { class: 'toast-item' }, [msg]);
       host.appendChild(item);
+      // pequeño glitch al aparecer
+      glitchPulse(item, 320);
       setTimeout(()=>{ item.style.opacity = '0'; item.style.transform = 'translateY(-4px)'; item.style.transition = 'opacity .4s ease, transform .4s ease'; }, 2000);
       setTimeout(()=> item.remove(), 2600);
     }
@@ -286,8 +336,9 @@
       const list = document.getElementById('usersList'); list.innerHTML = '';
       const q = (document.getElementById('search').value || '').toLowerCase().trim();
       cacheUsers.filter(u => !q || (u.name || '').toLowerCase().includes(q) || (u.phone || '').includes(q.replace(/\D+/g,''))).forEach(u => {
+        const phoneTxt = (u.phone ? ('📱 ' + u.phone) : u.id);
         const row = el('div', { class: 'item' }, [
-          el('div', {}, [ el('div', { text: u.name || u.id }), el('small', {}, [ (u.phone ? ('📱 ' + u.phone) : u.id) + ' • ' + (u.rewards?.length || 0) + ' tarjetas' ]) ]),
+          el('div', {}, [ el('div', { text: u.name || u.id }), el('small', { class: 'copyable', 'data-phone': (u.phone||'') }, [ phoneTxt + ' • ' + (u.rewards?.length || 0) + ' tarjetas' ]) ]),
           el('div', {}, [ el('button', { class: 'btn', type: 'button' }, ['Editar']) ])
         ]);
         row.querySelector('button').addEventListener('click', () => selectUser(u.id, u.name || u.id));
@@ -340,28 +391,52 @@
     async function doLogin(){
       const key = document.getElementById('loginKey').value.trim();
       const msg = document.getElementById('loginMsg');
-      if (!key) { msg.textContent = 'Ingresa tu teléfono.'; return; }
+      const bracket = document.getElementById('loginBracket');
+      if (!key) { msg.textContent = 'Ingresa tu teléfono.'; pulseTitle(); bracket.classList.add('shake'); setTimeout(()=>bracket.classList.remove('shake'), 450); return; }
       // Admin: palabra secreta (no visible en UI)
       if (key.toLowerCase() === atob(ADMIN_KEY_B64).toLowerCase()) {
-        localStorage.setItem('admin','1'); showAdminView(); return;
+        localStorage.setItem('admin','1');
+        pulseTitle();
+        showAdminView();
+        return;
       }
       const id = phoneKey(key);
-      if (!id) { msg.textContent = 'Teléfono inválido.'; return; }
+      if (!id) { msg.textContent = 'Teléfono inválido.'; pulseTitle(); bracket.classList.add('shake'); setTimeout(()=>bracket.classList.remove('shake'), 450); return; }
       try {
         const ref = db.collection('users').doc(id); const snap = await ref.get();
-        if (!snap.exists) { msg.textContent = 'No existe este usuario.'; return; }
-        localStorage.setItem('member', id); showMemberView(); startMemberListener(id);
+        if (!snap.exists) { msg.textContent = 'No existe este usuario.'; pulseTitle(); return; }
+        localStorage.setItem('member', id);
+        showMemberView(); startMemberListener(id);
       } catch(e){ msg.textContent = 'Error de conexión.'; console.error(e); }
     }
 
     document.getElementById('loginKey').addEventListener('keydown', (e)=>{ if (e.key === 'Enter') doLogin(); });
     document.getElementById('loginBtn').addEventListener('click', doLogin);
 
-    // Controles de sesión
-    document.getElementById('memberLogoutBtn').addEventListener('click', () => { localStorage.removeItem('member'); if (unsubMember) { unsubMember(); unsubMember = null; } showAuth(); });
-    document.getElementById('adminLogoutBtn').addEventListener('click', () => { localStorage.removeItem('admin'); if (unsubUsers) { unsubUsers(); unsubUsers = null; } if (unsubEdit) { unsubEdit(); unsubEdit = null; } showAuth(); });
+    // Copiar teléfono rápido desde la lista
+    document.getElementById('usersList').addEventListener('click', (e)=>{
+      const tgt = e.target.closest('.copyable');
+      if (tgt && tgt.dataset.phone) {
+        navigator.clipboard?.writeText(tgt.dataset.phone).then(()=> toast('Teléfono copiado'));
+      }
+    });
 
-    function showAuth(){ document.getElementById('adminGrid').classList.add('hidden'); document.getElementById('memberGrid').classList.add('hidden'); document.getElementById('authGrid').classList.remove('hidden'); document.getElementById('loginKey').focus(); }
+    // Micro-efectos: glitch del título en momentos clave
+    function pulseTitle() {
+      const t = document.getElementById('title');
+      t.classList.add('glitching');
+      setTimeout(()=> t.classList.remove('glitching'), 520);
+    }
+    function glitchPulse(el, ms=360){
+      el.style.filter = 'url(#g-glitch)';
+      setTimeout(()=>{ el.style.filter = 'none'; }, ms);
+    }
+
+    // Controles de sesión
+    document.getElementById('memberLogoutBtn')?.addEventListener('click', () => { localStorage.removeItem('member'); if (unsubMember) { unsubMember(); unsubMember = null; } showAuth(); });
+    document.getElementById('adminLogoutBtn')?.addEventListener('click', () => { localStorage.removeItem('admin'); if (unsubUsers) { unsubUsers(); unsubUsers = null; } if (unsubEdit) { unsubEdit(); unsubEdit = null; } showAuth(); });
+
+    function showAuth(){ document.getElementById('adminGrid').classList.add('hidden'); document.getElementById('memberGrid').classList.add('hidden'); document.getElementById('authGrid').classList.remove('hidden'); document.getElementById('loginKey').focus(); pulseTitle(); }
     function showMemberView(){ document.getElementById('authGrid').classList.add('hidden'); document.getElementById('memberGrid').classList.remove('hidden'); }
     function showAdminView(){ document.getElementById('authGrid').classList.add('hidden'); document.getElementById('adminGrid').classList.remove('hidden'); setupCreateUser(); startUsersListener(); document.getElementById('search').focus(); }
 
@@ -385,7 +460,7 @@
     document.getElementById('search').addEventListener('input', debounce(renderUsersList, 180));
 
     window.addEventListener('DOMContentLoaded', async () => {
-      // Autochequeo solo a consola en producción
+      // Chequeo silencioso
       try {
         const results = [];
         results.push(['Firebase', typeof firebase !== 'undefined']);
