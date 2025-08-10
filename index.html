@@ -40,9 +40,9 @@
       filter: saturate(.9) brightness(.9);
     }
 
-    .wrap { max-width: 1280px; margin: 0 auto; padding: 24px; }
+    .wrap { max-width: 1300px; margin: 0 auto; padding: 24px clamp(20px, 4vw, 40px); }
 
-    .hero { display: grid; gap: 6px; margin-bottom: 8px; }
+    .hero { display: grid; gap: 6px; margin-bottom: clamp(8px, 2vh, 20px); }
     .gameover {
       font-weight: 900; font-size: clamp(36px, 5vw, 56px); letter-spacing: 1px; text-transform: uppercase; color: var(--neon-yellow);
       text-shadow: 0 2px 0 #000, 0 0 8px rgba(246,242,0,.6), 0 0 22px rgba(246,242,0,.35);
@@ -59,8 +59,8 @@
     @keyframes rgb-shift { 0%,100%{opacity:0; transform: translate(0,0);} 10%{opacity:.9; transform: translate(-1px,1px);} 20%{transform: translate(2px,-1px);} 30%{transform: translate(-1px,2px);} 40%{transform: translate(1px,-2px);} 50%{opacity:0;} }
 
     /* -------- Landing / Login desde cero -------- */
-    .landing { min-height: calc(100vh - 48px); display: grid; grid-template-columns: 1.05fr .95fr; align-items: center; gap: clamp(16px, 4vw, 40px); }
-    .login-stack { display: grid; gap: 18px; }
+    .landing { min-height: calc(100vh - 120px); display: grid; grid-template-columns: minmax(420px, 560px) minmax(520px, 760px); justify-content: center; align-content: center; align-items: center; gap: clamp(20px, 5vw, 56px); }
+    .login-stack { display: grid; gap: 18px; justify-self: center; width: 100%; max-width: 560px; }
 
     .loginBox { position: relative; border-radius: 20px; padding: clamp(18px, 3vw, 28px); background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); border: 1px solid var(--border); box-shadow: 0 20px 48px rgba(0,0,0,.45), var(--glow); overflow:hidden; }
     .loginBox::after { content:""; position:absolute; inset:-40%; background: radial-gradient(600px 220px at 10% 0%, rgba(0,229,255,.14), transparent 50%); pointer-events:none; }
@@ -77,8 +77,8 @@
     .loginMeta { display:flex; gap:12px; align-items:center; color: var(--muted); font-size: 13px; min-height: 18px; }
 
     /* Panel arte complementario */
-    .art { position: relative; height: min(72vh, 680px); border-radius: 22px; overflow: hidden; border: 1px solid var(--border); background:
-      linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)); }
+    .art { position: relative; height: clamp(420px, 58vh, 640px); border-radius: 22px; overflow: hidden; border: 1px solid var(--border); background:
+      linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)); justify-self: center; width: 100%; max-width: 760px; }
     .art::before { content:""; position:absolute; inset:0; background:
       radial-gradient(80% 40% at 20% 10%, rgba(0,229,255,.14), transparent 60%),
       radial-gradient(60% 40% at 70% 80%, rgba(255,43,191,.16), transparent 60%),
