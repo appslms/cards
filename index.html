@@ -10,6 +10,7 @@
   <link rel="preload" as="image" href="assets/card2.png"/>
   <link rel="preload" as="image" href="assets/card3.png"/>
   <link rel="preload" as="image" href="assets/card4.png"/>
+  <link rel="preload" as="image" href="assets/background.png"/>
   <title>GAME OVER · Rewards CRM</title>
   <style>
     :root {
@@ -27,23 +28,26 @@
     * { box-sizing: border-box; font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; }
     body { margin: 0; color: var(--text); background: var(--ink); }
 
-    /* Fondo: grid oscuro con líneas neón sutiles */
+    /* Fondo con imagen oscurecida + grid neón sutil */
     .bg-tech { position: fixed; inset: 0; z-index: -1; overflow: hidden; background:
-      radial-gradient(800px 400px at 80% 0%, rgba(0,229,255,.14), transparent 60%),
-      radial-gradient(600px 300px at 15% 100%, rgba(255,43,191,.14), transparent 60%),
-      repeating-linear-gradient(90deg, rgba(0,229,255,.08), rgba(0,229,255,.08) 1px, transparent 1px, transparent 80px),
-      repeating-linear-gradient(0deg, rgba(255,43,191,.06), rgba(255,43,191,.06) 1px, transparent 1px, transparent 80px),
+      linear-gradient(rgba(7,9,15,.78), rgba(7,9,15,.82)),
+      url('assets/background.png') center / cover no-repeat fixed,
+      radial-gradient(800px 400px at 80% 0%, rgba(0,229,255,.10), transparent 60%),
+      radial-gradient(600px 300px at 15% 100%, rgba(255,43,191,.10), transparent 60%),
+      repeating-linear-gradient(90deg, rgba(0,229,255,.06), rgba(0,229,255,.06) 1px, transparent 1px, transparent 80px),
+      repeating-linear-gradient(0deg, rgba(255,43,191,.05), rgba(255,43,191,.05) 1px, transparent 1px, transparent 80px),
       var(--ink);
+      filter: saturate(.9) brightness(.9);
     }
     .bg-tech::before, .bg-tech::after{ content:""; position:absolute; inset:auto; pointer-events:none; }
-    .bg-tech::before{ bottom:0; left:0; right:0; height:34%; background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01)); border-top: 1px solid rgba(255,255,255,.08); clip-path: polygon(0 10%, 68% 0, 100% 6%, 100% 100%, 0 100%); }
-    .bg-tech::after{ top:8%; left:6%; width:160px; height:160px; border:2px dashed rgba(0,229,255,.45); border-radius:24px; transform: rotate(14deg); }
+    .bg-tech::before{ bottom:0; left:0; right:0; height:32%; background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01)); border-top: 1px solid rgba(255,255,255,.08); clip-path: polygon(0 10%, 68% 0, 100% 6%, 100% 100%, 0 100%); }
+    .bg-tech::after{ top:8%; left:6%; width:160px; height:160px; border:2px dashed rgba(0,229,255,.35); border-radius:24px; transform: rotate(14deg); opacity:.6; }
 
-    .wrap { max-width: 1120px; margin: 0 auto; padding: 24px; }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 24px; }
 
-    .hero { display: grid; gap: 6px; margin-bottom: 16px; }
+    .hero { display: grid; gap: 6px; margin-bottom: 8px; }
     .gameover {
-      font-weight: 900; font-size: 42px; letter-spacing: 1px; text-transform: uppercase; color: var(--neon-yellow);
+      font-weight: 900; font-size: clamp(36px, 5vw, 56px); letter-spacing: 1px; text-transform: uppercase; color: var(--neon-yellow);
       text-shadow: 0 2px 0 #000, 0 0 8px rgba(246,242,0,.6), 0 0 22px rgba(246,242,0,.35);
       position: relative;
     }
@@ -57,8 +61,15 @@
 
     @keyframes rgb-shift { 0%,100%{opacity:0; transform: translate(0,0);} 10%{opacity:.9; transform: translate(-1px,1px);} 20%{transform: translate(2px,-1px);} 30%{transform: translate(-1px,2px);} 40%{transform: translate(1px,-2px);} 50%{opacity:0;} }
 
-    .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+    /* Landing fullscreen: dos columnas, login destacado */
+    .landing { min-height: calc(100vh - 48px); display: grid; grid-template-columns: minmax(340px, 520px) 1fr; align-items: center; gap: clamp(16px, 4vw, 36px); }
+    .login-col { display: grid; gap: 18px; align-content: start; }
+    .art-col { position: relative; align-self: stretch; border-radius: 22px; overflow: hidden; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015)); }
+    .art-col::before { /* líneas diagonales suaves */ content:""; position:absolute; inset:-30% -10%; background: repeating-linear-gradient(45deg, rgba(0,229,255,.1), rgba(0,229,255,.1) 2px, transparent 2px, transparent 18px); filter: blur(10px); opacity:.35; }
+    .art-col::after { /* halo */ content:""; position:absolute; width: 60vmin; height: 60vmin; left: 50%; top: 50%; transform: translate(-50%,-50%); background: radial-gradient(closest-side, rgba(255,43,191,.12), transparent 60%); }
+
     .card { background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015)); border: 1px solid var(--border); border-radius: 18px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.35); position:relative; overflow:hidden; }
+    .card.loginCard { padding: 22px; border-radius: 20px; }
     .card.loginCard::after { /* scanlines sutiles */ content:""; position:absolute; inset:0; pointer-events:none; background: repeating-linear-gradient(0deg, rgba(255,255,255,.03), rgba(255,255,255,.03) 1px, transparent 1px, transparent 3px); opacity:.18; mix-blend-mode:soft-light; animation: scan 6s linear infinite; }
     @keyframes scan { 0%{transform: translateY(-10%);} 100%{transform: translateY(10%);} }
 
@@ -68,11 +79,11 @@
     /* Login minimalista con CTA embebido */
     .loginRow { display:flex; align-items:center; gap:12px; }
     .loginLabel { font-weight: 900; letter-spacing: 1px; color: var(--text); }
-    .bracket { position: relative; flex: 1; background: #0b1120; border: 1px solid var(--border); border-radius: 14px; padding: 8px 12px; padding-right: 48px; box-shadow: var(--glow); }
-    .bracket::before { content: '['; position: absolute; left: -16px; top: 50%; transform: translateY(-50%); color: var(--neon-cyan); font-weight: 900; font-size: 20px; }
-    .bracket::after { content: '}'; position: absolute; right: -16px; top: 50%; transform: translateY(-50%); color: var(--neon-cyan); font-weight: 900; font-size: 20px; }
-    .bracket input { width: 100%; border: 0; outline: 0; background: transparent; color: var(--text); font-size: 16px; }
-    .bracket .submit { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border: 1px solid var(--border); background: rgba(255,255,255,.06); border-radius: 10px; padding: 6px 10px; cursor: pointer; color: var(--text); }
+    .bracket { position: relative; flex: 1; background: #0b1120cc; border: 1px solid var(--border); border-radius: 16px; padding: 12px 12px; padding-right: 56px; box-shadow: var(--glow); backdrop-filter: blur(4px); }
+    .bracket::before { content: '['; position: absolute; left: -18px; top: 50%; transform: translateY(-50%); color: var(--neon-cyan); font-weight: 900; font-size: 22px; text-shadow: 0 0 8px rgba(0,229,255,.6); }
+    .bracket::after { content: '}'; position: absolute; right: -18px; top: 50%; transform: translateY(-50%); color: var(--neon-cyan); font-weight: 900; font-size: 22px; text-shadow: 0 0 8px rgba(0,229,255,.6); }
+    .bracket input { width: 100%; border: 0; outline: 0; background: transparent; color: var(--text); font-size: 18px; letter-spacing:.3px; }
+    .bracket .submit { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border: 1px solid var(--border); background: rgba(255,255,255,.08); border-radius: 12px; padding: 8px 12px; cursor: pointer; color: var(--text); font-size:18px; }
     .bracket .submit:hover { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); }
     .bracket.shake { animation: shakeX 420ms cubic-bezier(.36,.07,.19,.97) both; }
 
@@ -121,7 +132,13 @@
     .toast { position: fixed; right: 16px; top: 16px; display: grid; gap: 8px; z-index: 50; }
     .toast-item { background: #0b1120; border: 1px solid rgba(255,255,255,.14); padding: 10px 12px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,.35); }
 
-    /* Respeto accesibilidad */
+    /* Responsivo */
+    @media (max-width: 860px){
+      .landing { grid-template-columns: 1fr; align-content: center; }
+      .art-col { display:none; }
+    }
+
+    /* Accesibilidad */
     @media (prefers-reduced-motion: reduce) {
       * { animation: none !important; transition: none !important; }
     }
@@ -146,19 +163,22 @@
       <div class="gameover" id="title" data-text="Game Over · Rewards">Game Over · Rewards</div>
     </div>
 
-    <!-- Login unificado (inteligente) -->
-    <div class="grid" id="authGrid">
-      <div class="card loginCard">
-        <div class="loginRow">
-          <span class="loginLabel">LOGIN</span>
-          <div class="bracket" id="loginBracket">
-            <input id="loginKey" type="text" placeholder="Ingresa tu teléfono" autocomplete="off" inputmode="numeric" aria-label="Teléfono" aria-describedby="loginMsg" />
-            <button id="loginBtn" class="submit" aria-label="Entrar">⚡</button>
+    <!-- Landing fullscreen con login a la izquierda y arte a la derecha -->
+    <section class="landing" id="authGrid">
+      <div class="login-col">
+        <div class="card loginCard">
+          <div class="loginRow">
+            <span class="loginLabel">LOGIN</span>
+            <div class="bracket" id="loginBracket">
+              <input id="loginKey" type="text" placeholder="Ingresa tu teléfono" autocomplete="off" inputmode="numeric" aria-label="Teléfono" aria-describedby="loginMsg" />
+              <button id="loginBtn" class="submit" aria-label="Entrar">⚡</button>
+            </div>
           </div>
+          <p class="muted" id="loginMsg" aria-live="polite" style="margin-top:6px"></p>
         </div>
-        <p class="muted" id="loginMsg" aria-live="polite" style="margin-top:6px"></p>
       </div>
-    </div>
+      <div class="art-col" aria-hidden="true"></div>
+    </section>
 
     <!-- Vista miembro -->
     <div class="grid hidden" id="memberGrid">
