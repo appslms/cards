@@ -30,14 +30,13 @@
     input[type="text"], input[type="password"], textarea, select { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,.12); background: #0e1324; color: var(--text); outline: none; }
     textarea { min-height: 86px; resize: vertical; }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
 
     .btn { display: inline-flex; gap: 8px; align-items: center; padding: 10px 14px; background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06)); color: var(--text); border: 1px solid rgba(255,255,255,.14); border-radius: 12px; cursor: pointer; text-decoration: none; transition: transform .05s ease, filter .2s ease; }
     .btn:hover { filter: brightness(1.05); }
     .btn:active { transform: translateY(1px); }
     .btn.brand { background: linear-gradient(180deg, rgba(98,224,255,.20), rgba(98,224,255,.10)); border-color: rgba(98,224,255,.5); }
     .btn.accent { background: linear-gradient(180deg, rgba(142,246,160,.18), rgba(142,246,160,.08)); border-color: rgba(142,246,160,.5); }
-    .btn.danger { background: linear-gradient(180deg, rgba(255,123,123,.18), rgba(255,123,123,.08)); border-color: rgba(255,123,123,.5); }
+    .btn.danger { background: linear-gradient(180deg, rgba(255,123,123,.18), rgba(255,123,123,.08)); border-color: rgba(255,255,255,.5); }
 
     .badges { display: flex; flex-wrap: wrap; gap: 8px; }
     .badge { padding: 6px 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,.12); background: #0d1222; font-size: 12px; }
@@ -50,6 +49,7 @@
 
     .hidden { display: none !important; }
     .center { text-align: center; }
+    .status { margin-top: 8px; font-size: 12px; color: var(--muted); }
   </style>
 </head>
 <body>
@@ -57,6 +57,7 @@
     <div class="hero">
       <h1>Mini CRM de Rewards</h1>
       <p class="muted">Login simple por nombre para miembros y un acceso de admin para gestionar usuarios, rewards y comentarios. Datos en Firestore para que todos vean cambios al instante.</p>
+      <p id="testStatus" class="status"></p>
     </div>
 
     <div class="grid" id="authGrid">
@@ -149,19 +150,19 @@
 
   <script>
     // 1) Configura Firebase y rellena con tu propio config
-  const firebaseConfig = {
-    apiKey: "AIzaSyBlevLcY3TKVYQpr4Hur1f7XeZoHLbXCC0",
-    authDomain: "gameover-b6eb7.firebaseapp.com",
-    projectId: "gameover-b6eb7",
-    storageBucket: "gameover-b6eb7.firebasestorage.app",
-    messagingSenderId: "522023719283",
-    appId: "1:522023719283:web:3e5ce88c28a52b56a27506"
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyBlevLcY3TKVYQpr4Hur1f7XeZoHLbXCC0",
+      authDomain: "gameover-b6eb7.firebaseapp.com",
+      projectId: "gameover-b6eb7",
+      storageBucket: "gameover-b6eb7.firebasestorage.app",
+      messagingSenderId: "522023719283",
+      appId: "1:522023719283:web:3e5ce88c28a52b56a27506"
+    };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
     // 2) Parámetros básicos del sistema
-    const ADMIN_SECRET = "admin-123"; // cambia esta clave y compártela con tu grupo
+    const ADMIN_SECRET = "admin-123"; // cambia esta clave
     const REWARDS = [
       { id: "r1", label: "Tarjeta Verde" },
       { id: "r2", label: "Tarjeta Azul" },
@@ -181,10 +182,19 @@
     };
     const kebab = s => s.toLowerCase().trim().replace(/\s+/g,'-');
 
-    // Estado de sesión
+    // Estado y listeners
     let currentMember = null;
     let isAdmin = false;
     let selectedUserId = null;
+    let unsubMember = null;
+    let unsubUsers = null;
+    let unsubEdit = null;
+    let cacheUsers = [];
+
+    // Debounce simple para búsqueda
+    function debounce(fn, ms){
+      let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn.apply(null,args), ms); };
+    }
 
     // Render de chips de rewards reutilizable
     function renderRewardChips(container, selected = new Set(), onToggle) {
@@ -199,74 +209,34 @@
       });
     }
 
-    // Autenticación falsa de miembro
-    $('#memberLoginBtn').addEventListener('click', async () => {
-      const name = $('#memberName').value.trim();
-      if (!name) { $('#memberMsg').textContent = 'Escribe un nombre.'; return; }
-      try {
-        const id = kebab(name);
-        const ref = db.collection('users').doc(id);
-        const snap = await ref.get();
-        if (!snap.exists) {
-          $('#memberMsg').textContent = 'No existe este usuario. Pide alta al admin.';
-          return;
-        }
-        currentMember = { id, ...snap.data() };
-        localStorage.setItem('member', currentMember.id);
-        showMemberView();
-      } catch (e) {
-        $('#memberMsg').textContent = 'Error de conexión. Intenta de nuevo.';
-        console.error(e);
+    // Utilidad: crear un toggler estable para chips
+    function makeRewardToggle(container, selected) {
+      function toggle(rid) {
+        if (selected.has(rid)) selected.delete(rid); else selected.add(rid);
+        renderRewardChips(container, selected, toggle);
       }
-    });
-
-    $('#memberLogoutBtn').addEventListener('click', () => {
-      currentMember = null; localStorage.removeItem('member');
-      $('#memberGrid').classList.add('hidden');
-      $('#authGrid').classList.remove('hidden');
-    });
-
-    // Autenticación simple de admin
-    $('#adminLoginBtn').addEventListener('click', async () => {
-      const pass = $('#adminPass').value.trim();
-      if (pass !== ADMIN_SECRET) { $('#adminMsg').textContent = 'Clave incorrecta.'; return; }
-      isAdmin = true; localStorage.setItem('admin', '1');
-      showAdminView();
-    });
-
-    $('#adminLogoutBtn').addEventListener('click', () => {
-      isAdmin = false; localStorage.removeItem('admin');
-      $('#adminGrid').classList.add('hidden');
-      $('#authGrid').classList.remove('hidden');
-    });
-
-    // Demo rápida sin datos reales
-    $('#demoUserBtn').addEventListener('click', async () => {
-      $('#memberName').value = 'Demo User';
-      await ensureDemoData();
-      $('#memberLoginBtn').click();
-    });
-    $('#demoAdminBtn').addEventListener('click', () => {
-      $('#adminPass').value = ADMIN_SECRET;
-      $('#adminLoginBtn').click();
-    });
-
-    // Vista miembro
-    async function showMemberView() {
-      $('#authGrid').classList.add('hidden');
-      $('#memberGrid').classList.remove('hidden');
-      await refreshMemberPanels();
+      renderRewardChips(container, selected, toggle);
+      return toggle;
     }
 
-    async function refreshMemberPanels() {
-      if (!currentMember) return;
-      const ref = db.collection('users').doc(currentMember.id);
-      const snap = await ref.get();
-      if (!snap.exists) return;
-      currentMember = { id: currentMember.id, ...snap.data() };
+    // --- Miembro: listeners en tiempo real ---
+    function startMemberListener(memberId){
+      if (unsubMember) { unsubMember(); unsubMember = null; }
+      if (!memberId) return;
+      const ref = db.collection('users').doc(memberId);
+      unsubMember = ref.onSnapshot(doc => {
+        if (!doc.exists) {
+          $('#memberMsg').textContent = 'Este usuario ya no existe.';
+          return;
+        }
+        currentMember = { id: memberId, ...doc.data() };
+        renderMemberPanels(currentMember);
+      }, err => console.error('member onSnapshot', err));
+    }
 
-      const rewards = currentMember.rewards || [];
-      const comments = currentMember.comments || [];
+    function renderMemberPanels(member){
+      const rewards = member.rewards || [];
+      const comments = member.comments || [];
 
       const rewardsBox = $('#memberRewards');
       rewardsBox.innerHTML = '';
@@ -291,89 +261,62 @@
       });
     }
 
-    // Vista admin
-    async function showAdminView() {
-      $('#authGrid').classList.add('hidden');
-      $('#adminGrid').classList.remove('hidden');
-      renderRewardChips($('#newUserRewards'), new Set(), id => {
-        const set = new Set(Array.from($('#newUserRewards').querySelectorAll('.badge')).map((b, i) => b._active ? REWARDS[i].id : null).filter(Boolean));
-      });
-      rebuildUsersList();
-      setupCreateUser();
-      setupEditBindings();
+    // --- Admin: lista en tiempo real + caché ---
+    function startUsersListener(){
+      if (unsubUsers) { unsubUsers(); unsubUsers = null; }
+      unsubUsers = db.collection('users').orderBy('name').onSnapshot(snap => {
+        cacheUsers = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        renderUsersList();
+      }, err => console.error('users onSnapshot', err));
     }
 
-    function setupCreateUser() {
-      // estado local de selección
-      const selected = new Set();
-      renderRewardChips($('#newUserRewards'), selected, rid => {
-        if (selected.has(rid)) selected.delete(rid); else selected.add(rid);
-        renderRewardChips($('#newUserRewards'), selected, arguments.callee);
-      });
-      $('#addUserBtn').onclick = async () => {
-        const name = $('#newUserName').value.trim();
-        if (!name) { $('#addUserMsg').textContent = 'Escribe un nombre.'; return; }
-        const id = kebab(name);
-        const ref = db.collection('users').doc(id);
-        const doc = await ref.get();
-        if (doc.exists) { $('#addUserMsg').textContent = 'Ese usuario ya existe.'; return; }
-        await ref.set({
-          name,
-          rewards: Array.from(selected),
-          comments: [],
-          createdAt: Date.now()
-        });
-        $('#addUserMsg').textContent = 'Usuario creado.';
-        $('#newUserName').value = '';
-        selected.clear();
-        renderRewardChips($('#newUserRewards'), selected, rid => { if (selected.has(rid)) selected.delete(rid); else selected.add(rid); renderRewardChips($('#newUserRewards'), selected, arguments.callee); });
-        rebuildUsersList();
-      };
-    }
-
-    async function rebuildUsersList() {
+    function renderUsersList(){
       const list = $('#usersList');
       list.innerHTML = '';
-      const q = $('#search').value?.toLowerCase().trim() || '';
-      const snap = await db.collection('users').orderBy('name').get();
-      snap.forEach(doc => {
-        const u = { id: doc.id, ...doc.data() };
-        if (q && !u.name.toLowerCase().includes(q)) return;
+      const q = ($('#search').value || '').toLowerCase().trim();
+      cacheUsers.filter(u => !q || (u.name || '').toLowerCase().includes(q)).forEach(u => {
         const row = el('div', { class: 'item' }, [
           el('div', {}, [
-            el('div', { text: u.name }),
+            el('div', { text: u.name || u.id }),
             el('small', {}, [(u.rewards?.length || 0) + ' rewards'])
           ]),
           el('div', {}, [
             el('button', { class: 'btn', type: 'button' }, ['Editar'])
           ])
         ]);
-        row.querySelector('button').addEventListener('click', () => selectUser(u.id, u.name));
+        row.querySelector('button').addEventListener('click', () => selectUser(u.id, u.name || u.id));
         list.appendChild(row);
       });
     }
 
-    $('#search').addEventListener('input', rebuildUsersList);
+    const debouncedSearch = debounce(renderUsersList, 200);
 
+    // --- Admin: panel de edición en tiempo real ---
     async function selectUser(id, name) {
       selectedUserId = id;
+      if (unsubEdit) { unsubEdit(); unsubEdit = null; }
       $('#noUserSelected').classList.add('hidden');
       $('#editPanel').classList.remove('hidden');
       $('#editUserTitle').textContent = name + ' (' + id + ')';
       const ref = db.collection('users').doc(id);
-      const snap = await ref.get();
-      if (!snap.exists) return;
-      const data = snap.data();
-      const selected = new Set(data.rewards || []);
-      renderRewardChips($('#editRewards'), selected, rid => {
-        if (selected.has(rid)) selected.delete(rid); else selected.add(rid);
-        renderRewardChips($('#editRewards'), selected, arguments.callee);
-      });
+      let selected = new Set();
+      makeRewardToggle($('#editRewards'), selected);
+
+      unsubEdit = ref.onSnapshot(doc => {
+        if (!doc.exists) {
+          $('#editMsg').textContent = 'El usuario fue eliminado.';
+          $('#editPanel').classList.add('hidden');
+          $('#noUserSelected').classList.remove('hidden');
+          return;
+        }
+        const data = doc.data();
+        selected = new Set(data.rewards || []);
+        makeRewardToggle($('#editRewards'), selected);
+      }, err => console.error('edit onSnapshot', err));
+
       $('#saveRewardsBtn').onclick = async () => {
         await ref.update({ rewards: Array.from(selected) });
         $('#editMsg').textContent = 'Rewards guardados.';
-        if (currentMember && currentMember.id === id) await refreshMemberPanels();
-        rebuildUsersList();
       };
       $('#addCommentBtn').onclick = async () => {
         const text = $('#editComment').value.trim();
@@ -383,34 +326,125 @@
         });
         $('#editComment').value = '';
         $('#editMsg').textContent = 'Comentario agregado.';
-        if (currentMember && currentMember.id === id) await refreshMemberPanels();
       };
       $('#deleteUserBtn').onclick = async () => {
         if (!confirm('¿Eliminar este usuario?')) return;
+        if (unsubEdit) { unsubEdit(); unsubEdit = null; }
         await ref.delete();
         $('#editMsg').textContent = 'Usuario eliminado.';
         selectedUserId = null;
         $('#editPanel').classList.add('hidden');
         $('#noUserSelected').classList.remove('hidden');
-        rebuildUsersList();
       };
       $('#clearPanelBtn').onclick = () => {
         selectedUserId = null;
+        if (unsubEdit) { unsubEdit(); unsubEdit = null; }
         $('#editPanel').classList.add('hidden');
         $('#noUserSelected').classList.remove('hidden');
       };
     }
 
+    // Autenticación falsa de miembro
+    $('#memberLoginBtn').addEventListener('click', async () => {
+      const name = $('#memberName').value.trim();
+      if (!name) { $('#memberMsg').textContent = 'Escribe un nombre.'; return; }
+      try {
+        const id = kebab(name);
+        const ref = db.collection('users').doc(id);
+        const snap = await ref.get();
+        if (!snap.exists) { $('#memberMsg').textContent = 'No existe este usuario. Pide alta al admin.'; return; }
+        localStorage.setItem('member', id);
+        $('#authGrid').classList.add('hidden');
+        $('#memberGrid').classList.remove('hidden');
+        startMemberListener(id);
+      } catch (e) {
+        $('#memberMsg').textContent = 'Error de conexión. Intenta de nuevo.';
+        console.error(e);
+      }
+    });
+
+    $('#memberLogoutBtn').addEventListener('click', () => {
+      currentMember = null; localStorage.removeItem('member');
+      if (unsubMember) { unsubMember(); unsubMember = null; }
+      $('#memberGrid').classList.add('hidden');
+      $('#authGrid').classList.remove('hidden');
+    });
+
+    // Autenticación simple de admin
+    $('#adminLoginBtn').addEventListener('click', async () => {
+      const pass = $('#adminPass').value.trim();
+      if (pass !== ADMIN_SECRET) { $('#adminMsg').textContent = 'Clave incorrecta.'; return; }
+      isAdmin = true; localStorage.setItem('admin', '1');
+      showAdminView();
+    });
+
+    $('#adminLogoutBtn').addEventListener('click', () => {
+      isAdmin = false; localStorage.removeItem('admin');
+      if (unsubUsers) { unsubUsers(); unsubUsers = null; }
+      if (unsubEdit) { unsubEdit(); unsubEdit = null; }
+      $('#adminGrid').classList.add('hidden');
+      $('#authGrid').classList.remove('hidden');
+    });
+
+    // Demo rápida sin datos reales
+    $('#demoUserBtn').addEventListener('click', async () => {
+      $('#memberName').value = 'Demo User';
+      await ensureDemoData();
+      $('#memberLoginBtn').click();
+    });
+    $('#demoAdminBtn').addEventListener('click', () => {
+      $('#adminPass').value = ADMIN_SECRET;
+      $('#adminLoginBtn').click();
+    });
+
+    // Vista miembro
+    function showMemberView() {
+      $('#authGrid').classList.add('hidden');
+      $('#memberGrid').classList.remove('hidden');
+    }
+
+    // Vista admin
+    function showAdminView() {
+      $('#authGrid').classList.add('hidden');
+      $('#adminGrid').classList.remove('hidden');
+      setupCreateUser();
+      startUsersListener();
+      $('#search').focus();
+    }
+
+    function setupCreateUser() {
+      const selected = new Set();
+      makeRewardToggle($('#newUserRewards'), selected);
+
+      $('#addUserBtn').onclick = async () => {
+        const name = $('#newUserName').value.trim();
+        if (!name) { $('#addUserMsg').textContent = 'Escribe un nombre.'; return; }
+        const id = kebab(name);
+        const ref = db.collection('users').doc(id);
+        const doc = await ref.get();
+        if (doc.exists) { $('#addUserMsg').textContent = 'Ese usuario ya existe.'; return; }
+        await ref.set({ name, rewards: Array.from(selected), comments: [], createdAt: Date.now() });
+        $('#addUserMsg').textContent = 'Usuario creado.';
+        $('#newUserName').value = '';
+        selected.clear();
+        makeRewardToggle($('#newUserRewards'), selected);
+      };
+    }
+
+    // Búsqueda con debounce
+    $('#search').addEventListener('input', debouncedSearch);
+
     // Restaurar sesión si existe
     window.addEventListener('DOMContentLoaded', async () => {
+      runSmokeTests();
       const m = localStorage.getItem('member');
       const a = localStorage.getItem('admin');
       if (m) {
-        const ref = db.collection('users').doc(m);
-        const snap = await ref.get();
-        if (snap.exists) { currentMember = { id: m, ...snap.data() }; showMemberView(); return; }
+        showMemberView();
+        startMemberListener(m);
+        return;
       }
-      if (a === '1') { isAdmin = true; showAdminView(); return; }
+      if (a === '1') { showAdminView(); return; }
     });
 
     // Datos de ejemplo para la demo
@@ -426,6 +460,33 @@
         const snap = await ref.get();
         if (!snap.exists) await ref.set({ ...u, createdAt: Date.now() });
       }
+    }
+
+    // Pruebas rápidas (smoke tests)
+    async function runSmokeTests() {
+      const results = [];
+      try {
+        results.push(['Firebase cargó', typeof firebase !== 'undefined']);
+        results.push(['DB inicializada', !!db]);
+        results.push(['Funciones clave', ['showAdminView','selectUser','renderUsersList','renderMemberPanels','makeRewardToggle'].every(k => typeof window[k] === 'function')]);
+        results.push(['Elementos UI', ['authGrid','memberGrid','adminGrid'].every(id => !!document.getElementById(id))]);
+        try {
+          await db.collection('users').limit(1).get();
+          results.push(['Permisos de lectura', true]);
+        } catch(e) {
+          console.warn('Smoke read failed', e);
+          results.push(['Permisos de lectura', false]);
+        }
+      } catch (e) {
+        console.error('Smoke tests error', e);
+        results.push(['Autochequeo falló', false]);
+      }
+      const ok = results.every(r => r[1]);
+      const msg = results.map(r => `${r[0]}: ${r[1] ? '✔' : '✖'}`).join(' • ');
+      const elStatus = document.getElementById('testStatus');
+      if (elStatus) elStatus.textContent = `Autochequeo: ${msg}`;
+      console.log('Smoke tests', results);
+      return ok;
     }
   </script>
 </body>
