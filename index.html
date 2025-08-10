@@ -5,60 +5,57 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>GAME OVER · Rewards CRM</title>
   <style>
-    /* Paleta techno-urbano inspirada en el póster */
+    /* Tema oscuro con acentos neón para máxima legibilidad */
     :root {
-      --ink: #0a0d12;           /* fondo oscuro */
-      --panel: #121826;         /* paneles */
+      --ink: #07090f;           /* fondo principal muy oscuro */
+      --panel: #0f1424;         /* paneles */
       --neon-yellow: #f6f200;   /* amarillo ácido */
       --neon-cyan: #00e5ff;     /* cian eléctrico */
       --neon-pink: #ff2bbf;     /* magenta graffiti */
-      --muted: #9aa3b2;
-      --text: #e7ecf3;
+      --muted: #a7b0c0;
+      --text: #f2f6ff;          /* texto alto contraste */
       --border: rgba(255,255,255,.12);
-      --glow: 0 0 0 2px rgba(0,229,255,.2), 0 0 0 6px rgba(0,229,255,.08);
+      --glow: 0 0 0 2px rgba(0,229,255,.25), 0 0 0 6px rgba(0,229,255,.12);
     }
 
     * { box-sizing: border-box; font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; }
     body { margin: 0; color: var(--text); background: var(--ink); }
 
-    /* Fondo con bloques geométricos estilo HUD */
+    /* Fondo: grid oscuro con líneas neón sutiles */
     .bg-tech {
       position: fixed; inset: 0; z-index: -1; overflow: hidden;
       background:
-        linear-gradient(180deg, var(--neon-yellow) 0 54%, transparent 54%),
-        linear-gradient(135deg, transparent 0 45%, rgba(255,255,255,.03) 45% 47%, transparent 47% 100%),
-        radial-gradient(800px 400px at 80% 0%, rgba(0,229,255,.15), transparent 60%),
-        radial-gradient(600px 300px at 20% 100%, rgba(255,43,191,.18), transparent 60%),
+        radial-gradient(800px 400px at 80% 0%, rgba(0,229,255,.14), transparent 60%),
+        radial-gradient(600px 300px at 15% 100%, rgba(255,43,191,.14), transparent 60%),
+        repeating-linear-gradient(90deg, rgba(0,229,255,.08), rgba(0,229,255,.08) 1px, transparent 1px, transparent 80px),
+        repeating-linear-gradient(0deg, rgba(255,43,191,.06), rgba(255,43,191,.06) 1px, transparent 1px, transparent 80px),
         var(--ink);
     }
-    .bg-tech::before, .bg-tech::after{
-      content:""; position:absolute; inset:auto; pointer-events:none;
-    }
-    .bg-tech::before{ bottom:0; left:0; right:0; height:38%; background:
-      linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
-      clip-path: polygon(0 10%, 70% 0, 100% 6%, 100% 100%, 0 100%);
-      border-top: 1px solid rgba(255,255,255,.08);
-    }
-    .bg-tech::after{ top:8%; left:6%; width:160px; height:160px; border:2px dashed rgba(0,229,255,.5); border-radius:24px; transform: rotate(14deg); }
+    .bg-tech::before, .bg-tech::after{ content:""; position:absolute; inset:auto; pointer-events:none; }
+    .bg-tech::before{ bottom:0; left:0; right:0; height:34%; background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01)); border-top: 1px solid rgba(255,255,255,.08); clip-path: polygon(0 10%, 68% 0, 100% 6%, 100% 100%, 0 100%); }
+    .bg-tech::after{ top:8%; left:6%; width:160px; height:160px; border:2px dashed rgba(0,229,255,.45); border-radius:24px; transform: rotate(14deg); }
 
     .wrap { max-width: 1120px; margin: 0 auto; padding: 24px; }
 
     .hero { display: grid; gap: 6px; margin-bottom: 16px; }
     .gameover {
-      font-weight: 900; font-size: 36px; letter-spacing: 1px; text-transform: uppercase;
-      color: #0b0b0b; filter: drop-shadow(0 2px 0 #000) drop-shadow(0 0 20px rgba(0,229,255,.25));
-      background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan));
-      -webkit-background-clip: text; background-clip: text; color: transparent;
+      font-weight: 900; font-size: 42px; letter-spacing: 1px; text-transform: uppercase;
+      color: var(--neon-yellow);
+      text-shadow:
+        0 2px 0 #000,
+        0 0 8px rgba(246,242,0,.6),
+        0 0 22px rgba(246,242,0,.35);
     }
-    .subtitle { color: var(--text); opacity:.9; }
+    .subtitle { color: var(--muted); opacity:.95; }
 
     .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
-    .card { background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01)); border: 1px solid var(--border); border-radius: 18px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
-    .card h2 { margin: 0 0 8px; font-size: 18px; text-transform: uppercase; letter-spacing: .5px; }
+    .card { background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015)); border: 1px solid var(--border); border-radius: 18px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+    .card h2 { margin: 0 0 8px; font-size: 18px; text-transform: uppercase; letter-spacing: .5px; color: var(--text); }
     .muted { color: var(--muted); font-size: 14px; }
 
     label { display: block; font-size: 13px; margin: 10px 0 6px; color: var(--muted); text-transform: uppercase; }
-    input[type="text"], input[type="password"], textarea, select { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border); background: #0e1324; color: var(--text); outline: none; }
+    input[type="text"], input[type="password"], textarea, select { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border); background: #0b1120; color: var(--text); outline: none; }
+    input:focus, textarea:focus { box-shadow: var(--glow); border-color: rgba(0,229,255,.45); }
     textarea { min-height: 86px; resize: vertical; }
 
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -67,31 +64,31 @@
     .btn:hover { filter: brightness(1.08); box-shadow: var(--glow); }
     .btn:active { transform: translateY(1px); }
     .btn.brand { background: linear-gradient(180deg, rgba(0,229,255,.22), rgba(0,229,255,.10)); border-color: rgba(0,229,255,.6); }
-    .btn.accent { background: linear-gradient(180deg, rgba(255,43,191,.20), rgba(255,43,191,.10)); border-color: rgba(255,43,191,.6); }
-    .btn.danger { background: linear-gradient(180deg, rgba(255,79,79,.18), rgba(255,79,79,.08)); border-color: rgba(255,79,79,.5); }
+    .btn.accent { background: linear-gradient(180deg, rgba(255,43,191,.22), rgba(255,43,191,.10)); border-color: rgba(255,43,191,.6); }
+    .btn.danger { background: linear-gradient(180deg, rgba(255,79,79,.2), rgba(255,79,79,.1)); border-color: rgba(255,79,79,.55); }
 
-    /* Chips/tiles de rewards */
-    .tiles { display: grid; grid-template-columns: repeat(5, minmax(80px,1fr)); gap: 10px; }
-    @media (max-width: 640px){ .tiles { grid-template-columns: repeat(3, minmax(80px,1fr)); } }
+    /* Tiles de rewards con alto contraste */
+    .tiles { display: grid; grid-template-columns: repeat(5, minmax(90px,1fr)); gap: 10px; }
+    @media (max-width: 640px){ .tiles { grid-template-columns: repeat(3, minmax(90px,1fr)); } }
 
     .tile { position: relative; border-radius: 14px; border: 1px solid var(--border); overflow: hidden; background:#0d1222; cursor: pointer; }
-    .tile.is-selected { box-shadow: var(--glow); outline: 2px solid rgba(255,255,255,.12); }
-    .tile img { width: 100%; display: block; aspect-ratio: 2 / 3; object-fit: cover; }
-    .tile .tag { position: absolute; left: 8px; bottom: 8px; background: rgba(0,0,0,.6); color: white; border-radius: 10px; font-size: 12px; padding: 4px 8px; }
-    .tile.lock::after { content: 'EVENTO FINAL'; position: absolute; inset: 8px; display:flex; align-items:center; justify-content:center; font-weight:700; letter-spacing:.6px; color: var(--neon-yellow); background: rgba(0,0,0,.6); border:1px dashed var(--neon-yellow); border-radius: 10px; }
-    .tile.lock { cursor: not-allowed; filter: grayscale(.2) contrast(.9) brightness(.7); }
+    .tile.is-selected { box-shadow: var(--glow); outline: 2px solid rgba(0,229,255,.35); }
+    .tile img { width: 100%; display: block; aspect-ratio: 2 / 3; object-fit: cover; filter: contrast(1.05); }
+    .tile .tag { position: absolute; left: 8px; bottom: 8px; background: rgba(0,0,0,.72); color: #eaf8ff; border:1px solid rgba(0,229,255,.6); border-radius: 10px; font-size: 12px; padding: 4px 8px; }
+    .tile.lock::after { content: 'EVENTO FINAL'; position: absolute; inset: 8px; display:flex; align-items:center; justify-content:center; font-weight:800; letter-spacing:.6px; color: var(--neon-cyan); background: rgba(0,0,0,.68); border:1px dashed var(--neon-cyan); border-radius: 10px; text-shadow: 0 0 10px rgba(0,229,255,.5); }
+    .tile.lock { cursor: not-allowed; filter: grayscale(.15) contrast(.95) brightness(.85); }
 
     /* Galería para miembros */
-    .gallery { display:grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap:12px; }
-    .gallery .cardart { border-radius: 16px; overflow:hidden; border:1px solid var(--border); box-shadow: 0 8px 20px rgba(0,0,0,.25); background:#0d1222; }
-    .gallery .cardart img { width:100%; display:block; aspect-ratio: 2/3; object-fit: cover; }
-    .gallery .label { padding:6px 8px; font-size:12px; background: linear-gradient(90deg, rgba(0,229,255,.18), rgba(255,43,191,.18)); }
+    .gallery { display:grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap:12px; }
+    .gallery .cardart { border-radius: 16px; overflow:hidden; border:1px solid var(--border); box-shadow: 0 8px 20px rgba(0,0,0,.35); background:#0d1222; }
+    .gallery .cardart img { width:100%; display:block; aspect-ratio: 2/3; object-fit: cover; filter: contrast(1.05); }
+    .gallery .label { padding:6px 8px; font-size:12px; color:#0b0b0b; background: linear-gradient(90deg, var(--neon-yellow), var(--neon-cyan)); font-weight: 700; }
 
     .list { display: grid; gap: 8px; margin-top: 8px; max-height: 340px; overflow: auto; }
-    .item { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.02); }
+    .item { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.03); }
     .item small { color: var(--muted); }
 
-    .sep { height: 1px; background: linear-gradient(90deg, rgba(255,255,255,.0), rgba(255,255,255,.18), rgba(255,255,255,.0)); margin: 12px 0; }
+    .sep { height: 1px; background: linear-gradient(90deg, rgba(255,255,255,.0), rgba(255,255,255,.22), rgba(255,255,255,.0)); margin: 12px 0; }
 
     .hidden { display: none !important; }
     .status { margin-top: 8px; font-size: 12px; color: var(--muted); }
