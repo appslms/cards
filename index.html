@@ -1,284 +1,432 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tarjeta Holográfica Interactiva</title>
-
-  <!-- Tailwind (para layout rápido). Si quieres prod, compílalo local. -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Preloads coherentes -->
-  <link rel="preload" as="image" href="assets/card.png" fetchpriority="high" />
-  <link rel="preload" as="image" href="assets/mask.png" crossorigin="anonymous" />
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mini CRM de Rewards</title>
   <style>
-    :root { --card-radius: 1.5rem; } /* equiv. a rounded-3xl */
-
-    body { touch-action: manipulation; background: #fff; }
-
-    /* Contenedor 3D + aislamiento para blends en iOS */
-    .virtual-card-container {
-      --rx: 0deg;          /* rotateX */
-      --ry: 0deg;          /* rotateY */
-      --holoX: 50%;        /* posición X del gradiente */
-      --holoY: 50%;        /* posición Y del gradiente */
-      --glareX: 50%;       /* glare X */
-      --glareY: 50%;       /* glare Y */
-      --persp: 1500px;
-      transform: perspective(var(--persp)) rotateX(var(--rx)) rotateY(var(--ry));
-      will-change: transform;
-      isolation: isolate;  /* mejora mix-blend en iOS */
+    :root {
+      --bg: #0f1221;
+      --panel: #171a2e;
+      --muted: #9aa3b2;
+      --text: #e7ecf3;
+      --brand: #62e0ff;
+      --accent: #8ef6a0;
+      --danger: #ff7b7b;
     }
-    .transform-style-preserve-3d { transform-style: preserve-3d; }
+    * { box-sizing: border-box; font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; }
+    body { margin: 0; background: radial-gradient(1200px 600px at 70% -10%, #1a2142, var(--bg)); color: var(--text); }
+    .wrap { max-width: 1024px; margin: 0 auto; padding: 24px; }
+    .hero { display: grid; gap: 8px; margin-bottom: 16px; }
+    .hero h1 { font-size: 28px; margin: 0; letter-spacing: .3px; }
+    .hero p { margin: 0; color: var(--muted); }
 
-    /* Capas deben respetar esquinas redondeadas en iPhone */
-    .holo-effect,
-    .glare-effect,
-    .noise {
-      clip-path: inset(0 round var(--card-radius)); /* fuerza recorte redondeado */
-      border-radius: var(--card-radius);
-    }
+    .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .card { background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01)); border: 1px solid rgba(255,255,255,.07); border-radius: 16px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.2); }
+    .card h2 { margin: 0 0 8px; font-size: 18px; }
+    .muted { color: var(--muted); font-size: 14px; }
 
-    /* Efecto holográfico: SOLO gradiente psicodélico + máscara alfa */
-    .holo-effect {
-      background-image:
-        conic-gradient(from 180deg at 50% 50%,
-          #00a2ff 0deg, #0066ff 30deg, #6b00ff 60deg, #c800ff 90deg,
-          #ff00c8 120deg, #ff0066 150deg, #ff4d00 180deg, #ffb800 210deg,
-          #ffff00 240deg, #66ff00 270deg, #00ffbf 300deg, #00e6ff 330deg, #00a2ff 360deg
-        );
-      background-size: 220% 220%;
-      background-position: var(--holoX) var(--holoY);
+    label { display: block; font-size: 14px; margin: 10px 0 6px; color: var(--muted); }
+    input[type="text"], input[type="password"], textarea, select { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,.12); background: #0e1324; color: var(--text); outline: none; }
+    textarea { min-height: 86px; resize: vertical; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
 
-      /* blend por defecto (desktop y browsers no-iOS) */
-      mix-blend-mode: color-dodge;
-      filter: saturate(2.0) contrast(1.2) brightness(1.05);
-      opacity: 1;
-      will-change: background-position, opacity;
+    .btn { display: inline-flex; gap: 8px; align-items: center; padding: 10px 14px; background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06)); color: var(--text); border: 1px solid rgba(255,255,255,.14); border-radius: 12px; cursor: pointer; text-decoration: none; transition: transform .05s ease, filter .2s ease; }
+    .btn:hover { filter: brightness(1.05); }
+    .btn:active { transform: translateY(1px); }
+    .btn.brand { background: linear-gradient(180deg, rgba(98,224,255,.20), rgba(98,224,255,.10)); border-color: rgba(98,224,255,.5); }
+    .btn.accent { background: linear-gradient(180deg, rgba(142,246,160,.18), rgba(142,246,160,.08)); border-color: rgba(142,246,160,.5); }
+    .btn.danger { background: linear-gradient(180deg, rgba(255,123,123,.18), rgba(255,123,123,.08)); border-color: rgba(255,123,123,.5); }
 
-      /* Máscara por canal ALFA (fix para iOS/Safari) */
-      -webkit-mask-image: url("assets/mask.png");
-      mask-image: url("assets/mask.png");
-      -webkit-mask-mode: alpha;
-      mask-mode: alpha;
-      -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
-      -webkit-mask-size: cover;      mask-size: cover;
-      -webkit-mask-position: center; mask-position: center;
-    }
+    .badges { display: flex; flex-wrap: wrap; gap: 8px; }
+    .badge { padding: 6px 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,.12); background: #0d1222; font-size: 12px; }
 
-    /* iOS Safari: usar 'screen' en lugar de 'color-dodge' para evitar apagón */
-    @supports (-webkit-touch-callout: none) {
-      .holo-effect {
-        mix-blend-mode: screen;
-        filter: saturate(1.9) contrast(1.2) brightness(1.06);
-      }
-    }
+    .list { display: grid; gap: 8px; margin-top: 8px; max-height: 340px; overflow: auto; }
+    .item { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.02); }
+    .item small { color: var(--muted); }
 
-    /* Glare */
-    .glare-effect {
-      background: radial-gradient(circle at var(--glareX) var(--glareY),
-        hsla(0,0%,100%,0.95) 0%,
-        hsla(0,0%,100%,0) 80%);
-      mix-blend-mode: overlay;
-    }
+    .sep { height: 1px; background: linear-gradient(90deg, rgba(255,255,255,.0), rgba(255,255,255,.12), rgba(255,255,255,.0)); margin: 12px 0; }
 
-    /* Ruido sutil */
-    .noise {
-      opacity: .10; mix-blend-mode: overlay; pointer-events: none;
-      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140"><filter id="n"><feTurbulence baseFrequency="0.85" numOctaves="2" seed="5" /></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.45"/></svg>');
-      background-size: 200px 200px;
-    }
-
-    /* Sombra general de la card */
-    #card { filter: drop-shadow(0 12px 24px rgba(0,0,0,.25)) drop-shadow(0 2px 6px rgba(0,0,0,.2)); }
-
-    @media (prefers-reduced-motion: reduce) {
-      .virtual-card-container { transition: none !important; }
-    }
+    .hidden { display: none !important; }
+    .center { text-align: center; }
   </style>
 </head>
 <body>
-  <main class="flex flex-col items-center justify-center min-h-screen w-full p-4 overflow-hidden">
-    <div
-      id="card"
-      class="virtual-card-container relative rounded-3xl transition-transform duration-100 ease-out"
-      style="width: 420px; height: 520px; border-radius: var(--card-radius);"
-      tabindex="0"
-      role="img"
-      aria-label="Tarjeta holográfica interactiva"
-    >
-      <div class="w-full h-full transform-style-preserve-3d rounded-3xl overflow-hidden shadow-xl bg-white"
-           style="border-radius: var(--card-radius)">
-        <!-- Capa 1: Arte base -->
-        <img
-          src="assets/card.png"
-          alt="Ilustración de tarjeta"
-          class="absolute inset-0 w-full h-full object-cover rounded-3xl"
-          style="border-radius: var(--card-radius)"
-          loading="eager" decoding="async" fetchpriority="high"
-        />
-        <!-- Capa 2: Holograma (gradiente), recortado por máscara -->
-        <div class="holo-effect absolute inset-0 opacity-100"></div>
-        <!-- Capa 3: Brillo/glare -->
-        <div class="glare-effect absolute inset-0"></div>
-        <!-- Capa 4: Ruido sutil -->
-        <div class="noise absolute inset-0"></div>
+  <div class="wrap">
+    <div class="hero">
+      <h1>Mini CRM de Rewards</h1>
+      <p class="muted">Login simple por nombre para miembros y un acceso de admin para gestionar usuarios, rewards y comentarios. Datos en Firestore para que todos vean cambios al instante.</p>
+    </div>
+
+    <div class="grid" id="authGrid">
+      <div class="card">
+        <h2>Ingreso de miembro</h2>
+        <p class="muted">Escribe tu nombre tal cual lo registró el admin.</p>
+        <label>Nombre</label>
+        <input id="memberName" type="text" placeholder="Ej. Ana López" />
+        <div style="margin-top:12px; display:flex; gap:8px;">
+          <button class="btn brand" id="memberLoginBtn">Entrar</button>
+          <button class="btn" id="demoUserBtn">Probar demo</button>
+        </div>
+        <p class="muted" id="memberMsg" style="margin-top:8px"></p>
+      </div>
+
+      <div class="card">
+        <h2>Ingreso admin</h2>
+        <p class="muted">Usa la clave compartida en el grupo.</p>
+        <label>Clave</label>
+        <input id="adminPass" type="password" placeholder="Clave de admin" />
+        <div style="margin-top:12px; display:flex; gap:8px;">
+          <button class="btn accent" id="adminLoginBtn">Entrar como admin</button>
+          <button class="btn" id="demoAdminBtn">Probar demo</button>
+        </div>
+        <p class="muted" id="adminMsg" style="margin-top:8px"></p>
       </div>
     </div>
-  </main>
 
-  <script type="module">
-    const settings = {
-      perspective: 1500,
-      smoothing: 0.30,
-      mouseMaxRotX: 20,
-      mouseMaxRotY: 20,
-      gyroMaxRotX: 20,
-      gyroMaxRotY: 20,
-      holoOpacity: 1.0,
-      holoBgSize: 220,
-      holoMoveFactor: 70,
-      glareOpacity: 0.95,
-      glareSize: 80,
+    <div class="grid hidden" id="memberGrid">
+      <div class="card">
+        <h2>Tus rewards</h2>
+        <div id="memberRewards" class="badges"></div>
+        <div class="sep"></div>
+        <h2>Tus comentarios</h2>
+        <div id="memberComments" class="list"></div>
+        <div class="sep"></div>
+        <button class="btn" id="memberLogoutBtn">Salir</button>
+      </div>
+    </div>
+
+    <div class="grid hidden" id="adminGrid">
+      <div class="card">
+        <h2>Alta rápida</h2>
+        <label>Nombre del usuario</label>
+        <input id="newUserName" type="text" placeholder="Nuevo miembro" />
+        <label>Rewards</label>
+        <div id="newUserRewards" class="badges"></div>
+        <button class="btn accent" id="addUserBtn" style="margin-top:12px">Crear usuario</button>
+        <p class="muted" id="addUserMsg" style="margin-top:8px"></p>
+      </div>
+
+      <div class="card">
+        <h2>Gestión de usuarios</h2>
+        <label>Buscar</label>
+        <input id="search" type="text" placeholder="Filtra por nombre" />
+        <div class="list" id="usersList"></div>
+      </div>
+
+      <div class="card">
+        <h2>Editar usuario</h2>
+        <div id="editPanel" class="hidden">
+          <div class="muted" id="editUserTitle"></div>
+          <label>Rewards</label>
+          <div id="editRewards" class="badges"></div>
+          <label>Comentario para el usuario</label>
+          <textarea id="editComment" placeholder="Mensaje breve"></textarea>
+          <div class="row" style="margin-top:12px;">
+            <button class="btn brand" id="saveRewardsBtn">Guardar rewards</button>
+            <button class="btn" id="addCommentBtn">Agregar comentario</button>
+          </div>
+          <div class="row" style="margin-top:8px;">
+            <button class="btn danger" id="deleteUserBtn">Eliminar usuario</button>
+            <button class="btn" id="clearPanelBtn">Limpiar panel</button>
+          </div>
+          <p class="muted" id="editMsg" style="margin-top:8px"></p>
+        </div>
+        <div id="noUserSelected" class="muted">Selecciona un usuario para editar.</div>
+      </div>
+
+      <div class="card">
+        <h2>Sesión</h2>
+        <button class="btn" id="adminLogoutBtn">Cerrar sesión admin</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+
+  <script>
+    // 1) Configura Firebase y rellena con tu propio config
+  const firebaseConfig = {
+    apiKey: "AIzaSyBlevLcY3TKVYQpr4Hur1f7XeZoHLbXCC0",
+    authDomain: "gameover-b6eb7.firebaseapp.com",
+    projectId: "gameover-b6eb7",
+    storageBucket: "gameover-b6eb7.firebasestorage.app",
+    messagingSenderId: "522023719283",
+    appId: "1:522023719283:web:3e5ce88c28a52b56a27506"
+  };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // 2) Parámetros básicos del sistema
+    const ADMIN_SECRET = "admin-123"; // cambia esta clave y compártela con tu grupo
+    const REWARDS = [
+      { id: "r1", label: "Tarjeta Verde" },
+      { id: "r2", label: "Tarjeta Azul" },
+      { id: "r3", label: "Tarjeta Dorada" },
+      { id: "r4", label: "Tarjeta Platino" }
+    ];
+
+    // Helpers UI
+    const $ = sel => document.querySelector(sel);
+    const el = (tag, attrs = {}, children = []) => {
+      const n = document.createElement(tag);
+      Object.entries(attrs).forEach(([k,v]) => {
+        if (k === 'class') n.className = v; else if (k === 'text') n.textContent = v; else n.setAttribute(k, v);
+      });
+      children.forEach(c => n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c));
+      return n;
     };
+    const kebab = s => s.toLowerCase().trim().replace(/\s+/g,'-');
 
-    // DOM
-    const cardContainer = document.getElementById('card');
-    const holoEffect = cardContainer.querySelector('.holo-effect');
-    const glareEffect = cardContainer.querySelector('.glare-effect');
+    // Estado de sesión
+    let currentMember = null;
+    let isAdmin = false;
+    let selectedUserId = null;
 
-    // Estado
-    let rotation = { x: 0, y: 0 };
-    let targetRotation = { x: 0, y: 0 };
-    let initialOrientation = { beta: null, gamma: null };
-    let isGyroActive = false;
-    let rafId = null;
-    let needsFrame = false;
-    let px = 0, py = 0;
-
-    // Estilos base
-    function applyStaticStyles() {
-      cardContainer.style.setProperty('--persp', settings.perspective + 'px');
-      holoEffect.style.opacity = settings.holoOpacity;
-      holoEffect.style.backgroundSize = settings.holoBgSize + '% ' + settings.holoBgSize + '%';
-      glareEffect.style.background =
-        `radial-gradient(circle at var(--glareX) var(--glareY),
-          hsla(0,0%,100%,${settings.glareOpacity}) 0%,
-          hsla(0,0%,100%,0) ${settings.glareSize}%)`;
+    // Render de chips de rewards reutilizable
+    function renderRewardChips(container, selected = new Set(), onToggle) {
+      container.innerHTML = '';
+      REWARDS.forEach(r => {
+        const active = selected.has(r.id);
+        const chip = el('button', { class: 'badge', type: 'button' }, [r.label]);
+        chip.style.borderColor = active ? 'rgba(142,246,160,.8)' : 'rgba(255,255,255,.12)';
+        chip.style.background = active ? 'rgba(142,246,160,.15)' : '#0d1222';
+        chip.addEventListener('click', () => onToggle(r.id));
+        container.appendChild(chip);
+      });
     }
 
-    // Render
-    function render(xMax, yMax) {
-      const clampedY = Math.max(-yMax, Math.min(rotation.y, yMax));
-      const clampedX = Math.max(-xMax, Math.min(rotation.x, xMax));
-
-      const glareX = (clampedY / yMax) * 100 + 50;
-      const glareY = (-clampedX / xMax) * 100 + 50;
-      const holoX  = 50 - (clampedY / yMax) * settings.holoMoveFactor;
-      const holoY  = 50 - (-clampedX / xMax) * settings.holoMoveFactor;
-
-      cardContainer.style.setProperty('--rx',     clampedX + 'deg');
-      cardContainer.style.setProperty('--ry',     clampedY + 'deg');
-      cardContainer.style.setProperty('--holoX',  holoX + '%');
-      cardContainer.style.setProperty('--holoY',  holoY + '%');
-      cardContainer.style.setProperty('--glareX', glareX + '%');
-      cardContainer.style.setProperty('--glareY', glareY + '%');
-    }
-
-    // Puntero (a demanda)
-    function tickPointer() {
-      rotation.y += ((settings.mouseMaxRotY * px) - rotation.y) * settings.smoothing;
-      rotation.x += ((-settings.mouseMaxRotX * py) - rotation.x) * settings.smoothing;
-      render(settings.mouseMaxRotX, settings.mouseMaxRotY);
-      needsFrame = false;
-    }
-
-    function onPointerMove(e) {
-      const rect = cardContainer.getBoundingClientRect();
-      px = (e.clientX - rect.left) / rect.width - 0.5;
-      py = (e.clientY - rect.top) / rect.height - 0.5;
-      if (!isGyroActive && !needsFrame) {
-        needsFrame = true;
-        requestAnimationFrame(tickPointer);
+    // Autenticación falsa de miembro
+    $('#memberLoginBtn').addEventListener('click', async () => {
+      const name = $('#memberName').value.trim();
+      if (!name) { $('#memberMsg').textContent = 'Escribe un nombre.'; return; }
+      try {
+        const id = kebab(name);
+        const ref = db.collection('users').doc(id);
+        const snap = await ref.get();
+        if (!snap.exists) {
+          $('#memberMsg').textContent = 'No existe este usuario. Pide alta al admin.';
+          return;
+        }
+        currentMember = { id, ...snap.data() };
+        localStorage.setItem('member', currentMember.id);
+        showMemberView();
+      } catch (e) {
+        $('#memberMsg').textContent = 'Error de conexión. Intenta de nuevo.';
+        console.error(e);
       }
-    }
-
-    function onPointerLeave() {
-      if (isGyroActive) return;
-      rotation = { x: 0, y: 0 };
-      px = 0; py = 0;
-      requestAnimationFrame(tickPointer);
-    }
-
-    // Giroscopio
-    function handleDeviceOrientation(event) {
-      const { beta, gamma } = event;
-      if (beta == null || gamma == null) return;
-      if (initialOrientation.beta == null) {
-        initialOrientation.beta = beta;
-        initialOrientation.gamma = gamma;
-      }
-      const deltaBeta  = beta  - initialOrientation.beta;
-      const deltaGamma = gamma - initialOrientation.gamma;
-      targetRotation.x = Math.max(-settings.gyroMaxRotX, Math.min(deltaBeta,  settings.gyroMaxRotX));
-      targetRotation.y = Math.max(-settings.gyroMaxRotY, Math.min(-deltaGamma, settings.gyroMaxRotY));
-    }
-
-    function tickGyro() {
-      rotation.x += (targetRotation.x - rotation.x) * settings.smoothing;
-      rotation.y += (targetRotation.y - rotation.y) * settings.smoothing;
-      render(settings.gyroMaxRotX, settings.gyroMaxRotY);
-      rafId = requestAnimationFrame(tickGyro);
-    }
-
-    function enableGyro() {
-      if (isGyroActive) return;
-      isGyroActive = true;
-      initialOrientation = { beta: null, gamma: null };
-      rotation = { x: 0, y: 0 };
-      targetRotation = { x: 0, y: 0 };
-      window.addEventListener('deviceorientation', handleDeviceOrientation);
-      if (rafId) cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(tickGyro);
-    }
-
-    async function requestGyro() {
-      if (!('DeviceOrientationEvent' in window)) return;
-      if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-        try {
-          const p = await DeviceOrientationEvent.requestPermission();
-          if (p === 'granted') enableGyro();
-        } catch {}
-      } else {
-        enableGyro();
-      }
-    }
-
-    // Gestión de visibilidad/orientación y limpieza
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden && rafId) { cancelAnimationFrame(rafId); rafId = null; }
-      else if (isGyroActive && !rafId) { rafId = requestAnimationFrame(tickGyro); }
-    });
-    window.addEventListener('orientationchange', () => { initialOrientation = { beta: null, gamma: null }; });
-    window.addEventListener('beforeunload', () => {
-      cardContainer.removeEventListener('pointermove', onPointerMove);
-      cardContainer.removeEventListener('pointerleave', onPointerLeave);
-      window.removeEventListener('deviceorientation', handleDeviceOrientation);
-      if (rafId) cancelAnimationFrame(rafId);
     });
 
-    // Init
-    function init() {
-      applyStaticStyles();
-      cardContainer.addEventListener('pointermove', onPointerMove, { passive: true });
-      cardContainer.addEventListener('pointerleave', onPointerLeave, { passive: true });
-      // Gyro al tocar
-      cardContainer.addEventListener('pointerdown', requestGyro, { once: true });
-      cardContainer.addEventListener('touchstart', requestGyro, { once: true, passive: true });
-      cardContainer.addEventListener('click', requestGyro, { once: true });
+    $('#memberLogoutBtn').addEventListener('click', () => {
+      currentMember = null; localStorage.removeItem('member');
+      $('#memberGrid').classList.add('hidden');
+      $('#authGrid').classList.remove('hidden');
+    });
+
+    // Autenticación simple de admin
+    $('#adminLoginBtn').addEventListener('click', async () => {
+      const pass = $('#adminPass').value.trim();
+      if (pass !== ADMIN_SECRET) { $('#adminMsg').textContent = 'Clave incorrecta.'; return; }
+      isAdmin = true; localStorage.setItem('admin', '1');
+      showAdminView();
+    });
+
+    $('#adminLogoutBtn').addEventListener('click', () => {
+      isAdmin = false; localStorage.removeItem('admin');
+      $('#adminGrid').classList.add('hidden');
+      $('#authGrid').classList.remove('hidden');
+    });
+
+    // Demo rápida sin datos reales
+    $('#demoUserBtn').addEventListener('click', async () => {
+      $('#memberName').value = 'Demo User';
+      await ensureDemoData();
+      $('#memberLoginBtn').click();
+    });
+    $('#demoAdminBtn').addEventListener('click', () => {
+      $('#adminPass').value = ADMIN_SECRET;
+      $('#adminLoginBtn').click();
+    });
+
+    // Vista miembro
+    async function showMemberView() {
+      $('#authGrid').classList.add('hidden');
+      $('#memberGrid').classList.remove('hidden');
+      await refreshMemberPanels();
     }
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+
+    async function refreshMemberPanels() {
+      if (!currentMember) return;
+      const ref = db.collection('users').doc(currentMember.id);
+      const snap = await ref.get();
+      if (!snap.exists) return;
+      currentMember = { id: currentMember.id, ...snap.data() };
+
+      const rewards = currentMember.rewards || [];
+      const comments = currentMember.comments || [];
+
+      const rewardsBox = $('#memberRewards');
+      rewardsBox.innerHTML = '';
+      if (rewards.length === 0) rewardsBox.appendChild(el('div', { class: 'muted', text: 'Sin rewards asignados todavía.' }));
+      rewards.forEach(rid => {
+        const r = REWARDS.find(x => x.id === rid);
+        rewardsBox.appendChild(el('span', { class: 'badge' }, [r ? r.label : rid]));
+      });
+
+      const commentsBox = $('#memberComments');
+      commentsBox.innerHTML = '';
+      if (comments.length === 0) commentsBox.appendChild(el('div', { class: 'muted', text: 'Sin comentarios por ahora.' }));
+      comments.slice().reverse().forEach(c => {
+        const item = el('div', { class: 'item' }, [
+          el('div', {}, [
+            el('div', { text: c.text || '' }),
+            el('small', {}, [new Date(c.ts || Date.now()).toLocaleString()])
+          ]),
+          el('div', { class: 'badge' }, [c.author || 'admin'])
+        ]);
+        commentsBox.appendChild(item);
+      });
+    }
+
+    // Vista admin
+    async function showAdminView() {
+      $('#authGrid').classList.add('hidden');
+      $('#adminGrid').classList.remove('hidden');
+      renderRewardChips($('#newUserRewards'), new Set(), id => {
+        const set = new Set(Array.from($('#newUserRewards').querySelectorAll('.badge')).map((b, i) => b._active ? REWARDS[i].id : null).filter(Boolean));
+      });
+      rebuildUsersList();
+      setupCreateUser();
+      setupEditBindings();
+    }
+
+    function setupCreateUser() {
+      // estado local de selección
+      const selected = new Set();
+      renderRewardChips($('#newUserRewards'), selected, rid => {
+        if (selected.has(rid)) selected.delete(rid); else selected.add(rid);
+        renderRewardChips($('#newUserRewards'), selected, arguments.callee);
+      });
+      $('#addUserBtn').onclick = async () => {
+        const name = $('#newUserName').value.trim();
+        if (!name) { $('#addUserMsg').textContent = 'Escribe un nombre.'; return; }
+        const id = kebab(name);
+        const ref = db.collection('users').doc(id);
+        const doc = await ref.get();
+        if (doc.exists) { $('#addUserMsg').textContent = 'Ese usuario ya existe.'; return; }
+        await ref.set({
+          name,
+          rewards: Array.from(selected),
+          comments: [],
+          createdAt: Date.now()
+        });
+        $('#addUserMsg').textContent = 'Usuario creado.';
+        $('#newUserName').value = '';
+        selected.clear();
+        renderRewardChips($('#newUserRewards'), selected, rid => { if (selected.has(rid)) selected.delete(rid); else selected.add(rid); renderRewardChips($('#newUserRewards'), selected, arguments.callee); });
+        rebuildUsersList();
+      };
+    }
+
+    async function rebuildUsersList() {
+      const list = $('#usersList');
+      list.innerHTML = '';
+      const q = $('#search').value?.toLowerCase().trim() || '';
+      const snap = await db.collection('users').orderBy('name').get();
+      snap.forEach(doc => {
+        const u = { id: doc.id, ...doc.data() };
+        if (q && !u.name.toLowerCase().includes(q)) return;
+        const row = el('div', { class: 'item' }, [
+          el('div', {}, [
+            el('div', { text: u.name }),
+            el('small', {}, [(u.rewards?.length || 0) + ' rewards'])
+          ]),
+          el('div', {}, [
+            el('button', { class: 'btn', type: 'button' }, ['Editar'])
+          ])
+        ]);
+        row.querySelector('button').addEventListener('click', () => selectUser(u.id, u.name));
+        list.appendChild(row);
+      });
+    }
+
+    $('#search').addEventListener('input', rebuildUsersList);
+
+    async function selectUser(id, name) {
+      selectedUserId = id;
+      $('#noUserSelected').classList.add('hidden');
+      $('#editPanel').classList.remove('hidden');
+      $('#editUserTitle').textContent = name + ' (' + id + ')';
+      const ref = db.collection('users').doc(id);
+      const snap = await ref.get();
+      if (!snap.exists) return;
+      const data = snap.data();
+      const selected = new Set(data.rewards || []);
+      renderRewardChips($('#editRewards'), selected, rid => {
+        if (selected.has(rid)) selected.delete(rid); else selected.add(rid);
+        renderRewardChips($('#editRewards'), selected, arguments.callee);
+      });
+      $('#saveRewardsBtn').onclick = async () => {
+        await ref.update({ rewards: Array.from(selected) });
+        $('#editMsg').textContent = 'Rewards guardados.';
+        if (currentMember && currentMember.id === id) await refreshMemberPanels();
+        rebuildUsersList();
+      };
+      $('#addCommentBtn').onclick = async () => {
+        const text = $('#editComment').value.trim();
+        if (!text) { $('#editMsg').textContent = 'Escribe un comentario.'; return; }
+        await ref.update({
+          comments: firebase.firestore.FieldValue.arrayUnion({ text, ts: Date.now(), author: 'admin' })
+        });
+        $('#editComment').value = '';
+        $('#editMsg').textContent = 'Comentario agregado.';
+        if (currentMember && currentMember.id === id) await refreshMemberPanels();
+      };
+      $('#deleteUserBtn').onclick = async () => {
+        if (!confirm('¿Eliminar este usuario?')) return;
+        await ref.delete();
+        $('#editMsg').textContent = 'Usuario eliminado.';
+        selectedUserId = null;
+        $('#editPanel').classList.add('hidden');
+        $('#noUserSelected').classList.remove('hidden');
+        rebuildUsersList();
+      };
+      $('#clearPanelBtn').onclick = () => {
+        selectedUserId = null;
+        $('#editPanel').classList.add('hidden');
+        $('#noUserSelected').classList.remove('hidden');
+      };
+    }
+
+    // Restaurar sesión si existe
+    window.addEventListener('DOMContentLoaded', async () => {
+      const m = localStorage.getItem('member');
+      const a = localStorage.getItem('admin');
+      if (m) {
+        const ref = db.collection('users').doc(m);
+        const snap = await ref.get();
+        if (snap.exists) { currentMember = { id: m, ...snap.data() }; showMemberView(); return; }
+      }
+      if (a === '1') { isAdmin = true; showAdminView(); return; }
+    });
+
+    // Datos de ejemplo para la demo
+    async function ensureDemoData() {
+      const sample = [
+        { name: 'Demo User', rewards: ['r1','r3'], comments: [{ text: 'Bienvenido a la comunidad', ts: Date.now()-86400000, author: 'admin' }] },
+        { name: 'Ana López', rewards: ['r2'], comments: [] },
+        { name: 'Carlos Pérez', rewards: ['r4'], comments: [{ text: 'Felicidades por el logro', ts: Date.now()-3600000, author: 'admin' }] }
+      ];
+      for (const u of sample) {
+        const id = kebab(u.name);
+        const ref = db.collection('users').doc(id);
+        const snap = await ref.get();
+        if (!snap.exists) await ref.set({ ...u, createdAt: Date.now() });
+      }
+    }
   </script>
 </body>
 </html>
