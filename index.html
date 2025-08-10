@@ -3,15 +3,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#07090f" />
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://www.gstatic.com">
   <title>GAME OVER · Rewards CRM</title>
   <style>
-    /* Tema oscuro con acentos neón para máxima legibilidad */
     :root {
       --ink: #07090f;           /* fondo principal muy oscuro */
       --panel: #0f1424;         /* paneles */
       --neon-yellow: #f6f200;   /* amarillo ácido */
       --neon-cyan: #00e5ff;     /* cian eléctrico */
-      --neon-pink: #ff2bbf;     /* magenta graffiti */
+      --neon-pink: #ff2bbf;     /* magenta */
       --muted: #a7b0c0;
       --text: #f2f6ff;          /* texto alto contraste */
       --border: rgba(255,255,255,.12);
@@ -36,15 +38,17 @@
     .wrap { max-width: 1120px; margin: 0 auto; padding: 24px; }
 
     .hero { display: grid; gap: 6px; margin-bottom: 16px; }
-    .gameover { font-weight: 900; font-size: 42px; letter-spacing: 1px; text-transform: uppercase; color: var(--neon-yellow); text-shadow: 0 2px 0 #000, 0 0 8px rgba(246,242,0,.6), 0 0 22px rgba(246,242,0,.35); }
-    .subtitle { color: var(--muted); opacity:.95; }
+    .gameover {
+      font-weight: 900; font-size: 42px; letter-spacing: 1px; text-transform: uppercase; color: var(--neon-yellow);
+      text-shadow: 0 2px 0 #000, 0 0 8px rgba(246,242,0,.6), 0 0 22px rgba(246,242,0,.35);
+    }
 
     .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
     .card { background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015)); border: 1px solid var(--border); border-radius: 18px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
     .card h2 { margin: 0 0 8px; font-size: 18px; text-transform: uppercase; letter-spacing: .5px; color: var(--text); }
     .muted { color: var(--muted); font-size: 14px; }
 
-    /* Login minimalista tipo "LOGIN [ input }" con CTA discreto */
+    /* Login minimalista con CTA embebido */
     .loginRow { display:flex; align-items:center; gap:12px; }
     .loginLabel { font-weight: 900; letter-spacing: 1px; color: var(--text); }
     .bracket { position: relative; flex: 1; background: #0b1120; border: 1px solid var(--border); border-radius: 14px; padding: 8px 12px; padding-right: 48px; box-shadow: var(--glow); }
@@ -73,7 +77,10 @@
     .sep { height: 1px; background: linear-gradient(90deg, rgba(255,255,255,.0), rgba(255,255,255,.22), rgba(255,255,255,.0)); margin: 12px 0; }
 
     .hidden { display: none !important; }
-    .status { margin-top: 8px; font-size: 12px; color: var(--muted); }
+
+    /* Toasts */
+    .toast { position: fixed; right: 16px; top: 16px; display: grid; gap: 8px; z-index: 50; }
+    .toast-item { background: #0b1120; border: 1px solid rgba(255,255,255,.14); padding: 10px 12px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,.35); }
   </style>
 </head>
 <body>
@@ -81,22 +88,19 @@
   <div class="wrap">
     <div class="hero">
       <div class="gameover">Game Over · Rewards</div>
-      <div class="subtitle">Tema techno urbano. Final Boss no se asigna a nadie hasta el evento final.</div>
-      <p id="testStatus" class="status"></p>
     </div>
 
-    <!-- Login unificado: un solo campo inteligente (teléfono o clave admin secreta) -->
+    <!-- Login unificado (inteligente) -->
     <div class="grid" id="authGrid">
       <div class="card">
         <div class="loginRow">
           <span class="loginLabel">LOGIN</span>
           <div class="bracket">
-            <input id="loginKey" type="text" placeholder="Ingresa tu teléfono" autocomplete="off" inputmode="numeric" />
+            <input id="loginKey" type="text" placeholder="Ingresa tu teléfono" autocomplete="off" inputmode="numeric" aria-label="Teléfono" aria-describedby="loginMsg" />
             <button id="loginBtn" class="submit" aria-label="Entrar">→</button>
           </div>
         </div>
-        <p class="muted" id="loginHint" style="margin-top:8px">Presiona Enter o el botón para continuar.</p>
-        <p class="muted" id="loginMsg" style="margin-top:4px"></p>
+        <p class="muted" id="loginMsg" aria-live="polite" style="margin-top:6px"></p>
       </div>
     </div>
 
@@ -106,7 +110,7 @@
         <h2>Tus tarjetas</h2>
         <div id="memberCards" class="gallery"></div>
         <div class="sep"></div>
-        <h2>Tus comentarios</h2>
+        <h2>Comentarios</h2>
         <div id="memberComments" class="list"></div>
         <div class="sep"></div>
         <button class="btn" id="memberLogoutBtn">Salir</button>
@@ -117,31 +121,29 @@
     <div class="grid hidden" id="adminGrid">
       <div class="card">
         <h2>Alta rápida</h2>
-        <label>Nombre del usuario</label>
+        <label>Nombre</label>
         <input id="newUserName" type="text" placeholder="Nuevo miembro" />
-        <label>Teléfono (login)</label>
+        <label>Teléfono</label>
         <input id="newUserPhone" type="text" placeholder="Ej. +52 55 1234 5678" />
-        <label>Selecciona tarjetas</label>
+        <label>Tarjetas</label>
         <div id="newUserRewards" class="chips"></div>
-        <small class="muted">Final Boss se desbloquea en el evento final y no se asigna manualmente.</small>
         <button class="btn accent" id="addUserBtn" style="margin-top:12px">Crear usuario</button>
-        <p class="muted" id="addUserMsg" style="margin-top:8px"></p>
       </div>
 
       <div class="card">
-        <h2>Gestión de usuarios</h2>
+        <h2>Gestión</h2>
         <label>Buscar</label>
-        <input id="search" type="text" placeholder="Filtra por nombre o teléfono" />
+        <input id="search" type="text" placeholder="Nombre o teléfono" />
         <div class="list" id="usersList"></div>
       </div>
 
       <div class="card">
-        <h2>Editar usuario</h2>
+        <h2>Editar</h2>
         <div id="editPanel" class="hidden">
           <div class="muted" id="editUserTitle"></div>
           <label>Tarjetas</label>
           <div id="editRewards" class="chips"></div>
-          <label>Comentario para el usuario</label>
+          <label>Comentario</label>
           <textarea id="editComment" placeholder="Mensaje breve"></textarea>
           <div class="row" style="margin-top:12px;">
             <button class="btn brand" id="saveRewardsBtn">Guardar</button>
@@ -151,9 +153,8 @@
             <button class="btn danger" id="deleteUserBtn">Eliminar usuario</button>
             <button class="btn" id="clearPanelBtn">Limpiar panel</button>
           </div>
-          <p class="muted" id="editMsg" style="margin-top:8px"></p>
         </div>
-        <div id="noUserSelected" class="muted">Selecciona un usuario para editar.</div>
+        <div id="noUserSelected" class="muted"></div>
       </div>
 
       <div class="card">
@@ -163,11 +164,14 @@
     </div>
   </div>
 
+  <div class="toast" id="toast"></div>
+
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
   <script>
+    'use strict';
     // 1) Configura Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyBlevLcY3TKVYQpr4Hur1f7XeZoHLbXCC0",
@@ -194,12 +198,23 @@
     const el = (tag, attrs = {}, children = []) => { const n = document.createElement(tag); Object.entries(attrs).forEach(([k,v]) => { if (k === 'class') n.className = v; else if (k === 'text') n.textContent = v; else n.setAttribute(k, v); }); children.forEach(c => n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c)); return n; };
     const phoneKey = s => (s || '').replace(/\D+/g, ''); // solo dígitos para ID
 
+    // Admin key levemente ofuscada (evita lectura casual en código)
+    const ADMIN_KEY_B64 = 'RmluYWxCb3Nz'; // "FinalBoss" en Base64
+
     // Estado + listeners
     let unsubMember = null, unsubUsers = null, unsubEdit = null;
     let cacheUsers = [];
 
     const allow = rid => (REWARDS.find(r => r.id === rid)?.assignable !== false);
     function debounce(fn, ms){ let t; return (...a)=>{ clearTimeout(t); t = setTimeout(()=>fn.apply(null,a), ms); }; }
+
+    function toast(msg){
+      const host = document.getElementById('toast');
+      const item = el('div', { class: 'toast-item' }, [msg]);
+      host.appendChild(item);
+      setTimeout(()=>{ item.style.opacity = '0'; item.style.transform = 'translateY(-4px)'; item.style.transition = 'opacity .4s ease, transform .4s ease'; }, 2000);
+      setTimeout(()=> item.remove(), 2600);
+    }
 
     // Chips de admin (solo nombres)
     function renderRewardChips(container, selected = new Set(), onToggle, { enforceAssignable = true } = {}){
@@ -239,7 +254,7 @@
 
       const cardsBox = document.getElementById('memberCards');
       cardsBox.innerHTML = '';
-      if (rewards.length === 0) cardsBox.appendChild(el('div', { class: 'muted', text: 'Aún no tienes tarjetas.' }));
+      if (rewards.length === 0) cardsBox.appendChild(el('div', { class: 'muted', text: 'Sin tarjetas por ahora.' }));
       rewards.forEach(rid => {
         const r = REWARDS.find(x => x.id === rid);
         const wrap = el('div', { class: 'cardart' }, [ el('img', { src: r?.img || '', alt: r?.label || rid }), el('div', { class: 'label', text: r?.label || rid }) ]);
@@ -248,7 +263,7 @@
 
       const commentsBox = document.getElementById('memberComments');
       commentsBox.innerHTML = '';
-      if (comments.length === 0) commentsBox.appendChild(el('div', { class: 'muted', text: 'Sin comentarios por ahora.' }));
+      if (comments.length === 0) commentsBox.appendChild(el('div', { class: 'muted', text: 'Sin comentarios.' }));
       comments.slice().reverse().forEach(c => {
         const item = el('div', { class: 'item' }, [
           el('div', {}, [ el('div', { text: c.text || '' }), el('small', {}, [new Date(c.ts || Date.now()).toLocaleString()]) ]),
@@ -290,7 +305,12 @@
       makeChipToggle(document.getElementById('editRewards'), selected, { enforceAssignable: true });
 
       unsubEdit = ref.onSnapshot(doc => {
-        if (!doc.exists) { document.getElementById('editMsg').textContent = 'El usuario fue eliminado.'; document.getElementById('editPanel').classList.add('hidden'); document.getElementById('noUserSelected').classList.remove('hidden'); return; }
+        if (!doc.exists) {
+          toast('Usuario eliminado');
+          document.getElementById('editPanel').classList.add('hidden');
+          document.getElementById('noUserSelected').classList.remove('hidden');
+          return;
+        }
         const data = doc.data();
         selected = new Set(sortRewards((data.rewards || []).filter(allow)));
         makeChipToggle(document.getElementById('editRewards'), selected, { enforceAssignable: true });
@@ -298,17 +318,20 @@
 
       document.getElementById('saveRewardsBtn').onclick = async () => {
         await ref.update({ rewards: sortRewards(Array.from(selected).filter(allow)) });
-        document.getElementById('editMsg').textContent = 'Tarjetas guardadas.';
+        toast('Tarjetas guardadas');
       };
       document.getElementById('addCommentBtn').onclick = async () => {
-        const text = document.getElementById('editComment').value.trim(); if (!text) { document.getElementById('editMsg').textContent = 'Escribe un comentario.'; return; }
+        const text = document.getElementById('editComment').value.trim(); if (!text) { toast('Escribe un comentario'); return; }
         await ref.update({ comments: firebase.firestore.FieldValue.arrayUnion({ text, ts: Date.now(), author: 'admin' }) });
-        document.getElementById('editComment').value = ''; document.getElementById('editMsg').textContent = 'Comentario agregado.';
+        document.getElementById('editComment').value = '';
+        toast('Comentario agregado');
       };
       document.getElementById('deleteUserBtn').onclick = async () => {
         if (!confirm('¿Eliminar este usuario?')) return; if (unsubEdit) { unsubEdit(); unsubEdit = null; }
-        await ref.delete(); document.getElementById('editMsg').textContent = 'Usuario eliminado.';
-        document.getElementById('editPanel').classList.add('hidden'); document.getElementById('noUserSelected').classList.remove('hidden');
+        await ref.delete();
+        toast('Usuario eliminado');
+        document.getElementById('editPanel').classList.add('hidden');
+        document.getElementById('noUserSelected').classList.remove('hidden');
       };
       document.getElementById('clearPanelBtn').onclick = () => { if (unsubEdit) { unsubEdit(); unsubEdit = null; } document.getElementById('editPanel').classList.add('hidden'); document.getElementById('noUserSelected').classList.remove('hidden'); };
     }
@@ -318,17 +341,17 @@
       const key = document.getElementById('loginKey').value.trim();
       const msg = document.getElementById('loginMsg');
       if (!key) { msg.textContent = 'Ingresa tu teléfono.'; return; }
-      // Admin: palabra secreta (no se muestra en UI)
-      if (key.toLowerCase() === 'finalboss') {
+      // Admin: palabra secreta (no visible en UI)
+      if (key.toLowerCase() === atob(ADMIN_KEY_B64).toLowerCase()) {
         localStorage.setItem('admin','1'); showAdminView(); return;
       }
       const id = phoneKey(key);
       if (!id) { msg.textContent = 'Teléfono inválido.'; return; }
       try {
         const ref = db.collection('users').doc(id); const snap = await ref.get();
-        if (!snap.exists) { msg.textContent = 'No existe este usuario. Pide alta al admin.'; return; }
+        if (!snap.exists) { msg.textContent = 'No existe este usuario.'; return; }
         localStorage.setItem('member', id); showMemberView(); startMemberListener(id);
-      } catch(e){ msg.textContent = 'Error de conexión. Intenta de nuevo.'; console.error(e); }
+      } catch(e){ msg.textContent = 'Error de conexión.'; console.error(e); }
     }
 
     document.getElementById('loginKey').addEventListener('keydown', (e)=>{ if (e.key === 'Enter') doLogin(); });
@@ -348,12 +371,12 @@
       document.getElementById('addUserBtn').onclick = async () => {
         const name = document.getElementById('newUserName').value.trim();
         const phone = phoneKey(document.getElementById('newUserPhone').value.trim());
-        if (!name) { document.getElementById('addUserMsg').textContent = 'Escribe un nombre.'; return; }
-        if (!phone) { document.getElementById('addUserMsg').textContent = 'Escribe un teléfono válido.'; return; }
+        if (!name) { toast('Falta nombre'); return; }
+        if (!phone) { toast('Teléfono inválido'); return; }
         const ref = db.collection('users').doc(phone); const doc = await ref.get();
-        if (doc.exists) { document.getElementById('addUserMsg').textContent = 'Ese teléfono ya está registrado.'; return; }
+        if (doc.exists) { toast('Teléfono ya registrado'); return; }
         await ref.set({ name, phone, rewards: sortRewards(Array.from(selected).filter(allow)), comments: [], createdAt: Date.now() });
-        document.getElementById('addUserMsg').textContent = 'Usuario creado.';
+        toast('Usuario creado');
         document.getElementById('newUserName').value = ''; document.getElementById('newUserPhone').value = ''; selected.clear();
         makeChipToggle(document.getElementById('newUserRewards'), selected, { enforceAssignable: true });
       };
@@ -362,24 +385,21 @@
     document.getElementById('search').addEventListener('input', debounce(renderUsersList, 180));
 
     window.addEventListener('DOMContentLoaded', async () => {
-      runSmokeTests();
+      // Autochequeo solo a consola en producción
+      try {
+        const results = [];
+        results.push(['Firebase', typeof firebase !== 'undefined']);
+        results.push(['DB', !!db]);
+        results.push(['Rewards', REWARDS.length === 5]);
+        await db.collection('users').limit(1).get(); results.push(['Lectura Firestore', true]);
+        console.log('Smoke:', results.map(([k,v])=>`${k}:${v?'✔':'✖'}`).join(' • '));
+      } catch(e){ console.warn('Smoke tests', e); }
+
       const m = localStorage.getItem('member'); const a = localStorage.getItem('admin');
       if (a === '1') { showAdminView(); return; }
       if (m) { showMemberView(); startMemberListener(m); return; }
       showAuth();
     });
-
-    async function runSmokeTests(){
-      const results = [];
-      try {
-        results.push(['Firebase cargó', typeof firebase !== 'undefined']);
-        results.push(['DB inicializada', !!db]);
-        results.push(['Catálogo 5 tarjetas', REWARDS.length === 5 && REWARDS.some(r=>!r.assignable)]);
-        results.push(['Funciones clave', ['renderRewardChips','makeChipToggle','startUsersListener','startMemberListener','selectUser','sortRewards','doLogin'].every(k => typeof window[k] === 'function')]);
-        await db.collection('users').limit(1).get(); results.push(['Permisos de lectura', true]);
-      } catch(e){ console.warn('Smoke tests', e); results.push(['Autochequeo falló', false]); }
-      const elStatus = document.getElementById('testStatus'); if (elStatus) elStatus.textContent = 'Autochequeo: ' + results.map(r=>`${r[0]}: ${r[1]?'✔':'✖'}`).join(' • ');
-    }
   </script>
 </body>
 </html>
