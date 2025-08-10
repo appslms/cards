@@ -44,13 +44,15 @@
     .card h2 { margin: 0 0 8px; font-size: 18px; text-transform: uppercase; letter-spacing: .5px; color: var(--text); }
     .muted { color: var(--muted); font-size: 14px; }
 
-    /* Login minimalista tipo "LOGIN [ input }" */
+    /* Login minimalista tipo "LOGIN [ input }" con CTA discreto */
     .loginRow { display:flex; align-items:center; gap:12px; }
     .loginLabel { font-weight: 900; letter-spacing: 1px; color: var(--text); }
-    .bracket { position: relative; flex: 1; background: #0b1120; border: 1px solid var(--border); border-radius: 14px; padding: 8px 12px; box-shadow: var(--glow); }
+    .bracket { position: relative; flex: 1; background: #0b1120; border: 1px solid var(--border); border-radius: 14px; padding: 8px 12px; padding-right: 48px; box-shadow: var(--glow); }
     .bracket::before { content: '['; position: absolute; left: -16px; top: 50%; transform: translateY(-50%); color: var(--neon-cyan); font-weight: 900; font-size: 20px; }
     .bracket::after { content: '}'; position: absolute; right: -16px; top: 50%; transform: translateY(-50%); color: var(--neon-cyan); font-weight: 900; font-size: 20px; }
     .bracket input { width: 100%; border: 0; outline: 0; background: transparent; color: var(--text); font-size: 16px; }
+    .bracket .submit { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border: 1px solid var(--border); background: rgba(255,255,255,.06); border-radius: 10px; padding: 6px 10px; cursor: pointer; color: var(--text); }
+    .bracket .submit:hover { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); }
 
     /* Chips de admin (solo texto) */
     .chips { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -83,16 +85,18 @@
       <p id="testStatus" class="status"></p>
     </div>
 
-    <!-- Login unificado ULTRA SIMPLE (teléfono o "FinalBoss") -->
+    <!-- Login unificado: un solo campo inteligente (teléfono o clave admin secreta) -->
     <div class="grid" id="authGrid">
       <div class="card">
         <div class="loginRow">
           <span class="loginLabel">LOGIN</span>
           <div class="bracket">
-            <input id="loginKey" type="text" placeholder="Teléfono o FinalBoss" autocomplete="off" />
+            <input id="loginKey" type="text" placeholder="Ingresa tu teléfono" autocomplete="off" inputmode="numeric" />
+            <button id="loginBtn" class="submit" aria-label="Entrar">→</button>
           </div>
         </div>
-        <p class="muted" id="loginMsg" style="margin-top:8px"></p>
+        <p class="muted" id="loginHint" style="margin-top:8px">Presiona Enter o el botón para continuar.</p>
+        <p class="muted" id="loginMsg" style="margin-top:4px"></p>
       </div>
     </div>
 
@@ -176,7 +180,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 2) Parámetros del sistema y catálogo de tarjetas (orden 1→4, Final Boss bloqueado)
+    // 2) Catálogo de tarjetas (orden 1→4, Final Boss bloqueado)
     const REWARDS = [
       { id: "r1", label: "Joker",    img: "assets/card1.png", assignable: true },
       { id: "r2", label: "Predator", img: "assets/card2.png", assignable: true },
@@ -309,12 +313,13 @@
       document.getElementById('clearPanelBtn').onclick = () => { if (unsubEdit) { unsubEdit(); unsubEdit = null; } document.getElementById('editPanel').classList.add('hidden'); document.getElementById('noUserSelected').classList.remove('hidden'); };
     }
 
-    // Login unificado súper simple: Enter para continuar
+    // Login unificado: Enter o botón →
     async function doLogin(){
       const key = document.getElementById('loginKey').value.trim();
       const msg = document.getElementById('loginMsg');
-      if (!key) { msg.textContent = 'Ingresa teléfono o FinalBoss.'; return; }
-      if (key.toLowerCase() === 'finalboss') { // admin directo
+      if (!key) { msg.textContent = 'Ingresa tu teléfono.'; return; }
+      // Admin: palabra secreta (no se muestra en UI)
+      if (key.toLowerCase() === 'finalboss') {
         localStorage.setItem('admin','1'); showAdminView(); return;
       }
       const id = phoneKey(key);
@@ -327,6 +332,7 @@
     }
 
     document.getElementById('loginKey').addEventListener('keydown', (e)=>{ if (e.key === 'Enter') doLogin(); });
+    document.getElementById('loginBtn').addEventListener('click', doLogin);
 
     // Controles de sesión
     document.getElementById('memberLogoutBtn').addEventListener('click', () => { localStorage.removeItem('member'); if (unsubMember) { unsubMember(); unsubMember = null; } showAuth(); });
