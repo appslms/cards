@@ -65,7 +65,7 @@
     .muted { color: var(--muted); }
 
     /* Landing / Login */
-    .landing { min-height: calc(100vh - 120px); display: grid; grid-template-columns: minmax(420px, 560px) minmax(520px, 760px); justify-content: center; align-content: center; align-items: center; gap: clamp(20px, 5vw, 56px); }
+    .landing { min-height: calc(100vh - 120px); display: grid; grid-template-columns: minmax(540px, 980px); justify-content: center; align-content: center; align-items: center; }
     .login-stack { display: grid; gap: 18px; justify-self: center; width: 100%; max-width: 560px; }
 
     .loginBox { position: relative; border-radius: 20px; padding: clamp(18px, 3vw, 28px); background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); border: 1px solid var(--border); box-shadow: 0 20px 48px rgba(0,0,0,.45), var(--glow); overflow:hidden; }
@@ -93,6 +93,15 @@
       radial-gradient(60% 40% at 70% 80%, rgba(255,43,191,.16), transparent 60%),
       url('assets/background.png') center / cover no-repeat; filter: brightness(.7) contrast(1); }
     .art::after { content:""; position:absolute; inset:0; background: repeating-linear-gradient(90deg, rgba(255,255,255,.05), rgba(255,255,255,.05) 1px, transparent 1px, transparent 60px), repeating-linear-gradient(0deg, rgba(0,0,0,.12), rgba(0,0,0,.12) 1px, transparent 1px, transparent 60px); opacity:.25; mix-blend-mode: soft-light; }
+
+    /* Overlay con efecto glass dentro de la tarjeta */
+    .art { perspective: 900px; transform-style: preserve-3d; }
+    .art .overlay { position: absolute; left: clamp(16px, 4vw, 32px); right: clamp(16px, 4vw, 32px); bottom: clamp(16px, 4vw, 32px); display: grid; gap: 12px; background: rgba(11,17,32,.72); backdrop-filter: blur(10px) saturate(1.1); border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: var(--glow); transform: translateZ(30px); }
+    .shine { position: absolute; inset: -20%; background:
+      radial-gradient(40% 12% at 30% 0%, rgba(255,255,255,.08), transparent 60%),
+      linear-gradient(115deg, transparent 40%, rgba(255,255,255,.06) 50%, transparent 60%);
+      mix-blend-mode: screen; animation: sweep 6s linear infinite; pointer-events: none; }
+    @keyframes sweep { from { transform: translateX(-20%) rotate(.001deg); } to { transform: translateX(20%) rotate(.001deg); } }
 
     @keyframes shakeX { 10%,90%{ transform: translateX(-1px);} 20%,80%{ transform: translateX(2px);} 30%,50%,70%{ transform: translateX(-4px);} 40%,60%{ transform: translateX(4px);} }
 
@@ -164,8 +173,9 @@
     </div>
 
     <section class="landing" id="authGrid">
-      <div class="login-stack">
-        <div class="loginBox">
+      <div class="art" aria-label="Tarjeta de acceso">
+        <span class="shine" aria-hidden="true"></span>
+        <div class="overlay">
           <div class="loginTitle">Login</div>
           <div class="phoneInput" id="loginBox">
             <button class="ccBtn" id="ccBtn" type="button" aria-haspopup="listbox" aria-expanded="false"><span id="ccCode">CR</span>&nbsp;<span id="ccDial">+506</span>&nbsp;▾</button>
@@ -176,7 +186,6 @@
           <div class="loginMeta" id="loginMsg" aria-live="polite"></div>
         </div>
       </div>
-      <div class="art" aria-hidden="true"></div>
     </section>
 
     <div class="adminLink"><button id="adminOpen" type="button">[admin]</button></div>
@@ -498,17 +507,8 @@
     ];
     let currentCountry = COUNTRIES[0]; // CR por defecto
 
-    function setCountryByCC(cc){
-      const c = COUNTRIES.find(x=>x.cc===cc) || COUNTRIES[0];
-      currentCountry = c;
-      document.getElementById('ccCode').textContent = c.code;
-      document.getElementById('ccDial').textContent = '+'+c.cc;
-      const inp = document.getElementById('loginInput');
-      if (inp){
-        inp.placeholder = (c.cc==='506') ? '6004 8606' : '123 456 789';
-        inp.value = formatDisplayGeneric(inp.value);
-      }
-    }
+    function setCountryByCC(cc){ const c = COUNTRIES.find(x=>x.cc===cc) || COUNTRIES[0]; currentCountry = c; document.getElementById('ccCode').textContent = c.code; document.getElementById('ccDial').textContent = '+'+c.cc; localStorage.setItem('cc', c.cc); const inp = document.getElementById('loginInput'); if (inp){ inp.placeholder = (c.cc==='506') ? '6004 8606' : '123 456 789'; inp.value = formatDisplayGeneric(inp.value); } }
+    
 
     function buildCCMenu(){
       const menu = document.getElementById('ccMenu');
@@ -554,7 +554,7 @@
     // UI Login
     (function setupLoginUI(){
       buildCCMenu();
-      setCountryByCC('506');
+      setCountryByCC(localStorage.getItem('cc') || '506');
       const input = document.getElementById('loginInput');
       if (input) {
         input.addEventListener('input', (e)=>{
@@ -590,8 +590,24 @@
       setTimeout(()=> t.classList.remove('glitching'), 520);
     }
 
-    // Controles de sesión
-    document.getElementById('memberLogoutBtn')?.addEventListener('click', () => { localStorage.removeItem('member'); if (unsubMember) { unsubMember(); unsubMember = null; } showAuth(); });
+    // Parallax suave de la tarjeta
+    (function tiltCard(){
+      const art = document.querySelector('.art');
+      if (!art) return;
+      const max = 8;
+      function onMove(e){
+        const r = art.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width;
+        const y = (e.clientY - r.top) / r.height;
+        const rx = ((0.5 - y) * max).toFixed(2);
+        const ry = ((x - 0.5) * max).toFixed(2);
+        art.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+      }
+      function reset(){ art.style.transform = ''; }
+      art.addEventListener('mousemove', onMove);
+      art.addEventListener('mouseleave', reset);
+    })();
+
     document.getElementById('adminLogoutBtn')?.addEventListener('click', () => { localStorage.removeItem('admin'); if (unsubUsers) { unsubUsers(); unsubUsers = null; } if (unsubEdit) { unsubEdit(); unsubEdit = null; } showAuth(); });
 
     function showAuth(){
