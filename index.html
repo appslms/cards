@@ -91,17 +91,23 @@
     .art::before { content:""; position:absolute; inset:0; background:
       radial-gradient(80% 40% at 20% 10%, rgba(0,229,255,.14), transparent 60%),
       radial-gradient(60% 40% at 70% 80%, rgba(255,43,191,.16), transparent 60%),
-      url('assets/background.png') center / cover no-repeat; filter: brightness(.7) contrast(1); }
-    .art::after { content:""; position:absolute; inset:0; background: repeating-linear-gradient(90deg, rgba(255,255,255,.05), rgba(255,255,255,.05) 1px, transparent 1px, transparent 60px), repeating-linear-gradient(0deg, rgba(0,0,0,.12), rgba(0,0,0,.12) 1px, transparent 1px, transparent 60px); opacity:.25; mix-blend-mode: soft-light; }
+      url('assets/background.png') center / cover no-repeat; filter: brightness(.7) contrast(1); z-index:0; pointer-events:none; }
+    .art::after { content:""; position:absolute; inset:0; background: repeating-linear-gradient(90deg, rgba(255,255,255,.05), rgba(255,255,255,.05) 1px, transparent 1px, transparent 60px), repeating-linear-gradient(0deg, rgba(0,0,0,.12), rgba(0,0,0,.12) 1px, transparent 1px, transparent 60px); opacity:.25; mix-blend-mode: soft-light; z-index:1; pointer-events:none; }
 
     /* Overlay con efecto glass dentro de la tarjeta */
-    .art { perspective: 900px; transform-style: preserve-3d; }
-    .art .overlay { position: absolute; left: clamp(16px, 4vw, 32px); right: clamp(16px, 4vw, 32px); bottom: clamp(16px, 4vw, 32px); display: grid; gap: 12px; background: rgba(11,17,32,.72); backdrop-filter: blur(10px) saturate(1.1); border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: var(--glow); transform: translateZ(30px); }
+    .art { perspective: 900px; transform-style: preserve-3d; position: relative; }
+    .art .overlay { position: absolute; left: clamp(16px, 4vw, 32px); right: clamp(16px, 4vw, 32px); bottom: clamp(16px, 4vw, 32px); display: grid; gap: 12px; background: rgba(11,17,32,.72); backdrop-filter: blur(10px) saturate(1.1); -webkit-backdrop-filter: blur(10px) saturate(1.1); border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: var(--glow); z-index: 3; isolation: isolate; backface-visibility: hidden; transform: translateZ(0); }
     .shine { position: absolute; inset: -20%; background:
       radial-gradient(40% 12% at 30% 0%, rgba(255,255,255,.08), transparent 60%),
       linear-gradient(115deg, transparent 40%, rgba(255,255,255,.06) 50%, transparent 60%);
-      mix-blend-mode: screen; animation: sweep 6s linear infinite; pointer-events: none; }
+      mix-blend-mode: screen; animation: sweep 6s linear infinite; pointer-events: none; z-index:2; opacity:.8; transition: opacity .2s ease; }
     @keyframes sweep { from { transform: translateX(-20%) rotate(.001deg); } to { transform: translateX(20%) rotate(.001deg); } }
+
+    /* Estado al escribir: apaga el brillo para máxima nitidez */
+    .art.typing .shine { opacity: 0; }
+
+    /* Nitidez del input sobre capas con transform */
+    .phoneInput, #loginInput { backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: translateZ(0); will-change: transform; }
 
     @keyframes shakeX { 10%,90%{ transform: translateX(-1px);} 20%,80%{ transform: translateX(2px);} 30%,50%,70%{ transform: translateX(-4px);} 40%,60%{ transform: translateX(4px);} }
 
@@ -508,7 +514,6 @@
     let currentCountry = COUNTRIES[0]; // CR por defecto
 
     function setCountryByCC(cc){ const c = COUNTRIES.find(x=>x.cc===cc) || COUNTRIES[0]; currentCountry = c; document.getElementById('ccCode').textContent = c.code; document.getElementById('ccDial').textContent = '+'+c.cc; localStorage.setItem('cc', c.cc); const inp = document.getElementById('loginInput'); if (inp){ inp.placeholder = (c.cc==='506') ? '6004 8606' : '123 456 789'; inp.value = formatDisplayGeneric(inp.value); } }
-    
 
     function buildCCMenu(){
       const menu = document.getElementById('ccMenu');
@@ -599,13 +604,20 @@
         const r = art.getBoundingClientRect();
         const x = (e.clientX - r.left) / r.width;
         const y = (e.clientY - r.top) / r.height;
-        const rx = ((0.5 - y) * max).toFixed(2);
-        const ry = ((x - 0.5) * max).toFixed(2);
+        const overOverlay = e.target.closest('.overlay');
+        const amp = overOverlay ? 2 : max;
+        const rx = ((0.5 - y) * amp).toFixed(2);
+        const ry = ((x - 0.5) * amp).toFixed(2);
         art.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
       }
       function reset(){ art.style.transform = ''; }
       art.addEventListener('mousemove', onMove);
       art.addEventListener('mouseleave', reset);
+      const overlay = document.querySelector('.art .overlay');
+      if (overlay){
+        overlay.addEventListener('focusin', ()=> art.classList.add('typing'));
+        overlay.addEventListener('focusout', ()=> art.classList.remove('typing'));
+      }
     })();
 
     document.getElementById('adminLogoutBtn')?.addEventListener('click', () => { localStorage.removeItem('admin'); if (unsubUsers) { unsubUsers(); unsubUsers = null; } if (unsubEdit) { unsubEdit(); unsubEdit = null; } showAuth(); });
@@ -674,7 +686,7 @@
         console.log('Smoke:', results.map(([k,v])=>`${k}:${v?'✔':'✖'}`).join(' • '));
       } catch(e){ console.warn('Smoke tests', e); }
 
-      await ensureDemoUser();
+      // await ensureDemoUser(); // desactivado para evitar errores de permisos en Firestore
 
       const m = localStorage.getItem('member'); const a = localStorage.getItem('admin');
       if (a === '1') { showAdminView(); return; }
