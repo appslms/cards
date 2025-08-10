@@ -3,60 +3,106 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mini CRM de Rewards</title>
+  <title>GAME OVER · Rewards CRM</title>
   <style>
+    /* Paleta techno-urbano inspirada en el póster */
     :root {
-      --bg: #0f1221;
-      --panel: #171a2e;
+      --ink: #0a0d12;           /* fondo oscuro */
+      --panel: #121826;         /* paneles */
+      --neon-yellow: #f6f200;   /* amarillo ácido */
+      --neon-cyan: #00e5ff;     /* cian eléctrico */
+      --neon-pink: #ff2bbf;     /* magenta graffiti */
       --muted: #9aa3b2;
       --text: #e7ecf3;
-      --brand: #62e0ff;
-      --accent: #8ef6a0;
-      --danger: #ff7b7b;
+      --border: rgba(255,255,255,.12);
+      --glow: 0 0 0 2px rgba(0,229,255,.2), 0 0 0 6px rgba(0,229,255,.08);
     }
-    * { box-sizing: border-box; font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; }
-    body { margin: 0; background: radial-gradient(1200px 600px at 70% -10%, #1a2142, var(--bg)); color: var(--text); }
-    .wrap { max-width: 1024px; margin: 0 auto; padding: 24px; }
-    .hero { display: grid; gap: 8px; margin-bottom: 16px; }
-    .hero h1 { font-size: 28px; margin: 0; letter-spacing: .3px; }
-    .hero p { margin: 0; color: var(--muted); }
 
-    .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
-    .card { background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01)); border: 1px solid rgba(255,255,255,.07); border-radius: 16px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.2); }
-    .card h2 { margin: 0 0 8px; font-size: 18px; }
+    * { box-sizing: border-box; font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; }
+    body { margin: 0; color: var(--text); background: var(--ink); }
+
+    /* Fondo con bloques geométricos estilo HUD */
+    .bg-tech {
+      position: fixed; inset: 0; z-index: -1; overflow: hidden;
+      background:
+        linear-gradient(180deg, var(--neon-yellow) 0 54%, transparent 54%),
+        linear-gradient(135deg, transparent 0 45%, rgba(255,255,255,.03) 45% 47%, transparent 47% 100%),
+        radial-gradient(800px 400px at 80% 0%, rgba(0,229,255,.15), transparent 60%),
+        radial-gradient(600px 300px at 20% 100%, rgba(255,43,191,.18), transparent 60%),
+        var(--ink);
+    }
+    .bg-tech::before, .bg-tech::after{
+      content:""; position:absolute; inset:auto; pointer-events:none;
+    }
+    .bg-tech::before{ bottom:0; left:0; right:0; height:38%; background:
+      linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+      clip-path: polygon(0 10%, 70% 0, 100% 6%, 100% 100%, 0 100%);
+      border-top: 1px solid rgba(255,255,255,.08);
+    }
+    .bg-tech::after{ top:8%; left:6%; width:160px; height:160px; border:2px dashed rgba(0,229,255,.5); border-radius:24px; transform: rotate(14deg); }
+
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 24px; }
+
+    .hero { display: grid; gap: 6px; margin-bottom: 16px; }
+    .gameover {
+      font-weight: 900; font-size: 36px; letter-spacing: 1px; text-transform: uppercase;
+      color: #0b0b0b; filter: drop-shadow(0 2px 0 #000) drop-shadow(0 0 20px rgba(0,229,255,.25));
+      background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .subtitle { color: var(--text); opacity:.9; }
+
+    .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+    .card { background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01)); border: 1px solid var(--border); border-radius: 18px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+    .card h2 { margin: 0 0 8px; font-size: 18px; text-transform: uppercase; letter-spacing: .5px; }
     .muted { color: var(--muted); font-size: 14px; }
 
-    label { display: block; font-size: 14px; margin: 10px 0 6px; color: var(--muted); }
-    input[type="text"], input[type="password"], textarea, select { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,.12); background: #0e1324; color: var(--text); outline: none; }
+    label { display: block; font-size: 13px; margin: 10px 0 6px; color: var(--muted); text-transform: uppercase; }
+    input[type="text"], input[type="password"], textarea, select { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border); background: #0e1324; color: var(--text); outline: none; }
     textarea { min-height: 86px; resize: vertical; }
+
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
-    .btn { display: inline-flex; gap: 8px; align-items: center; padding: 10px 14px; background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06)); color: var(--text); border: 1px solid rgba(255,255,255,.14); border-radius: 12px; cursor: pointer; text-decoration: none; transition: transform .05s ease, filter .2s ease; }
-    .btn:hover { filter: brightness(1.05); }
+    .btn { display: inline-flex; gap: 8px; align-items: center; padding: 10px 14px; color: var(--text); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; text-decoration: none; transition: transform .05s ease, filter .2s ease, box-shadow .2s ease; background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06)); }
+    .btn:hover { filter: brightness(1.08); box-shadow: var(--glow); }
     .btn:active { transform: translateY(1px); }
-    .btn.brand { background: linear-gradient(180deg, rgba(98,224,255,.20), rgba(98,224,255,.10)); border-color: rgba(98,224,255,.5); }
-    .btn.accent { background: linear-gradient(180deg, rgba(142,246,160,.18), rgba(142,246,160,.08)); border-color: rgba(142,246,160,.5); }
-    .btn.danger { background: linear-gradient(180deg, rgba(255,123,123,.18), rgba(255,123,123,.08)); border-color: rgba(255,255,255,.5); }
+    .btn.brand { background: linear-gradient(180deg, rgba(0,229,255,.22), rgba(0,229,255,.10)); border-color: rgba(0,229,255,.6); }
+    .btn.accent { background: linear-gradient(180deg, rgba(255,43,191,.20), rgba(255,43,191,.10)); border-color: rgba(255,43,191,.6); }
+    .btn.danger { background: linear-gradient(180deg, rgba(255,79,79,.18), rgba(255,79,79,.08)); border-color: rgba(255,79,79,.5); }
 
-    .badges { display: flex; flex-wrap: wrap; gap: 8px; }
-    .badge { padding: 6px 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,.12); background: #0d1222; font-size: 12px; }
+    /* Chips/tiles de rewards */
+    .tiles { display: grid; grid-template-columns: repeat(5, minmax(80px,1fr)); gap: 10px; }
+    @media (max-width: 640px){ .tiles { grid-template-columns: repeat(3, minmax(80px,1fr)); } }
+
+    .tile { position: relative; border-radius: 14px; border: 1px solid var(--border); overflow: hidden; background:#0d1222; cursor: pointer; }
+    .tile.is-selected { box-shadow: var(--glow); outline: 2px solid rgba(255,255,255,.12); }
+    .tile img { width: 100%; display: block; aspect-ratio: 2 / 3; object-fit: cover; }
+    .tile .tag { position: absolute; left: 8px; bottom: 8px; background: rgba(0,0,0,.6); color: white; border-radius: 10px; font-size: 12px; padding: 4px 8px; }
+    .tile.lock::after { content: 'EVENTO FINAL'; position: absolute; inset: 8px; display:flex; align-items:center; justify-content:center; font-weight:700; letter-spacing:.6px; color: var(--neon-yellow); background: rgba(0,0,0,.6); border:1px dashed var(--neon-yellow); border-radius: 10px; }
+    .tile.lock { cursor: not-allowed; filter: grayscale(.2) contrast(.9) brightness(.7); }
+
+    /* Galería para miembros */
+    .gallery { display:grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap:12px; }
+    .gallery .cardart { border-radius: 16px; overflow:hidden; border:1px solid var(--border); box-shadow: 0 8px 20px rgba(0,0,0,.25); background:#0d1222; }
+    .gallery .cardart img { width:100%; display:block; aspect-ratio: 2/3; object-fit: cover; }
+    .gallery .label { padding:6px 8px; font-size:12px; background: linear-gradient(90deg, rgba(0,229,255,.18), rgba(255,43,191,.18)); }
 
     .list { display: grid; gap: 8px; margin-top: 8px; max-height: 340px; overflow: auto; }
     .item { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.02); }
     .item small { color: var(--muted); }
 
-    .sep { height: 1px; background: linear-gradient(90deg, rgba(255,255,255,.0), rgba(255,255,255,.12), rgba(255,255,255,.0)); margin: 12px 0; }
+    .sep { height: 1px; background: linear-gradient(90deg, rgba(255,255,255,.0), rgba(255,255,255,.18), rgba(255,255,255,.0)); margin: 12px 0; }
 
     .hidden { display: none !important; }
-    .center { text-align: center; }
     .status { margin-top: 8px; font-size: 12px; color: var(--muted); }
   </style>
 </head>
 <body>
+  <div class="bg-tech"></div>
   <div class="wrap">
     <div class="hero">
-      <h1>Mini CRM de Rewards</h1>
-      <p class="muted">Login simple por nombre para miembros y un acceso de admin para gestionar usuarios, rewards y comentarios. Datos en Firestore para que todos vean cambios al instante.</p>
+      <div class="gameover">Game Over · Rewards</div>
+      <div class="subtitle">Tema techno urbano con tarjetas coleccionables. Final Boss no se asigna a nadie hasta el evento final.</div>
       <p id="testStatus" class="status"></p>
     </div>
 
@@ -88,8 +134,8 @@
 
     <div class="grid hidden" id="memberGrid">
       <div class="card">
-        <h2>Tus rewards</h2>
-        <div id="memberRewards" class="badges"></div>
+        <h2>Tus tarjetas</h2>
+        <div id="memberCards" class="gallery"></div>
         <div class="sep"></div>
         <h2>Tus comentarios</h2>
         <div id="memberComments" class="list"></div>
@@ -103,8 +149,9 @@
         <h2>Alta rápida</h2>
         <label>Nombre del usuario</label>
         <input id="newUserName" type="text" placeholder="Nuevo miembro" />
-        <label>Rewards</label>
-        <div id="newUserRewards" class="badges"></div>
+        <label>Selecciona tarjetas</label>
+        <div id="newUserRewards" class="tiles"></div>
+        <small class="muted">Final Boss se desbloquea en el evento final y no se asigna manualmente.</small>
         <button class="btn accent" id="addUserBtn" style="margin-top:12px">Crear usuario</button>
         <p class="muted" id="addUserMsg" style="margin-top:8px"></p>
       </div>
@@ -120,12 +167,12 @@
         <h2>Editar usuario</h2>
         <div id="editPanel" class="hidden">
           <div class="muted" id="editUserTitle"></div>
-          <label>Rewards</label>
-          <div id="editRewards" class="badges"></div>
+          <label>Tarjetas</label>
+          <div id="editRewards" class="tiles"></div>
           <label>Comentario para el usuario</label>
           <textarea id="editComment" placeholder="Mensaje breve"></textarea>
           <div class="row" style="margin-top:12px;">
-            <button class="btn brand" id="saveRewardsBtn">Guardar rewards</button>
+            <button class="btn brand" id="saveRewardsBtn">Guardar</button>
             <button class="btn" id="addCommentBtn">Agregar comentario</button>
           </div>
           <div class="row" style="margin-top:8px;">
@@ -149,7 +196,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
   <script>
-    // 1) Configura Firebase y rellena con tu propio config
+    // 1) Configura Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyBlevLcY3TKVYQpr4Hur1f7XeZoHLbXCC0",
       authDomain: "gameover-b6eb7.firebaseapp.com",
@@ -161,74 +208,64 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 2) Parámetros básicos del sistema
+    // 2) Parámetros del sistema y catálogo de tarjetas
     const ADMIN_SECRET = "admin-123"; // cambia esta clave
     const REWARDS = [
-      { id: "r1", label: "Tarjeta Verde" },
-      { id: "r2", label: "Tarjeta Azul" },
-      { id: "r3", label: "Tarjeta Dorada" },
-      { id: "r4", label: "Tarjeta Platino" }
+      { id: "r1", label: "Joker",    img: "assets/card1.png", assignable: true },
+      { id: "r2", label: "Predator", img: "assets/card2.png", assignable: true },
+      { id: "r3", label: "Alien",    img: "assets/card3.png", assignable: true },
+      { id: "r4", label: "Jason",    img: "assets/card4.png", assignable: true }, // nivel máximo para usuarios
+      { id: "r5", label: "Final Boss. Chucky", img: "assets/card5.png", assignable: false } // evento final
     ];
 
-    // Helpers UI
     const $ = sel => document.querySelector(sel);
     const el = (tag, attrs = {}, children = []) => {
       const n = document.createElement(tag);
-      Object.entries(attrs).forEach(([k,v]) => {
-        if (k === 'class') n.className = v; else if (k === 'text') n.textContent = v; else n.setAttribute(k, v);
-      });
+      Object.entries(attrs).forEach(([k,v]) => { if (k === 'class') n.className = v; else if (k === 'text') n.textContent = v; else n.setAttribute(k, v); });
       children.forEach(c => n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c));
       return n;
     };
     const kebab = s => s.toLowerCase().trim().replace(/\s+/g,'-');
 
-    // Estado y listeners
+    // Estado + listeners
     let currentMember = null;
-    let isAdmin = false;
-    let selectedUserId = null;
-    let unsubMember = null;
-    let unsubUsers = null;
-    let unsubEdit = null;
+    let unsubMember = null, unsubUsers = null, unsubEdit = null;
     let cacheUsers = [];
 
-    // Debounce simple para búsqueda
-    function debounce(fn, ms){
-      let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn.apply(null,args), ms); };
-    }
+    const allow = rid => (REWARDS.find(r => r.id === rid)?.assignable !== false);
 
-    // Render de chips de rewards reutilizable
-    function renderRewardChips(container, selected = new Set(), onToggle) {
+    function debounce(fn, ms){ let t; return (...a)=>{ clearTimeout(t); t = setTimeout(()=>fn.apply(null,a), ms); }; }
+
+    // Tiles con imagen y selector
+    function renderRewardTiles(container, selected = new Set(), onToggle, opts = { enforceAssignable: false }){
       container.innerHTML = '';
       REWARDS.forEach(r => {
-        const active = selected.has(r.id);
-        const chip = el('button', { class: 'badge', type: 'button' }, [r.label]);
-        chip.style.borderColor = active ? 'rgba(142,246,160,.8)' : 'rgba(255,255,255,.12)';
-        chip.style.background = active ? 'rgba(142,246,160,.15)' : '#0d1222';
-        chip.addEventListener('click', () => onToggle(r.id));
-        container.appendChild(chip);
+        const disabled = opts.enforceAssignable && !r.assignable;
+        const tile = el('button', { class: 'tile' + (disabled ? ' lock' : '') , type: 'button', title: disabled ? 'Se activa en el evento final' : r.label });
+        if (selected.has(r.id)) tile.classList.add('is-selected');
+        const img = el('img', { src: r.img, alt: r.label });
+        const tag = el('div', { class: 'tag', text: r.label });
+        tile.appendChild(img); tile.appendChild(tag);
+        if (!disabled) tile.addEventListener('click', () => onToggle(r.id));
+        container.appendChild(tile);
       });
     }
-
-    // Utilidad: crear un toggler estable para chips
-    function makeRewardToggle(container, selected) {
-      function toggle(rid) {
+    function makeTileToggle(container, selected, opts){
+      function toggle(rid){
         if (selected.has(rid)) selected.delete(rid); else selected.add(rid);
-        renderRewardChips(container, selected, toggle);
+        renderRewardTiles(container, selected, toggle, opts);
       }
-      renderRewardChips(container, selected, toggle);
+      renderRewardTiles(container, selected, toggle, opts);
       return toggle;
     }
 
-    // --- Miembro: listeners en tiempo real ---
+    // Miembro: tiempo real
     function startMemberListener(memberId){
       if (unsubMember) { unsubMember(); unsubMember = null; }
       if (!memberId) return;
       const ref = db.collection('users').doc(memberId);
       unsubMember = ref.onSnapshot(doc => {
-        if (!doc.exists) {
-          $('#memberMsg').textContent = 'Este usuario ya no existe.';
-          return;
-        }
+        if (!doc.exists) { $('#memberMsg').textContent = 'Este usuario ya no existe.'; return; }
         currentMember = { id: memberId, ...doc.data() };
         renderMemberPanels(currentMember);
       }, err => console.error('member onSnapshot', err));
@@ -238,12 +275,13 @@
       const rewards = member.rewards || [];
       const comments = member.comments || [];
 
-      const rewardsBox = $('#memberRewards');
-      rewardsBox.innerHTML = '';
-      if (rewards.length === 0) rewardsBox.appendChild(el('div', { class: 'muted', text: 'Sin rewards asignados todavía.' }));
+      const cardsBox = $('#memberCards');
+      cardsBox.innerHTML = '';
+      if (rewards.length === 0) cardsBox.appendChild(el('div', { class: 'muted', text: 'Aún no tienes tarjetas.' }));
       rewards.forEach(rid => {
         const r = REWARDS.find(x => x.id === rid);
-        rewardsBox.appendChild(el('span', { class: 'badge' }, [r ? r.label : rid]));
+        const wrap = el('div', { class: 'cardart' }, [ el('img', { src: r?.img || '', alt: r?.label || rid }), el('div', { class: 'label', text: r?.label || rid }) ]);
+        cardsBox.appendChild(wrap);
       });
 
       const commentsBox = $('#memberComments');
@@ -251,38 +289,29 @@
       if (comments.length === 0) commentsBox.appendChild(el('div', { class: 'muted', text: 'Sin comentarios por ahora.' }));
       comments.slice().reverse().forEach(c => {
         const item = el('div', { class: 'item' }, [
-          el('div', {}, [
-            el('div', { text: c.text || '' }),
-            el('small', {}, [new Date(c.ts || Date.now()).toLocaleString()])
-          ]),
-          el('div', { class: 'badge' }, [c.author || 'admin'])
+          el('div', {}, [ el('div', { text: c.text || '' }), el('small', {}, [new Date(c.ts || Date.now()).toLocaleString()]) ]),
+          el('div', { class: 'tag' }, [c.author || 'admin'])
         ]);
         commentsBox.appendChild(item);
       });
     }
 
-    // --- Admin: lista en tiempo real + caché ---
+    // Admin: lista y edición en tiempo real
     function startUsersListener(){
       if (unsubUsers) { unsubUsers(); unsubUsers = null; }
       unsubUsers = db.collection('users').orderBy('name').onSnapshot(snap => {
-        cacheUsers = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        cacheUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         renderUsersList();
       }, err => console.error('users onSnapshot', err));
     }
 
     function renderUsersList(){
-      const list = $('#usersList');
-      list.innerHTML = '';
+      const list = $('#usersList'); list.innerHTML = '';
       const q = ($('#search').value || '').toLowerCase().trim();
       cacheUsers.filter(u => !q || (u.name || '').toLowerCase().includes(q)).forEach(u => {
         const row = el('div', { class: 'item' }, [
-          el('div', {}, [
-            el('div', { text: u.name || u.id }),
-            el('small', {}, [(u.rewards?.length || 0) + ' rewards'])
-          ]),
-          el('div', {}, [
-            el('button', { class: 'btn', type: 'button' }, ['Editar'])
-          ])
+          el('div', {}, [ el('div', { text: u.name || u.id }), el('small', {}, [(u.rewards?.length || 0) + ' tarjetas']) ]),
+          el('div', {}, [ el('button', { class: 'btn', type: 'button' }, ['Editar']) ])
         ]);
         row.querySelector('button').addEventListener('click', () => selectUser(u.id, u.name || u.id));
         list.appendChild(row);
@@ -291,202 +320,102 @@
 
     const debouncedSearch = debounce(renderUsersList, 200);
 
-    // --- Admin: panel de edición en tiempo real ---
-    async function selectUser(id, name) {
-      selectedUserId = id;
+    async function selectUser(id, name){
       if (unsubEdit) { unsubEdit(); unsubEdit = null; }
       $('#noUserSelected').classList.add('hidden');
       $('#editPanel').classList.remove('hidden');
       $('#editUserTitle').textContent = name + ' (' + id + ')';
       const ref = db.collection('users').doc(id);
       let selected = new Set();
-      makeRewardToggle($('#editRewards'), selected);
+      makeTileToggle($('#editRewards'), selected, { enforceAssignable: true });
 
       unsubEdit = ref.onSnapshot(doc => {
-        if (!doc.exists) {
-          $('#editMsg').textContent = 'El usuario fue eliminado.';
-          $('#editPanel').classList.add('hidden');
-          $('#noUserSelected').classList.remove('hidden');
-          return;
-        }
+        if (!doc.exists) { $('#editMsg').textContent = 'El usuario fue eliminado.'; $('#editPanel').classList.add('hidden'); $('#noUserSelected').classList.remove('hidden'); return; }
         const data = doc.data();
-        selected = new Set(data.rewards || []);
-        makeRewardToggle($('#editRewards'), selected);
-      }, err => console.error('edit onSnapshot', err));
+        selected = new Set((data.rewards || []).filter(allow)); // limpia Final Boss si estaba por error
+        makeTileToggle($('#editRewards'), selected, { enforceAssignable: true });
+      });
 
       $('#saveRewardsBtn').onclick = async () => {
-        await ref.update({ rewards: Array.from(selected) });
-        $('#editMsg').textContent = 'Rewards guardados.';
+        await ref.update({ rewards: Array.from(selected).filter(allow) });
+        $('#editMsg').textContent = 'Tarjetas guardadas.';
       };
       $('#addCommentBtn').onclick = async () => {
-        const text = $('#editComment').value.trim();
-        if (!text) { $('#editMsg').textContent = 'Escribe un comentario.'; return; }
-        await ref.update({
-          comments: firebase.firestore.FieldValue.arrayUnion({ text, ts: Date.now(), author: 'admin' })
-        });
-        $('#editComment').value = '';
-        $('#editMsg').textContent = 'Comentario agregado.';
+        const text = $('#editComment').value.trim(); if (!text) { $('#editMsg').textContent = 'Escribe un comentario.'; return; }
+        await ref.update({ comments: firebase.firestore.FieldValue.arrayUnion({ text, ts: Date.now(), author: 'admin' }) });
+        $('#editComment').value = ''; $('#editMsg').textContent = 'Comentario agregado.';
       };
       $('#deleteUserBtn').onclick = async () => {
-        if (!confirm('¿Eliminar este usuario?')) return;
-        if (unsubEdit) { unsubEdit(); unsubEdit = null; }
-        await ref.delete();
-        $('#editMsg').textContent = 'Usuario eliminado.';
-        selectedUserId = null;
-        $('#editPanel').classList.add('hidden');
-        $('#noUserSelected').classList.remove('hidden');
+        if (!confirm('¿Eliminar este usuario?')) return; if (unsubEdit) { unsubEdit(); unsubEdit = null; }
+        await ref.delete(); $('#editMsg').textContent = 'Usuario eliminado.';
+        $('#editPanel').classList.add('hidden'); $('#noUserSelected').classList.remove('hidden');
       };
-      $('#clearPanelBtn').onclick = () => {
-        selectedUserId = null;
-        if (unsubEdit) { unsubEdit(); unsubEdit = null; }
-        $('#editPanel').classList.add('hidden');
-        $('#noUserSelected').classList.remove('hidden');
-      };
+      $('#clearPanelBtn').onclick = () => { if (unsubEdit) { unsubEdit(); unsubEdit = null; } $('#editPanel').classList.add('hidden'); $('#noUserSelected').classList.remove('hidden'); };
     }
 
-    // Autenticación falsa de miembro
+    // Auth miembro
     $('#memberLoginBtn').addEventListener('click', async () => {
-      const name = $('#memberName').value.trim();
-      if (!name) { $('#memberMsg').textContent = 'Escribe un nombre.'; return; }
+      const name = $('#memberName').value.trim(); if (!name) { $('#memberMsg').textContent = 'Escribe un nombre.'; return; }
       try {
-        const id = kebab(name);
-        const ref = db.collection('users').doc(id);
-        const snap = await ref.get();
+        const id = kebab(name); const ref = db.collection('users').doc(id); const snap = await ref.get();
         if (!snap.exists) { $('#memberMsg').textContent = 'No existe este usuario. Pide alta al admin.'; return; }
-        localStorage.setItem('member', id);
-        $('#authGrid').classList.add('hidden');
-        $('#memberGrid').classList.remove('hidden');
-        startMemberListener(id);
-      } catch (e) {
-        $('#memberMsg').textContent = 'Error de conexión. Intenta de nuevo.';
-        console.error(e);
-      }
+        localStorage.setItem('member', id); $('#authGrid').classList.add('hidden'); $('#memberGrid').classList.remove('hidden'); startMemberListener(id);
+      } catch(e){ $('#memberMsg').textContent = 'Error de conexión. Intenta de nuevo.'; console.error(e); }
     });
+    $('#memberLogoutBtn').addEventListener('click', () => { localStorage.removeItem('member'); if (unsubMember) { unsubMember(); unsubMember = null; } $('#memberGrid').classList.add('hidden'); $('#authGrid').classList.remove('hidden'); });
 
-    $('#memberLogoutBtn').addEventListener('click', () => {
-      currentMember = null; localStorage.removeItem('member');
-      if (unsubMember) { unsubMember(); unsubMember = null; }
-      $('#memberGrid').classList.add('hidden');
-      $('#authGrid').classList.remove('hidden');
-    });
+    // Auth admin
+    $('#adminLoginBtn').addEventListener('click', () => { const pass = $('#adminPass').value.trim(); if (pass !== ADMIN_SECRET) { $('#adminMsg').textContent = 'Clave incorrecta.'; return; } localStorage.setItem('admin','1'); showAdminView(); });
+    $('#adminLogoutBtn').addEventListener('click', () => { localStorage.removeItem('admin'); if (unsubUsers) { unsubUsers(); unsubUsers = null; } if (unsubEdit) { unsubEdit(); unsubEdit = null; } $('#adminGrid').classList.add('hidden'); $('#authGrid').classList.remove('hidden'); });
 
-    // Autenticación simple de admin
-    $('#adminLoginBtn').addEventListener('click', async () => {
-      const pass = $('#adminPass').value.trim();
-      if (pass !== ADMIN_SECRET) { $('#adminMsg').textContent = 'Clave incorrecta.'; return; }
-      isAdmin = true; localStorage.setItem('admin', '1');
-      showAdminView();
-    });
+    // Demo
+    $('#demoUserBtn').addEventListener('click', async () => { $('#memberName').value = 'Demo User'; await ensureDemoData(); $('#memberLoginBtn').click(); });
+    $('#demoAdminBtn').addEventListener('click', () => { $('#adminPass').value = ADMIN_SECRET; $('#adminLoginBtn').click(); });
 
-    $('#adminLogoutBtn').addEventListener('click', () => {
-      isAdmin = false; localStorage.removeItem('admin');
-      if (unsubUsers) { unsubUsers(); unsubUsers = null; }
-      if (unsubEdit) { unsubEdit(); unsubEdit = null; }
-      $('#adminGrid').classList.add('hidden');
-      $('#authGrid').classList.remove('hidden');
-    });
+    function showAdminView(){ $('#authGrid').classList.add('hidden'); $('#adminGrid').classList.remove('hidden'); setupCreateUser(); startUsersListener(); $('#search').focus(); }
 
-    // Demo rápida sin datos reales
-    $('#demoUserBtn').addEventListener('click', async () => {
-      $('#memberName').value = 'Demo User';
-      await ensureDemoData();
-      $('#memberLoginBtn').click();
-    });
-    $('#demoAdminBtn').addEventListener('click', () => {
-      $('#adminPass').value = ADMIN_SECRET;
-      $('#adminLoginBtn').click();
-    });
-
-    // Vista miembro
-    function showMemberView() {
-      $('#authGrid').classList.add('hidden');
-      $('#memberGrid').classList.remove('hidden');
-    }
-
-    // Vista admin
-    function showAdminView() {
-      $('#authGrid').classList.add('hidden');
-      $('#adminGrid').classList.remove('hidden');
-      setupCreateUser();
-      startUsersListener();
-      $('#search').focus();
-    }
-
-    function setupCreateUser() {
+    function setupCreateUser(){
       const selected = new Set();
-      makeRewardToggle($('#newUserRewards'), selected);
-
+      makeTileToggle($('#newUserRewards'), selected, { enforceAssignable: true });
       $('#addUserBtn').onclick = async () => {
-        const name = $('#newUserName').value.trim();
-        if (!name) { $('#addUserMsg').textContent = 'Escribe un nombre.'; return; }
-        const id = kebab(name);
-        const ref = db.collection('users').doc(id);
-        const doc = await ref.get();
+        const name = $('#newUserName').value.trim(); if (!name) { $('#addUserMsg').textContent = 'Escribe un nombre.'; return; }
+        const id = kebab(name); const ref = db.collection('users').doc(id); const doc = await ref.get();
         if (doc.exists) { $('#addUserMsg').textContent = 'Ese usuario ya existe.'; return; }
-        await ref.set({ name, rewards: Array.from(selected), comments: [], createdAt: Date.now() });
-        $('#addUserMsg').textContent = 'Usuario creado.';
-        $('#newUserName').value = '';
-        selected.clear();
-        makeRewardToggle($('#newUserRewards'), selected);
+        await ref.set({ name, rewards: Array.from(selected).filter(allow), comments: [], createdAt: Date.now() });
+        $('#addUserMsg').textContent = 'Usuario creado.'; $('#newUserName').value = ''; selected.clear(); makeTileToggle($('#newUserRewards'), selected, { enforceAssignable: true });
       };
     }
 
-    // Búsqueda con debounce
-    $('#search').addEventListener('input', debouncedSearch);
+    $('#search').addEventListener('input', debounce(renderUsersList, 180));
 
-    // Restaurar sesión si existe
     window.addEventListener('DOMContentLoaded', async () => {
       runSmokeTests();
-      const m = localStorage.getItem('member');
-      const a = localStorage.getItem('admin');
-      if (m) {
-        showMemberView();
-        startMemberListener(m);
-        return;
-      }
+      const m = localStorage.getItem('member'); const a = localStorage.getItem('admin');
+      if (m) { $('#authGrid').classList.add('hidden'); $('#memberGrid').classList.remove('hidden'); startMemberListener(m); return; }
       if (a === '1') { showAdminView(); return; }
     });
 
-    // Datos de ejemplo para la demo
-    async function ensureDemoData() {
+    async function ensureDemoData(){
       const sample = [
         { name: 'Demo User', rewards: ['r1','r3'], comments: [{ text: 'Bienvenido a la comunidad', ts: Date.now()-86400000, author: 'admin' }] },
         { name: 'Ana López', rewards: ['r2'], comments: [] },
         { name: 'Carlos Pérez', rewards: ['r4'], comments: [{ text: 'Felicidades por el logro', ts: Date.now()-3600000, author: 'admin' }] }
       ];
       for (const u of sample) {
-        const id = kebab(u.name);
-        const ref = db.collection('users').doc(id);
-        const snap = await ref.get();
-        if (!snap.exists) await ref.set({ ...u, createdAt: Date.now() });
+        const id = kebab(u.name); const ref = db.collection('users').doc(id); const snap = await ref.get(); if (!snap.exists) await ref.set({ ...u, createdAt: Date.now() });
       }
     }
 
-    // Pruebas rápidas (smoke tests)
-    async function runSmokeTests() {
+    async function runSmokeTests(){
       const results = [];
       try {
         results.push(['Firebase cargó', typeof firebase !== 'undefined']);
         results.push(['DB inicializada', !!db]);
-        results.push(['Funciones clave', ['showAdminView','selectUser','renderUsersList','renderMemberPanels','makeRewardToggle'].every(k => typeof window[k] === 'function')]);
-        results.push(['Elementos UI', ['authGrid','memberGrid','adminGrid'].every(id => !!document.getElementById(id))]);
-        try {
-          await db.collection('users').limit(1).get();
-          results.push(['Permisos de lectura', true]);
-        } catch(e) {
-          console.warn('Smoke read failed', e);
-          results.push(['Permisos de lectura', false]);
-        }
-      } catch (e) {
-        console.error('Smoke tests error', e);
-        results.push(['Autochequeo falló', false]);
-      }
-      const ok = results.every(r => r[1]);
-      const msg = results.map(r => `${r[0]}: ${r[1] ? '✔' : '✖'}`).join(' • ');
-      const elStatus = document.getElementById('testStatus');
-      if (elStatus) elStatus.textContent = `Autochequeo: ${msg}`;
-      console.log('Smoke tests', results);
-      return ok;
+        results.push(['Catálogo 5 tarjetas', REWARDS.length === 5 && REWARDS.some(r=>!r.assignable)]);
+        results.push(['Funciones clave', ['renderRewardTiles','makeTileToggle','startUsersListener','startMemberListener','selectUser'].every(k => typeof window[k] === 'function')]);
+        await db.collection('users').limit(1).get(); results.push(['Permisos de lectura', true]);
+      } catch(e){ console.warn('Smoke tests', e); results.push(['Autochequeo falló', false]); }
+      const elStatus = document.getElementById('testStatus'); if (elStatus) elStatus.textContent = 'Autochequeo: ' + results.map(r=>`${r[0]}: ${r[1]?'✔':'✖'}`).join(' • ');
     }
   </script>
 </body>
