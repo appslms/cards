@@ -33,61 +33,71 @@
       url('assets/background.png') center / cover no-repeat fixed,
       radial-gradient(800px 400px at 80% 0%, rgba(0,229,255,.10), transparent 60%),
       radial-gradient(600px 300px at 15% 100%, rgba(255,43,191,.10), transparent 60%),
-      repeating-linear-gradient(90deg, rgba(0,229,255,.06), rgba(0,229,255,.06) 1px, transparent 1px, transparent 80px),
-      repeating-linear-gradient(0deg, rgba(255,43,191,.05), rgba(255,43,191,.05) 1px, transparent 1px, transparent 80px),
       var(--ink);
       filter: saturate(.9) brightness(.9);
     }
     .wrap { max-width: 1300px; margin: 0 auto; padding: 24px clamp(20px, 4vw, 40px); }
     
-    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-    .card { border: 1px solid var(--border); border-radius: 18px; padding: 16px; background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); box-shadow: 0 20px 48px rgba(0,0,0,.45); }
-    .card h2 { margin: 0 0 8px 0; font-size: 18px; letter-spacing: .5px; }
-    .muted { color: var(--muted); }
-    
-    .landing { position: relative; min-height: calc(100vh - 48px); display: grid; place-items: center; }
-    
-    /* Contenedor principal que tiene el brillo y el fondo */
+    /* --- ESTRUCTURA DE CAPAS DEL LOGIN --- */
+    .landing {
+      min-height: calc(100vh - 48px);
+      /* Usamos Grid para superponer elementos fácilmente */
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+    }
+
+    .landing > * {
+      /* Coloca todos los hijos directos en la misma celda de la cuadrícula */
+      grid-area: 1 / 1;
+    }
+
+    /* CAPA 1: Fondo con efectos Parallax */
     .art {
       perspective: 900px;
       transform-style: preserve-3d;
       position: relative;
       width: 100%;
       max-width: 760px;
-      height: clamp(520px, 80vh, 640px);
+      height: 100%;
+      min-height: 520px;
       border-radius: 22px;
       overflow: hidden;
       border: 1px solid var(--border);
       background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
-      
-      /* Flexbox para centrar los elementos flotantes */
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: clamp(16px, 4vh, 32px);
-      padding: 2rem;
+      z-index: 1; /* Detrás del contenido */
     }
     .art::before { content:""; position:absolute; inset:0; background: radial-gradient(80% 40% at 20% 10%, rgba(0,229,255,.14), transparent 60%), radial-gradient(60% 40% at 70% 80%, rgba(255,43,191,.16), transparent 60%), url('assets/background.png') center / cover no-repeat; filter: brightness(.7) contrast(1); z-index: 0; pointer-events:none; }
     .art::after { content:""; position:absolute; inset:0; background: repeating-linear-gradient(90deg, rgba(255,255,255,.05), rgba(255,255,255,.05) 1px, transparent 1px, transparent 60px), repeating-linear-gradient(0deg, rgba(0,0,0,.12), rgba(0,0,0,.12) 1px, transparent 1px, transparent 60px); opacity:.25; mix-blend-mode: soft-light; z-index: 1; pointer-events:none; }
-    
-    /* Logo flotante */
-    .floating-logo {
-        width: clamp(280px, 60%, 420px);
-        height: auto;
-        z-index: 10;
+    .shine { position: absolute; inset: -20%; background: radial-gradient(40% 12% at var(--gx,30%) var(--gy,10%), rgba(255,255,255,.10), transparent 60%), linear-gradient(115deg, transparent 40%, rgba(255,255,255,.06) 50%, transparent 60%); mix-blend-mode: screen; pointer-events: none; z-index: 2; opacity:.9; transition: opacity .2s ease; }
+
+    /* CAPA 2: Contenido Flotante (Logo y Formulario) */
+    .floating-content {
+      position: relative;
+      z-index: 10; /* Encima del fondo */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 500px;
     }
     
-    /* Formulario de Login flotante */
+    .floating-logo {
+      width: clamp(320px, 80vw, 550px);
+      height: auto;
+      z-index: 11; /* Encima del login */
+      /* Efecto de "romper" el contenedor y superponerse */
+      margin-bottom: -60px;
+    }
+    
     .loginFloat {
       position: relative;
       display: grid;
       gap: 12px;
       width: 100%;
-      max-width: 480px;
-      background: rgba(11,17,32,.80);
-      backdrop-filter: blur(10px) saturate(1.1);
-      -webkit-backdrop-filter: blur(10px) saturate(1.1);
+      background: rgba(11,17,32,.85);
+      backdrop-filter: blur(12px) saturate(1.1);
+      -webkit-backdrop-filter: blur(12px) saturate(1.1);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 16px;
@@ -95,13 +105,11 @@
       z-index: 10;
     }
     
-    .shine { position: absolute; inset: -20%; background: radial-gradient(40% 12% at var(--gx,30%) var(--gy,10%), rgba(255,255,255,.10), transparent 60%), linear-gradient(115deg, transparent 40%, rgba(255,255,255,.06) 50%, transparent 60%); mix-blend-mode: screen; pointer-events: none; z-index: 2; opacity:.9; transition: opacity .2s ease; }
-    
     .loginTitle { font-size: 14px; letter-spacing: 1.5px; text-transform: uppercase; opacity:.9; margin-bottom: 10px; }
-    .phoneInput { position: relative; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; border: 1px solid var(--border); border-radius: 16px; padding: 12px 12px 12px 14px; background: #0b1120cc; backdrop-filter: blur(6px); box-shadow: var(--glow); }
+    .phoneInput { position: relative; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; border: 1px solid var(--border); border-radius: 16px; padding: 12px 12px 12px 14px; background: #0b1120cc; box-shadow: var(--glow); }
     .ccBtn { display:inline-flex; align-items:center; gap:6px; padding:8px 10px; border-radius:10px; border:1px solid var(--border); background: linear-gradient(180deg, rgba(0,229,255,.16), rgba(0,229,255,.06)); color: var(--text); font-weight:800; cursor:pointer; }
     .ccBtn:hover { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); }
-    .ccMenu { position:absolute; top: calc(100% + 8px); left: 0; width: 280px; max-height: 260px; overflow:auto; background:#0b1120; border:1px solid var(--border); border-radius:12px; box-shadow: 0 16px 40px rgba(0,0,0,.55); z-index: 5; }
+    .ccMenu { position:absolute; top: calc(100% + 8px); left: 0; width: 280px; max-height: 260px; overflow:auto; background:#0b1120; border:1px solid var(--border); border-radius:12px; box-shadow: 0 16px 40px rgba(0,0,0,.55); z-index: 15; }
     .ccItem { padding:8px 10px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
     .ccItem:hover { background: rgba(0,229,255,.10); }
     #loginInput { width: 100%; border: 0; outline: 0; background: transparent; color: var(--text); font-size: 22px; letter-spacing: .6px; }
@@ -110,46 +118,41 @@
     .goBtn:hover { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); }
     .phoneInput.shake { animation: shakeX 420ms cubic-bezier(.36,.07,.19,.97) both; }
     .loginMeta { display:flex; gap:12px; align-items:center; color: var(--muted); font-size: 13px; min-height: 18px; }
-    .phoneInput, #loginInput { backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: translateZ(0); will-change: transform; }
     @keyframes shakeX { 10%,90%{ transform: translateX(-1px);} 20%,80%{ transform: translateX(2px);} 30%,50%,70%{ transform: translateX(-4px);} 40%,60%{ transform: translateX(4px);} }
     
+    /* Vistas de Admin y Miembro (sin cambios) */
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 2rem; }
+    .card { border: 1px solid var(--border); border-radius: 18px; padding: 16px; background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); box-shadow: 0 20px 48px rgba(0,0,0,.45); }
+    .card h2 { margin: 0 0 8px 0; font-size: 18px; letter-spacing: .5px; }
     .btn { display: inline-flex; gap: 8px; align-items: center; padding: 10px 14px; color: var(--text); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; text-decoration: none; transition: transform .05s ease, filter .2s ease, box-shadow .2s ease; background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06)); }
     .btn:hover { filter: brightness(1.08); box-shadow: var(--glow); }
     .btn:active { transform: translateY(1px); }
     .btn.brand { background: linear-gradient(180deg, rgba(0,229,255,.22), rgba(0,229,255,.10)); border-color: rgba(0,229,255,.6); }
     .btn.accent { background: linear-gradient(180deg, rgba(255,43,191,.22), rgba(255,43,191,.10)); border-color: rgba(255,43,191,.6); }
     .btn.danger { background: linear-gradient(180deg, rgba(255,79,79,.2), rgba(255,79,79,.1)); border-color: rgba(255,79,79,.55); }
-    
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .field { position: relative; margin: 8px 0; }
     .field .icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); opacity: .85; font-size: 14px; pointer-events: none; }
     .neo { width: 100%; padding: 12px 12px 12px 36px; border-radius: 14px; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); color: var(--text); outline: none; box-shadow: inset 0 1px 0 rgba(255,255,255,.04); transition: box-shadow .2s ease, border-color .2s ease, filter .2s ease; }
     .neo:focus { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); filter: brightness(1.02); }
     .neo::placeholder { color: var(--muted); opacity: .75; }
-    textarea.neo { min-height: 96px; resize: vertical; padding-top: 12px; }
-    
     .chips { display: flex; flex-wrap: wrap; gap: 8px; }
     .chip { padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border); background: #0d1222; font-size: 13px; cursor: pointer; }
     .chip.is-selected { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); }
     .chip.lock { cursor: not-allowed; opacity: .6; }
-    
     .gallery { display:grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap:12px; }
     .gallery .cardart { border-radius: 16px; overflow:hidden; border:1px solid var(--border); box-shadow: 0 8px 20px rgba(0,0,0,.35); background:#0d1222; opacity:0; transform: translateY(6px) scale(.995); animation: card-in .5s ease forwards; }
     .gallery .cardart img { width:100%; display:block; aspect-ratio: 2/3; object-fit: cover; filter: contrast(1.05); }
     .gallery .label { padding:6px 8px; font-size:12px; color:#0b0b0b; background: linear-gradient(90deg, var(--neon-yellow), var(--neon-cyan)); font-weight: 700; }
     @keyframes card-in { to { opacity:1; transform: none; } }
-    
     .list { display: grid; gap: 8px; margin-top: 8px; max-height: 340px; overflow: auto; }
     .item { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.03); }
     .item small { color: var(--muted); cursor: copy; }
     .item small.copyable:hover { color: var(--neon-cyan); }
-    
     .sep { height: 1px; background: linear-gradient(90deg, rgba(255,255,255,.0), rgba(255,255,255,.22), rgba(255,255,255,.0)); margin: 12px 0; }
     .hidden { display: none !important; }
-    
-    .toast { position: fixed; right: 16px; top: 16px; display: grid; gap: 8px; z-index: 50; }
+    .toast { position: fixed; right: 16px; top: 16px; display: grid; gap: 8px; z-index: 999; }
     .toast-item { background: #0b1120; border: 1px solid rgba(255,255,255,.14); padding: 10px 12px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,.35); animation: card-in .3s ease; }
-    
     .adminLink { position: fixed; right: 14px; bottom: 10px; z-index: 60; opacity: .6; font-size: 12px; }
     .adminLink button { background: none; border: 0; color: #9feaff; text-decoration: underline; cursor: pointer; padding: 0; }
     .adminLink button:hover { opacity: .95; }
@@ -162,20 +165,6 @@
     @media (max-width: 980px){
         .grid { grid-template-columns: 1fr; }
     }
-    @media (max-width: 768px){
-      .art {
-        height: auto;
-        min-height: 90vh;
-        gap: 16px;
-        padding: 1.5rem 1rem;
-      }
-      .loginFloat {
-        max-width: 100%;
-      }
-      #loginInput {
-        font-size: 18px;
-      }
-    }
     @media (prefers-reduced-motion: reduce) {
       * { animation: none !important; transition: none !important; }
     }
@@ -184,18 +173,16 @@
 <body>
   <div class="bg-tech" aria-hidden="true"></div>
 
-  <svg aria-hidden="true" focusable="false" width="0" height="0" style="position:absolute; overflow:hidden">
-    <filter id="g-glitch">
-      <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="1" seed="3" result="t"/>
-      <feDisplacementMap in="SourceGraphic" in2="t" scale="18" xChannelSelector="R" yChannelSelector="G"/>
-    </filter>
-  </svg>
-
   <div class="wrap">
     <main>
       <section class="landing" id="authGrid">
-        <div class="art" aria-label="Tarjeta de acceso interactiva">
-          <span class="shine" aria-hidden="true"></span>
+        <!-- Capa de Fondo con Efectos -->
+        <div class="art" aria-hidden="true">
+          <span class="shine"></span>
+        </div>
+        
+        <!-- Capa de Contenido Flotante -->
+        <div class="floating-content">
           <img src="logo.svg" alt="Game Over Logo" class="floating-logo" />
           
           <div class="loginFloat" role="form" aria-labelledby="loginFormTitle">
@@ -213,6 +200,7 @@
 
       <div class="adminLink"><button id="adminOpen" type="button">[admin]</button></div>
 
+      <!-- El resto del HTML (modal, vistas de miembro/admin) no necesita cambios -->
       <div id="adminModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="adminModalTitle">
         <div class="box">
           <div class="loginTitle" id="adminModalTitle">Admin</div>
@@ -224,8 +212,6 @@
           <div class="loginMeta" id="adminMsg"></div>
         </div>
       </div>
-
-      <!-- Vista miembro -->
       <section class="grid hidden" id="memberGrid">
         <div class="card">
           <h2>Tus tarjetas</h2>
@@ -237,8 +223,6 @@
           <button class="btn" id="memberLogoutBtn">Salir</button>
         </div>
       </section>
-
-      <!-- Vista admin -->
       <section class="grid hidden" id="adminGrid">
         <div class="card">
           <h2>Alta rápida</h2>
@@ -250,14 +234,12 @@
           <div id="newUserRewards" class="chips"></div>
           <button class="btn accent" id="addUserBtn" style="margin-top:12px">Crear usuario</button>
         </div>
-
         <div class="card">
           <h2>Gestión</h2>
           <label for="search">Buscar</label>
           <div class="field"><span class="icon">🔎</span><input class="neo" id="search" type="text" placeholder="Nombre o teléfono" /></div>
           <div class="list" id="usersList"></div>
         </div>
-
         <div class="card">
           <h2>Editar</h2>
           <div id="editPanel" class="hidden">
@@ -277,7 +259,6 @@
           </div>
           <div id="noUserSelected" class="muted">Selecciona un usuario para editar.</div>
         </div>
-
         <div class="card">
           <h2>Sesión</h2>
           <button class="btn" id="adminLogoutBtn">Cerrar sesión</button>
@@ -289,6 +270,8 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script type="module">
+    // El JavaScript no necesita cambios significativos, ya que los IDs de los elementos
+    // con los que interactúa siguen siendo los mismos. Se mantiene la versión optimizada.
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import { 
         getFirestore, collection, doc, getDoc, setDoc, updateDoc, onSnapshot, 
