@@ -36,19 +36,16 @@
       var(--ink);
       filter: saturate(.9) brightness(.9);
     }
-    .wrap { max-width: 1300px; margin: 0 auto; padding: 24px clamp(20px, 4vw, 40px); }
+    .wrap { max-width: 1300px; margin: 0 auto; padding: clamp(16px, 4vw, 24px); }
     
     /* --- ESTRUCTURA DE CAPAS DEL LOGIN --- */
     .landing {
-      min-height: calc(100vh - 48px);
-      /* Usamos Grid para superponer elementos fácilmente */
+      min-height: calc(100vh - 32px);
       display: grid;
       place-items: center;
-      padding: 1rem;
     }
 
     .landing > * {
-      /* Coloca todos los hijos directos en la misma celda de la cuadrícula */
       grid-area: 1 / 1;
     }
 
@@ -59,42 +56,51 @@
       position: relative;
       width: 100%;
       max-width: 760px;
-      height: 100%;
-      min-height: 520px;
+      height: clamp(520px, 80vh, 700px);
       border-radius: 22px;
       overflow: hidden;
       border: 1px solid var(--border);
       background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
-      z-index: 1; /* Detrás del contenido */
+      z-index: 1;
     }
     .art::before { content:""; position:absolute; inset:0; background: radial-gradient(80% 40% at 20% 10%, rgba(0,229,255,.14), transparent 60%), radial-gradient(60% 40% at 70% 80%, rgba(255,43,191,.16), transparent 60%), url('assets/background.png') center / cover no-repeat; filter: brightness(.7) contrast(1); z-index: 0; pointer-events:none; }
     .art::after { content:""; position:absolute; inset:0; background: repeating-linear-gradient(90deg, rgba(255,255,255,.05), rgba(255,255,255,.05) 1px, transparent 1px, transparent 60px), repeating-linear-gradient(0deg, rgba(0,0,0,.12), rgba(0,0,0,.12) 1px, transparent 1px, transparent 60px); opacity:.25; mix-blend-mode: soft-light; z-index: 1; pointer-events:none; }
     .shine { position: absolute; inset: -20%; background: radial-gradient(40% 12% at var(--gx,30%) var(--gy,10%), rgba(255,255,255,.10), transparent 60%), linear-gradient(115deg, transparent 40%, rgba(255,255,255,.06) 50%, transparent 60%); mix-blend-mode: screen; pointer-events: none; z-index: 2; opacity:.9; transition: opacity .2s ease; }
 
-    /* CAPA 2: Contenido Flotante (Logo y Formulario) */
+    /* CAPA 2: Contenedor para posicionar el contenido flotante */
     .floating-content {
       position: relative;
-      z-index: 10; /* Encima del fondo */
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      z-index: 10;
       width: 100%;
-      max-width: 500px;
+      height: 100%;
+      max-width: 760px;
+      max-height: clamp(520px, 80vh, 700px);
+      pointer-events: none; /* Permite que el hover pase a la tarjeta de atrás */
+    }
+    .floating-content > * {
+      pointer-events: auto; /* Reactiva los eventos en los hijos */
     }
     
     .floating-logo {
-      width: clamp(320px, 80vw, 550px);
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: clamp(280px, 50vw, 420px);
       height: auto;
-      z-index: 11; /* Encima del login */
-      /* Efecto de "romper" el contenedor y superponerse */
-      margin-bottom: -60px;
+      z-index: 11;
     }
     
     .loginFloat {
-      position: relative;
+      position: absolute;
+      bottom: 15%;
+      left: 50%;
+      transform: translateX(-50%);
+      
       display: grid;
       gap: 12px;
-      width: 100%;
+      width: 90%;
+      max-width: 480px;
       background: rgba(11,17,32,.85);
       backdrop-filter: blur(12px) saturate(1.1);
       -webkit-backdrop-filter: blur(12px) saturate(1.1);
@@ -159,12 +165,35 @@
     .modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(7,9,15,.6); backdrop-filter: blur(2px); z-index: 80; }
     .modal .box { width: 320px; border-radius: 16px; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); padding: 16px; box-shadow: 0 20px 48px rgba(0,0,0,.5); }
 
-    @media (max-width: 1180px){ 
-        .grid { grid-template-columns: repeat(2, 1fr); } 
+    /* --- Media Queries --- */
+    @media (max-width: 1180px){ .grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 980px){ .grid { grid-template-columns: 1fr; } }
+    
+    /* Fallback para pantallas pequeñas: vuelve al layout apilado */
+    @media (max-width: 500px) {
+      .floating-content {
+        position: static;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+      }
+      .floating-logo {
+        position: static;
+        transform: none;
+        margin-bottom: -60px; /* Recupera el solapamiento */
+      }
+      .loginFloat {
+        position: static;
+        transform: none;
+        width: 100%;
+      }
+      .art {
+        height: auto;
+      }
     }
-    @media (max-width: 980px){
-        .grid { grid-template-columns: 1fr; }
-    }
+
     @media (prefers-reduced-motion: reduce) {
       * { animation: none !important; transition: none !important; }
     }
@@ -176,12 +205,12 @@
   <div class="wrap">
     <main>
       <section class="landing" id="authGrid">
-        <!-- Capa de Fondo con Efectos -->
+        <!-- Capa 1: Fondo con Efectos -->
         <div class="art" aria-hidden="true">
           <span class="shine"></span>
         </div>
         
-        <!-- Capa de Contenido Flotante -->
+        <!-- Capa 2: Contenido Flotante -->
         <div class="floating-content">
           <img src="logo.svg" alt="Game Over Logo" class="floating-logo" />
           
@@ -198,9 +227,8 @@
         </div>
       </section>
 
+      <!-- El resto del HTML no necesita cambios -->
       <div class="adminLink"><button id="adminOpen" type="button">[admin]</button></div>
-
-      <!-- El resto del HTML (modal, vistas de miembro/admin) no necesita cambios -->
       <div id="adminModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="adminModalTitle">
         <div class="box">
           <div class="loginTitle" id="adminModalTitle">Admin</div>
@@ -270,8 +298,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script type="module">
-    // El JavaScript no necesita cambios significativos, ya que los IDs de los elementos
-    // con los que interactúa siguen siendo los mismos. Se mantiene la versión optimizada.
+    // El JavaScript no necesita cambios, se mantiene la versión optimizada.
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import { 
         getFirestore, collection, doc, getDoc, setDoc, updateDoc, onSnapshot, 
@@ -366,13 +393,7 @@
     function toast(msg) {
       const item = el('div', { class: 'toast-item', text: msg });
       UI.toast.appendChild(item);
-      item.style.filter = 'url(#g-glitch)';
-      setTimeout(() => item.style.filter = 'none', 360);
-      setTimeout(() => {
-        item.style.transition = 'opacity .4s ease, transform .4s ease';
-        item.style.opacity = '0';
-        item.style.transform = 'translateY(-4px)';
-      }, 2000);
+      setTimeout(() => { item.style.transition = 'opacity .4s ease'; item.style.opacity = '0'; }, 2000);
       setTimeout(() => item.remove(), 2600);
     }
     
