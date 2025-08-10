@@ -10,8 +10,7 @@
   <link rel="dns-prefetch" href="https://www.gstatic.com">
   
   <link rel="preload" as="image" href="assets/background.png"/>
-  <link rel="preload" as="image" href="assets/card1.png"/>
-  <link rel="preload" as="image" href="assets/card2.png"/>
+  <link rel="preload" as="image" href="logo.svg"/>
   
   <style>
     :root {
@@ -40,35 +39,69 @@
       filter: saturate(.9) brightness(.9);
     }
     .wrap { max-width: 1300px; margin: 0 auto; padding: 24px clamp(20px, 4vw, 40px); }
-    .hero { display: grid; gap: 6px; margin-bottom: clamp(8px, 2vh, 20px); }
-    .gameover {
-      font-weight: 900; font-size: clamp(36px, 5vw, 56px); letter-spacing: 1px; text-transform: uppercase; color: var(--neon-yellow);
-      text-shadow: 0 2px 0 #000, 0 0 8px rgba(246,242,0,.6), 0 0 22px rgba(246,242,0,.35);
-      position: relative;
-    }
-    .gameover::before,
-    .gameover::after { content: attr(data-text); position: absolute; inset: 0; pointer-events:none; mix-blend-mode: screen; opacity: 0; }
-    .gameover::before { color: #00e5ff; transform: translate(0,0); }
-    .gameover::after  { color: #ff2bbf; transform: translate(0,0); }
-    .gameover.glitching::before { animation: rgb-shift 480ms steps(2,end); }
-    .gameover.glitching::after  { animation: rgb-shift 480ms steps(2,end) reverse; }
-
-    @keyframes rgb-shift { 0%,100%{opacity:0; transform: translate(0,0);} 10%{opacity:.9; transform: translate(-1px,1px);} 20%{transform: translate(2px,-1px);} 30%{transform: translate(-1px,2px);} 40%{transform: translate(1px,-2px);} 50%{opacity:0;} }
     
     .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
     .card { border: 1px solid var(--border); border-radius: 18px; padding: 16px; background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); box-shadow: 0 20px 48px rgba(0,0,0,.45); }
     .card h2 { margin: 0 0 8px 0; font-size: 18px; letter-spacing: .5px; }
     .muted { color: var(--muted); }
     
-    .landing { position: relative; min-height: calc(100vh - 120px); display: grid; grid-template-columns: minmax(540px, 980px); place-items: center; }
-    .login-stack { display: grid; gap: 18px; justify-self: center; width: 100%; max-width: 560px; }
-    .loginBox { position: relative; border-radius: 20px; padding: clamp(18px, 3vw, 28px); background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); border: 1px solid var(--border); box-shadow: 0 20px 48px rgba(0,0,0,.45), var(--glow); overflow:hidden; }
-    .loginBox::after { content:""; position:absolute; inset:-40%; background: radial-gradient(600px 220px at 10% 0%, rgba(0,229,255,.14), transparent 50%); pointer-events:none; }
+    .landing { position: relative; min-height: calc(100vh - 48px); display: grid; place-items: center; }
+    
+    /* Contenedor principal que tiene el brillo y el fondo */
+    .art {
+      perspective: 900px;
+      transform-style: preserve-3d;
+      position: relative;
+      width: 100%;
+      max-width: 760px;
+      height: clamp(520px, 80vh, 640px);
+      border-radius: 22px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
+      
+      /* Flexbox para centrar los elementos flotantes */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: clamp(16px, 4vh, 32px);
+      padding: 2rem;
+    }
+    .art::before { content:""; position:absolute; inset:0; background: radial-gradient(80% 40% at 20% 10%, rgba(0,229,255,.14), transparent 60%), radial-gradient(60% 40% at 70% 80%, rgba(255,43,191,.16), transparent 60%), url('assets/background.png') center / cover no-repeat; filter: brightness(.7) contrast(1); z-index: 0; pointer-events:none; }
+    .art::after { content:""; position:absolute; inset:0; background: repeating-linear-gradient(90deg, rgba(255,255,255,.05), rgba(255,255,255,.05) 1px, transparent 1px, transparent 60px), repeating-linear-gradient(0deg, rgba(0,0,0,.12), rgba(0,0,0,.12) 1px, transparent 1px, transparent 60px); opacity:.25; mix-blend-mode: soft-light; z-index: 1; pointer-events:none; }
+    
+    /* Logo flotante */
+    .floating-logo {
+        width: clamp(280px, 60%, 420px);
+        height: auto;
+        z-index: 10;
+    }
+    
+    /* Formulario de Login flotante */
+    .loginFloat {
+      position: relative;
+      display: grid;
+      gap: 12px;
+      width: 100%;
+      max-width: 480px;
+      background: rgba(11,17,32,.80);
+      backdrop-filter: blur(10px) saturate(1.1);
+      -webkit-backdrop-filter: blur(10px) saturate(1.1);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 12px 32px rgba(0,0,0,.5), var(--glow);
+      z-index: 10;
+    }
+    
+    .shine { position: absolute; inset: -20%; background: radial-gradient(40% 12% at var(--gx,30%) var(--gy,10%), rgba(255,255,255,.10), transparent 60%), linear-gradient(115deg, transparent 40%, rgba(255,255,255,.06) 50%, transparent 60%); mix-blend-mode: screen; pointer-events: none; z-index: 2; opacity:.9; transition: opacity .2s ease; }
+    
     .loginTitle { font-size: 14px; letter-spacing: 1.5px; text-transform: uppercase; opacity:.9; margin-bottom: 10px; }
     .phoneInput { position: relative; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; border: 1px solid var(--border); border-radius: 16px; padding: 12px 12px 12px 14px; background: #0b1120cc; backdrop-filter: blur(6px); box-shadow: var(--glow); }
     .ccBtn { display:inline-flex; align-items:center; gap:6px; padding:8px 10px; border-radius:10px; border:1px solid var(--border); background: linear-gradient(180deg, rgba(0,229,255,.16), rgba(0,229,255,.06)); color: var(--text); font-weight:800; cursor:pointer; }
     .ccBtn:hover { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); }
-    .ccMenu { position:absolute; top: calc(100% + 8px); left: 0; width: 280px; max-height: 260px; overflow:auto; background:#0b1120; border:1px solid var(--border); border-radius:12px; box-shadow: 0 16px 40px rgba(0,0,0,.55); z-index:5; }
+    .ccMenu { position:absolute; top: calc(100% + 8px); left: 0; width: 280px; max-height: 260px; overflow:auto; background:#0b1120; border:1px solid var(--border); border-radius:12px; box-shadow: 0 16px 40px rgba(0,0,0,.55); z-index: 5; }
     .ccItem { padding:8px 10px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
     .ccItem:hover { background: rgba(0,229,255,.10); }
     #loginInput { width: 100%; border: 0; outline: 0; background: transparent; color: var(--text); font-size: 22px; letter-spacing: .6px; }
@@ -77,16 +110,7 @@
     .goBtn:hover { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); }
     .phoneInput.shake { animation: shakeX 420ms cubic-bezier(.36,.07,.19,.97) both; }
     .loginMeta { display:flex; gap:12px; align-items:center; color: var(--muted); font-size: 13px; min-height: 18px; }
-    
-    .art { perspective: 900px; transform-style: preserve-3d; position: relative; height: clamp(420px, 58vh, 640px); border-radius: 22px; overflow: hidden; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)); justify-self: center; width: 100%; max-width: 760px; }
-    .art::before { content:""; position:absolute; inset:0; background: radial-gradient(80% 40% at 20% 10%, rgba(0,229,255,.14), transparent 60%), radial-gradient(60% 40% at 70% 80%, rgba(255,43,191,.16), transparent 60%), url('assets/background.png') center / cover no-repeat; filter: brightness(.7) contrast(1); z-index:0; pointer-events:none; }
-    .art::after { content:""; position:absolute; inset:0; background: repeating-linear-gradient(90deg, rgba(255,255,255,.05), rgba(255,255,255,.05) 1px, transparent 1px, transparent 60px), repeating-linear-gradient(0deg, rgba(0,0,0,.12), rgba(0,0,0,.12) 1px, transparent 1px, transparent 60px); opacity:.25; mix-blend-mode: soft-light; z-index:1; pointer-events:none; }
-    .loginFloat { position: static; transform: none; display: grid; gap: 12px; width: 100%; max-width: 560px; background: rgba(11,17,32,.80); backdrop-filter: blur(10px) saturate(1.1); -webkit-backdrop-filter: blur(10px) saturate(1.1); border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: 0 12px 32px rgba(0,0,0,.5), var(--glow); z-index: 4; grid-column: 1; }
-    .shine { position: absolute; inset: -20%; background: radial-gradient(40% 12% at var(--gx,30%) var(--gy,10%), rgba(255,255,255,.10), transparent 60%), linear-gradient(115deg, transparent 40%, rgba(255,255,255,.06) 50%, transparent 60%); mix-blend-mode: screen; pointer-events: none; z-index:2; opacity:.9; transition: opacity .2s ease; }
-    
-    .art.typing .shine { opacity: 0; }
     .phoneInput, #loginInput { backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: translateZ(0); will-change: transform; }
-    
     @keyframes shakeX { 10%,90%{ transform: translateX(-1px);} 20%,80%{ transform: translateX(2px);} 30%,50%,70%{ transform: translateX(-4px);} 40%,60%{ transform: translateX(4px);} }
     
     .btn { display: inline-flex; gap: 8px; align-items: center; padding: 10px 14px; color: var(--text); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; text-decoration: none; transition: transform .05s ease, filter .2s ease, box-shadow .2s ease; background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06)); }
@@ -132,15 +156,25 @@
     .modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(7,9,15,.6); backdrop-filter: blur(2px); z-index: 80; }
     .modal .box { width: 320px; border-radius: 16px; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); padding: 16px; box-shadow: 0 20px 48px rgba(0,0,0,.5); }
 
-    /* --- Media Queries Corregidas y Optimizadas --- */
     @media (max-width: 1180px){ 
         .grid { grid-template-columns: repeat(2, 1fr); } 
     }
     @media (max-width: 980px){
-        .landing { grid-template-columns: 1fr; }
-        .art { height: 38vh; grid-column: auto; }
         .grid { grid-template-columns: 1fr; }
-        .loginFloat { width: 100%; margin-top: 12px; grid-column: auto; }
+    }
+    @media (max-width: 768px){
+      .art {
+        height: auto;
+        min-height: 90vh;
+        gap: 16px;
+        padding: 1.5rem 1rem;
+      }
+      .loginFloat {
+        max-width: 100%;
+      }
+      #loginInput {
+        font-size: 18px;
+      }
     }
     @media (prefers-reduced-motion: reduce) {
       * { animation: none !important; transition: none !important; }
@@ -158,25 +192,22 @@
   </svg>
 
   <div class="wrap">
-    <header class="hero">
-      <h1 class="gameover" id="title" data-text="Game Over · Rewards">Game Over · Rewards</h1>
-    </header>
-
     <main>
       <section class="landing" id="authGrid">
         <div class="art" aria-label="Tarjeta de acceso interactiva">
           <span class="shine" aria-hidden="true"></span>
-        </div>
-
-        <div class="loginFloat" role="form" aria-labelledby="loginFormTitle">
-          <div class="loginTitle" id="loginFormTitle">Login</div>
-          <div class="phoneInput" id="loginBox">
-            <button class="ccBtn" id="ccBtn" type="button" aria-haspopup="listbox" aria-expanded="false"><span id="ccCode">CR</span>&nbsp;<span id="ccDial">+506</span>&nbsp;▾</button>
-            <input id="loginInput" type="tel" inputmode="numeric" placeholder="6004 8606" autocomplete="one-time-code" aria-label="Teléfono" />
-            <button id="loginGo" class="goBtn" aria-label="Entrar">ENTER</button>
-            <div id="ccMenu" class="ccMenu hidden" role="listbox" aria-label="Seleccionar país"></div>
+          <img src="logo.svg" alt="Game Over Logo" class="floating-logo" />
+          
+          <div class="loginFloat" role="form" aria-labelledby="loginFormTitle">
+            <div class="loginTitle" id="loginFormTitle">Login</div>
+            <div class="phoneInput" id="loginBox">
+              <button class="ccBtn" id="ccBtn" type="button" aria-haspopup="listbox" aria-expanded="false"><span id="ccCode">CR</span>&nbsp;<span id="ccDial">+506</span>&nbsp;▾</button>
+              <input id="loginInput" type="tel" inputmode="numeric" placeholder="6004 8606" autocomplete="one-time-code" aria-label="Teléfono" />
+              <button id="loginGo" class="goBtn" aria-label="Entrar">ENTER</button>
+              <div id="ccMenu" class="ccMenu hidden" role="listbox" aria-label="Seleccionar país"></div>
+            </div>
+            <div class="loginMeta" id="loginMsg" aria-live="polite"></div>
           </div>
-          <div class="loginMeta" id="loginMsg" aria-live="polite"></div>
         </div>
       </section>
 
@@ -257,15 +288,12 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <!-- SDKs de Firebase (API Modular moderna y optimizada) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import { 
         getFirestore, collection, doc, getDoc, setDoc, updateDoc, onSnapshot, 
         query, orderBy, arrayUnion, deleteDoc 
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
-    // --- CONFIGURACIÓN Y CONSTANTES ---
 
     const firebaseConfig = {
       apiKey: "AIzaSyBlevLcY3TKVYQpr4Hur1f7XeZoHLbXCC0",
@@ -285,14 +313,7 @@
     ];
     
     const REWARD_ORDER = Object.fromEntries(REWARDS.map((r, i) => [r.id, i]));
-    
-    /**
-     * NOTA DE SEGURIDAD: La contraseña de admin se guarda en el código.
-     * Esto NO es seguro para una aplicación pública. Para este proyecto privado
-     * y de confianza, es una solución simple que cumple el objetivo.
-     * En un entorno real, se usaría Firebase Authentication.
-     */
-    const ADMIN_KEY_B64 = 'RmluYWxCb3Nz'; // "FinalBoss" en Base64
+    const ADMIN_KEY_B64 = 'RmluYWxCb3Nz';
 
     const COUNTRIES = [
       { code:'CR', cc:'506', name:'Costa Rica', placeholder: '6004 8606' },
@@ -306,19 +327,17 @@
       { code:'NI', cc:'505', name:'Nicaragua' }, { code:'PA', cc:'507', name:'Panamá' },
     ];
 
-    // --- INICIALIZACIÓN DE FIREBASE ---
     let db;
     try {
       const app = initializeApp(firebaseConfig);
       db = getFirestore(app);
     } catch (e) {
-      console.error("Error al inicializar Firebase. Revisa tu configuración.", e);
+      console.error("Error al inicializar Firebase.", e);
       document.body.innerHTML = '<h1>Error de conexión con la base de datos.</h1>';
     }
     
-    // --- CACHE DE SELECTORES DEL DOM Y ESTADO ---
     const UI = {
-        title: document.getElementById('title'), authGrid: document.getElementById('authGrid'),
+        authGrid: document.getElementById('authGrid'),
         loginBox: document.getElementById('loginBox'), loginInput: document.getElementById('loginInput'),
         loginGo: document.getElementById('loginGo'), loginMsg: document.getElementById('loginMsg'),
         ccBtn: document.getElementById('ccBtn'), ccCode: document.getElementById('ccCode'),
@@ -344,8 +363,6 @@
     let cacheUsers = [];
     let currentCountry = COUNTRIES[0];
     let isTicking = false;
-
-    // --- FUNCIONES UTILITARIAS ---
 
     const el = (tag, attrs = {}, children = []) => {
       const n = document.createElement(tag);
@@ -376,8 +393,6 @@
       setTimeout(() => item.remove(), 2600);
     }
     
-    // --- VISTAS Y RENDERIZADO ---
-
     function switchView(viewName) {
         UI.authGrid.classList.add('hidden'); UI.memberGrid.classList.add('hidden'); UI.adminGrid.classList.add('hidden');
         if (unsubMember) { unsubMember(); unsubMember = null; }
@@ -388,7 +403,6 @@
             case 'auth':
                 UI.authGrid.classList.remove('hidden');
                 UI.loginInput.focus();
-                pulseTitle();
                 localStorage.removeItem('memberId');
                 localStorage.removeItem('admin');
                 break;
@@ -428,7 +442,6 @@
     function renderMemberPanels(member) {
       const rewards = sortRewards(member.rewards || []);
       const comments = member.comments || [];
-
       UI.memberCards.innerHTML = '';
       if (rewards.length === 0) UI.memberCards.appendChild(el('div', { class: 'muted', text: 'Sin tarjetas por ahora.' }));
       rewards.forEach(rid => {
@@ -437,7 +450,6 @@
         const wrap = el('div', { class: 'cardart' }, [img, el('div', { class: 'label', text: r?.label || rid })]);
         UI.memberCards.appendChild(wrap);
       });
-
       UI.memberComments.innerHTML = '';
       if (comments.length === 0) UI.memberComments.appendChild(el('div', { class: 'muted', text: 'Sin comentarios.' }));
       comments.slice().reverse().forEach(c => {
@@ -456,20 +468,12 @@
         .filter(u => !q || (u.name || '').toLowerCase().includes(q) || (u.phone || '').includes(getDigits(q)))
         .forEach(u => {
           const phoneTxt = u.phone ? `📱 ${u.phone}` : u.id;
-          const copyElem = el('small', { 
-              class: 'copyable', 
-              dataset: { phone: (u.phone || '') },
-              role: 'button',
-              tabindex: '0'
-          }, [ `${phoneTxt} • ${u.rewards?.length || 0} tarjetas` ]);
-
+          const copyElem = el('small', { class: 'copyable', dataset: { phone: (u.phone || '') }, role: 'button', tabindex: '0' }, [ `${phoneTxt} • ${u.rewards?.length || 0} tarjetas` ]);
           const row = el('div', { class: 'item' }, [
             el('div', {}, [ el('div', { text: u.name || u.id }), copyElem ]),
             el('div', {}, [ el('button', { class: 'btn', type: 'button' }, ['Editar']) ])
           ]);
-
           row.querySelector('button').addEventListener('click', () => selectUser(u.id, u.name || u.id));
-          
           const copyAction = async () => {
               const p = copyElem.dataset.phone || '';
               if (!p || !navigator.clipboard) return;
@@ -477,13 +481,10 @@
           };
           copyElem.addEventListener('click', copyAction);
           copyElem.addEventListener('keydown', (e) => { if(e.key === 'Enter') copyAction(); });
-          
           UI.usersList.appendChild(row);
         });
     }
 
-    // --- LÓGICA DE FIREBASE Y ESTADO ---
-    
     function startMemberListener(memberId) {
       if (!memberId || !db) return;
       unsubMember = onSnapshot(doc(db, 'users', memberId), (doc) => {
@@ -506,96 +507,56 @@
       UI.noUserSelected.classList.add('hidden');
       UI.editPanel.classList.remove('hidden');
       UI.editUserTitle.textContent = `${name} (${id})`;
-      
-      const userRef = doc(db, 'users', id);
       let selectedRewards = new Set();
       makeChipToggle(UI.editRewards, selectedRewards, { enforceAssignable: true });
-
+      const userRef = doc(db, 'users', id);
       unsubEdit = onSnapshot(userRef, (doc) => {
-        if (!doc.exists()) {
-          toast('Usuario eliminado remotamente.');
-          clearEditPanel();
-          return;
-        }
+        if (!doc.exists()) { toast('Usuario eliminado remotamente.'); clearEditPanel(); return; }
         const data = doc.data();
         selectedRewards = new Set(sortRewards((data.rewards || []).filter(isAssignable)));
         makeChipToggle(UI.editRewards, selectedRewards, { enforceAssignable: true });
       });
-
       UI.saveRewardsBtn.onclick = async () => {
-        try {
-          await updateDoc(userRef, { rewards: sortRewards(Array.from(selectedRewards).filter(isAssignable)) });
-          toast('Tarjetas guardadas');
-        } catch(e) { console.error(e); toast('Error al guardar'); }
+        try { await updateDoc(userRef, { rewards: sortRewards(Array.from(selectedRewards).filter(isAssignable)) }); toast('Tarjetas guardadas'); } catch(e) { console.error(e); toast('Error al guardar'); }
       };
-
       UI.addCommentBtn.onclick = async () => {
         const text = UI.editComment.value.trim();
         if (!text) { toast('Escribe un comentario'); return; }
-        try {
-          await updateDoc(userRef, { comments: arrayUnion({ text, ts: Date.now(), author: 'admin' }) });
-          UI.editComment.value = '';
-          toast('Comentario agregado');
-        } catch(e) { console.error(e); toast('Error al comentar'); }
+        try { await updateDoc(userRef, { comments: arrayUnion({ text, ts: Date.now(), author: 'admin' }) }); UI.editComment.value = ''; toast('Comentario agregado'); } catch(e) { console.error(e); toast('Error al comentar'); }
       };
-
       UI.deleteUserBtn.onclick = async () => {
         if (!confirm(`¿Estás seguro de que quieres eliminar a ${name}? Esta acción no se puede deshacer.`)) return;
         if (unsubEdit) unsubEdit();
-        try {
-          await deleteDoc(userRef);
-          toast('Usuario eliminado');
-          clearEditPanel();
-        } catch(e) { console.error(e); toast('Error al eliminar'); }
+        try { await deleteDoc(userRef); toast('Usuario eliminado'); clearEditPanel(); } catch(e) { console.error(e); toast('Error al eliminar'); }
       };
     }
 
     function clearEditPanel() {
         if (unsubEdit) { unsubEdit(); unsubEdit = null; }
-        UI.editPanel.classList.add('hidden');
-        UI.noUserSelected.classList.remove('hidden');
-        UI.editUserTitle.textContent = '';
-        UI.editComment.value = '';
+        UI.editPanel.classList.add('hidden'); UI.noUserSelected.classList.remove('hidden');
+        UI.editUserTitle.textContent = ''; UI.editComment.value = '';
         makeChipToggle(UI.editRewards, new Set(), { enforceAssignable: true });
     }
     
     function setupCreateUserPanel() {
         let selected = new Set();
         makeChipToggle(UI.newUserRewards, selected, { enforceAssignable: true });
-        
         UI.addUserBtn.onclick = async () => {
             const name = UI.newUserName.value.trim();
             const phone = getDigits(UI.newUserPhone.value);
-
             if (!name) { toast('Falta el nombre'); return; }
             if (phone.length < 8) { toast('Teléfono inválido'); return; }
-
             const userRef = doc(db, 'users', phone);
             try {
                 const docSnap = await getDoc(userRef);
                 if (docSnap.exists()) { toast('Ese teléfono ya está registrado'); return; }
-
-                await setDoc(userRef, { 
-                    name, 
-                    phone, 
-                    rewards: sortRewards(Array.from(selected).filter(isAssignable)), 
-                    comments: [], 
-                    createdAt: Date.now() 
-                });
-                
+                await setDoc(userRef, { name, phone, rewards: sortRewards(Array.from(selected).filter(isAssignable)), comments: [], createdAt: Date.now() });
                 toast('Usuario creado con éxito');
-                UI.newUserName.value = '';
-                UI.newUserPhone.value = '';
-                selected.clear();
+                UI.newUserName.value = ''; UI.newUserPhone.value = ''; selected.clear();
                 makeChipToggle(UI.newUserRewards, selected, { enforceAssignable: true });
-            } catch (e) {
-                console.error("Error creando usuario:", e);
-                toast('Error al crear usuario');
-            }
+            } catch (e) { console.error("Error creando usuario:", e); toast('Error al crear usuario'); }
         };
     }
-
-    // --- LÓGICA DE UI Y EVENTOS ---
     
     function buildIdFromInput() {
       const inputDigits = getDigits(UI.loginInput.value);
@@ -634,7 +595,6 @@
         setTimeout(() => UI.loginBox.classList.remove('shake'), 450);
         return;
       }
-      
       UI.loginMsg.textContent = 'Verificando...';
       try {
         const userRef = doc(db, 'users', id);
@@ -645,19 +605,10 @@
         } else {
           UI.loginMsg.textContent = 'No se encontró un usuario con ese teléfono.';
         }
-      } catch (e) {
-        console.error("Error en login:", e);
-        UI.loginMsg.textContent = 'Error de conexión.';
-      }
+      } catch (e) { console.error("Error en login:", e); UI.loginMsg.textContent = 'Error de conexión.'; }
     }
     
-    function pulseTitle() {
-      UI.title.classList.add('glitching');
-      setTimeout(()=> UI.title.classList.remove('glitching'), 520);
-    }
-
     function init() {
-        // --- Eventos de Login y UI General ---
         UI.loginGo.addEventListener('click', doLogin);
         UI.loginInput.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
         UI.ccBtn.addEventListener('click', () => {
@@ -670,8 +621,6 @@
             UI.ccBtn.setAttribute('aria-expanded', 'false');
           }
         });
-
-        // --- Eventos del Modal de Admin ---
         const closeModal = () => UI.adminModal.classList.add('hidden');
         const openModal = () => { UI.adminMsg.textContent=''; UI.adminPwd.value=''; UI.adminModal.classList.remove('hidden'); setTimeout(()=> UI.adminPwd.focus(), 50); };
         const tryAdmin = () => { if (UI.adminPwd.value.trim() === atob(ADMIN_KEY_B64)) { localStorage.setItem('admin','1'); closeModal(); switchView('admin'); } else { UI.adminMsg.textContent = 'Contraseña incorrecta'; } };
@@ -679,20 +628,16 @@
         UI.adminCancel.addEventListener('click', closeModal);
         UI.adminEnter.addEventListener('click', tryAdmin);
         UI.adminPwd.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryAdmin(); if (e.key === 'Escape') closeModal(); });
-        
-        // --- Eventos de las vistas ---
         UI.memberLogoutBtn.addEventListener('click', () => switchView('auth'));
         UI.adminLogoutBtn.addEventListener('click', () => switchView('auth'));
         UI.search.addEventListener('input', debounce(renderUsersList, 200));
         UI.clearPanelBtn.addEventListener('click', clearEditPanel);
-        
-        // --- Efecto Parallax Optimizado ---
         UI.art.addEventListener('mousemove', e => {
             if (!isTicking) {
                 window.requestAnimationFrame(() => {
                     const r = UI.art.getBoundingClientRect();
-                    const x = (e.clientX - r.left) / r.width; // 0..1
-                    const y = (e.clientY - r.top) / r.height; // 0..1
+                    const x = (e.clientX - r.left) / r.width;
+                    const y = (e.clientY - r.top) / r.height;
                     const max = 10;
                     const rx = ((0.5 - y) * max).toFixed(2);
                     const ry = ((x - 0.5) * max).toFixed(2);
@@ -705,26 +650,15 @@
             }
         });
         UI.art.addEventListener('mouseleave', () => { UI.art.style.transform = ''; });
-
-        // --- Carga Inicial ---
         buildCCMenu();
         const lastCountry = COUNTRIES.find(c => c.code === localStorage.getItem('lastCountryCode')) || COUNTRIES[0];
         setCountry(lastCountry);
-        
         const memberId = localStorage.getItem('memberId');
         const isAdmin = localStorage.getItem('admin') === '1';
-
-        if (isAdmin) {
-            switchView('admin');
-        } else if (memberId) {
-            switchView('member');
-        } else {
-            switchView('auth');
-        }
+        if (isAdmin) { switchView('admin'); } else if (memberId) { switchView('member'); } else { switchView('auth'); }
     }
     
     document.addEventListener('DOMContentLoaded', init);
-
   </script>
 </body>
 </html>
