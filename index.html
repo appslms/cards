@@ -115,7 +115,7 @@
       outline: 0;
       background: transparent;
       color: var(--text);
-      font-size: clamp(16px, 4vw, 20px); /* CORRECCIÓN: Fuente fluida */
+      font-size: clamp(16px, 4vw, 20px);
       letter-spacing: .6px;
     }
     #loginInput::placeholder { color: #93a0b3; opacity:.9; }
@@ -176,13 +176,13 @@
     @media (max-width: 1180px){ .grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 980px){ .grid { grid-template-columns: 1fr; } }
     
-    /* CORRECCIÓN: Media query para móviles, ahora robusta */
     @media (max-width: 500px) {
       .art {
-        /* La tarjeta de fondo ya tiene un tamaño responsivo gracias a clamp, no se toca */
-        display: flex; /* Asegura que pueda contener el flexbox de floating-content */
+        display: flex;
         align-items: center;
         justify-content: center;
+        height: auto;
+        min-height: 90vh;
       }
       .floating-content {
         position: static;
@@ -191,16 +191,16 @@
         justify-content: center;
         align-items: center;
         width: 100%;
-        max-width: 500px;
+        max-width: 400px;
         height: auto;
-        padding: 2rem 2rem;
+        padding: 2rem 1rem;
         pointer-events: auto;
       }
       .floating-logo {
         position: static;
         transform: none;
         width: clamp(240px, 70vw, 320px);
-        margin-bottom: -60px; /* Restaura la superposición */
+        margin-bottom: 24px; /* CORRECCIÓN: Margen positivo para separar */
       }
       .loginFloat {
         position: static;
@@ -413,9 +413,7 @@
     function switchView(viewName) {
         UI.authGrid.classList.add('hidden');
         UI.viewsContainer.classList.add('hidden');
-        UI.memberGrid.parentElement.classList.add('hidden');
-        UI.adminGrid.parentElement.classList.add('hidden');
-
+        
         if (unsubMember) { unsubMember(); unsubMember = null; }
         if (unsubUsers) { unsubUsers(); unsubUsers = null; }
         if (unsubEdit) { unsubEdit(); unsubEdit = null; }
@@ -429,12 +427,14 @@
                 break;
             case 'member':
                 UI.viewsContainer.classList.remove('hidden');
-                UI.memberGrid.parentElement.classList.remove('hidden');
+                UI.memberGrid.classList.remove('hidden');
+                UI.adminGrid.classList.add('hidden');
                 startMemberListener(localStorage.getItem('memberId'));
                 break;
             case 'admin':
                 UI.viewsContainer.classList.remove('hidden');
-                UI.adminGrid.parentElement.classList.remove('hidden');
+                UI.adminGrid.classList.remove('hidden');
+                UI.memberGrid.classList.add('hidden');
                 setupCreateUserPanel();
                 startUsersListener();
                 UI.search.focus();
