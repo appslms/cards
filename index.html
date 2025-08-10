@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#07090f" />
   <title>GAME OVER · Rewards CRM</title>
+  
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <link rel="dns-prefetch" href="https://www.gstatic.com">
+  
+  <link rel="preload" as="image" href="assets/background.png"/>
   <link rel="preload" as="image" href="assets/card1.png"/>
   <link rel="preload" as="image" href="assets/card2.png"/>
-  <link rel="preload" as="image" href="assets/card3.png"/>
-  <link rel="preload" as="image" href="assets/card4.png"/>
-  <link rel="preload" as="image" href="assets/card5.png"/>
-  <link rel="preload" as="image" href="assets/background.png"/>
+  
   <style>
     :root {
       --ink: #07090f;
@@ -25,7 +25,6 @@
       --border: rgba(255,255,255,.12);
       --glow: 0 0 0 2px rgba(0,229,255,.25), 0 0 0 6px rgba(0,229,255,.12);
     }
-
     * { box-sizing: border-box; font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; }
     body { margin: 0; color: var(--text); background: var(--ink); }
     img { max-width: 100%; display: block; }
@@ -40,9 +39,7 @@
       var(--ink);
       filter: saturate(.9) brightness(.9);
     }
-
     .wrap { max-width: 1300px; margin: 0 auto; padding: 24px clamp(20px, 4vw, 40px); }
-
     .hero { display: grid; gap: 6px; margin-bottom: clamp(8px, 2vh, 20px); }
     .gameover {
       font-weight: 900; font-size: clamp(36px, 5vw, 56px); letter-spacing: 1px; text-transform: uppercase; color: var(--neon-yellow);
@@ -57,21 +54,17 @@
     .gameover.glitching::after  { animation: rgb-shift 480ms steps(2,end) reverse; }
 
     @keyframes rgb-shift { 0%,100%{opacity:0; transform: translate(0,0);} 10%{opacity:.9; transform: translate(-1px,1px);} 20%{transform: translate(2px,-1px);} 30%{transform: translate(-1px,2px);} 40%{transform: translate(1px,-2px);} 50%{opacity:0;} }
-
-    /* Layout genérico para vistas de panel */
+    
     .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
     .card { border: 1px solid var(--border); border-radius: 18px; padding: 16px; background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); box-shadow: 0 20px 48px rgba(0,0,0,.45); }
     .card h2 { margin: 0 0 8px 0; font-size: 18px; letter-spacing: .5px; }
     .muted { color: var(--muted); }
-
-    /* Landing / Login */
+    
     .landing { position: relative; min-height: calc(100vh - 120px); display: grid; grid-template-columns: minmax(540px, 980px); place-items: center; }
     .login-stack { display: grid; gap: 18px; justify-self: center; width: 100%; max-width: 560px; }
-
     .loginBox { position: relative; border-radius: 20px; padding: clamp(18px, 3vw, 28px); background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); border: 1px solid var(--border); box-shadow: 0 20px 48px rgba(0,0,0,.45), var(--glow); overflow:hidden; }
     .loginBox::after { content:""; position:absolute; inset:-40%; background: radial-gradient(600px 220px at 10% 0%, rgba(0,229,255,.14), transparent 50%); pointer-events:none; }
     .loginTitle { font-size: 14px; letter-spacing: 1.5px; text-transform: uppercase; opacity:.9; margin-bottom: 10px; }
-
     .phoneInput { position: relative; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; border: 1px solid var(--border); border-radius: 16px; padding: 12px 12px 12px 14px; background: #0b1120cc; backdrop-filter: blur(6px); box-shadow: var(--glow); }
     .ccBtn { display:inline-flex; align-items:center; gap:6px; padding:8px 10px; border-radius:10px; border:1px solid var(--border); background: linear-gradient(180deg, rgba(0,229,255,.16), rgba(0,229,255,.06)); color: var(--text); font-weight:800; cursor:pointer; }
     .ccBtn:hover { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); }
@@ -83,81 +76,72 @@
     .goBtn { border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; cursor: pointer; font-weight: 800; background: linear-gradient(180deg, rgba(0,229,255,.22), rgba(0,229,255,.08)); color: var(--text); }
     .goBtn:hover { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); }
     .phoneInput.shake { animation: shakeX 420ms cubic-bezier(.36,.07,.19,.97) both; }
-
     .loginMeta { display:flex; gap:12px; align-items:center; color: var(--muted); font-size: 13px; min-height: 18px; }
-
-    .art { position: relative; height: clamp(420px, 58vh, 640px); border-radius: 22px; overflow: hidden; border: 1px solid var(--border); background:
-      linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)); justify-self: center; width: 100%; max-width: 760px; }
-    .art::before { content:""; position:absolute; inset:0; background:
-      radial-gradient(80% 40% at 20% 10%, rgba(0,229,255,.14), transparent 60%),
-      radial-gradient(60% 40% at 70% 80%, rgba(255,43,191,.16), transparent 60%),
-      url('assets/background.png') center / cover no-repeat; filter: brightness(.7) contrast(1); z-index:0; pointer-events:none; }
+    
+    .art { perspective: 900px; transform-style: preserve-3d; position: relative; height: clamp(420px, 58vh, 640px); border-radius: 22px; overflow: hidden; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)); justify-self: center; width: 100%; max-width: 760px; }
+    .art::before { content:""; position:absolute; inset:0; background: radial-gradient(80% 40% at 20% 10%, rgba(0,229,255,.14), transparent 60%), radial-gradient(60% 40% at 70% 80%, rgba(255,43,191,.16), transparent 60%), url('assets/background.png') center / cover no-repeat; filter: brightness(.7) contrast(1); z-index:0; pointer-events:none; }
     .art::after { content:""; position:absolute; inset:0; background: repeating-linear-gradient(90deg, rgba(255,255,255,.05), rgba(255,255,255,.05) 1px, transparent 1px, transparent 60px), repeating-linear-gradient(0deg, rgba(0,0,0,.12), rgba(0,0,0,.12) 1px, transparent 1px, transparent 60px); opacity:.25; mix-blend-mode: soft-light; z-index:1; pointer-events:none; }
-
-    /* Overlay con efecto glass dentro de la tarjeta */
-    .art { perspective: 900px; transform-style: preserve-3d; position: relative; height: clamp(420px, 58vh, 640px); border-radius: 22px; overflow: hidden; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)); justify-self: center; width: 100%; max-width: 760px; grid-column: 2; }
     .loginFloat { position: static; transform: none; display: grid; gap: 12px; width: 100%; max-width: 560px; background: rgba(11,17,32,.80); backdrop-filter: blur(10px) saturate(1.1); -webkit-backdrop-filter: blur(10px) saturate(1.1); border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: 0 12px 32px rgba(0,0,0,.5), var(--glow); z-index: 4; grid-column: 1; }
-    .shine { position: absolute; inset: -20%; background:
-      radial-gradient(40% 12% at var(--gx,30%) var(--gy,10%), rgba(255,255,255,.10), transparent 60%),
-      linear-gradient(115deg, transparent 40%, rgba(255,255,255,.06) 50%, transparent 60%);
-      mix-blend-mode: screen; pointer-events: none; z-index:2; opacity:.9; transition: opacity .2s ease; }
-    @keyframes sweep { from { transform: translateX(-20%) rotate(.001deg); } to { transform: translateX(20%) rotate(.001deg); } }
-
-    /* Estado al escribir: apaga el brillo para máxima nitidez */
+    .shine { position: absolute; inset: -20%; background: radial-gradient(40% 12% at var(--gx,30%) var(--gy,10%), rgba(255,255,255,.10), transparent 60%), linear-gradient(115deg, transparent 40%, rgba(255,255,255,.06) 50%, transparent 60%); mix-blend-mode: screen; pointer-events: none; z-index:2; opacity:.9; transition: opacity .2s ease; }
+    
     .art.typing .shine { opacity: 0; }
-
-    /* Nitidez del input sobre capas con transform */
     .phoneInput, #loginInput { backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: translateZ(0); will-change: transform; }
-
+    
     @keyframes shakeX { 10%,90%{ transform: translateX(-1px);} 20%,80%{ transform: translateX(2px);} 30%,50%,70%{ transform: translateX(-4px);} 40%,60%{ transform: translateX(4px);} }
-
+    
     .btn { display: inline-flex; gap: 8px; align-items: center; padding: 10px 14px; color: var(--text); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; text-decoration: none; transition: transform .05s ease, filter .2s ease, box-shadow .2s ease; background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06)); }
     .btn:hover { filter: brightness(1.08); box-shadow: var(--glow); }
     .btn:active { transform: translateY(1px); }
     .btn.brand { background: linear-gradient(180deg, rgba(0,229,255,.22), rgba(0,229,255,.10)); border-color: rgba(0,229,255,.6); }
     .btn.accent { background: linear-gradient(180deg, rgba(255,43,191,.22), rgba(255,43,191,.10)); border-color: rgba(255,43,191,.6); }
     .btn.danger { background: linear-gradient(180deg, rgba(255,79,79,.2), rgba(255,79,79,.1)); border-color: rgba(255,79,79,.55); }
-
+    
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-
     .field { position: relative; margin: 8px 0; }
     .field .icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); opacity: .85; font-size: 14px; pointer-events: none; }
     .neo { width: 100%; padding: 12px 12px 12px 36px; border-radius: 14px; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); color: var(--text); outline: none; box-shadow: inset 0 1px 0 rgba(255,255,255,.04); transition: box-shadow .2s ease, border-color .2s ease, filter .2s ease; }
     .neo:focus { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); filter: brightness(1.02); }
     .neo::placeholder { color: var(--muted); opacity: .75; }
     textarea.neo { min-height: 96px; resize: vertical; padding-top: 12px; }
-
+    
     .chips { display: flex; flex-wrap: wrap; gap: 8px; }
     .chip { padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border); background: #0d1222; font-size: 13px; cursor: pointer; }
     .chip.is-selected { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); }
     .chip.lock { cursor: not-allowed; opacity: .6; }
-
+    
     .gallery { display:grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap:12px; }
     .gallery .cardart { border-radius: 16px; overflow:hidden; border:1px solid var(--border); box-shadow: 0 8px 20px rgba(0,0,0,.35); background:#0d1222; opacity:0; transform: translateY(6px) scale(.995); animation: card-in .5s ease forwards; }
     .gallery .cardart img { width:100%; display:block; aspect-ratio: 2/3; object-fit: cover; filter: contrast(1.05); }
     .gallery .label { padding:6px 8px; font-size:12px; color:#0b0b0b; background: linear-gradient(90deg, var(--neon-yellow), var(--neon-cyan)); font-weight: 700; }
     @keyframes card-in { to { opacity:1; transform: none; } }
-
+    
     .list { display: grid; gap: 8px; margin-top: 8px; max-height: 340px; overflow: auto; }
     .item { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.03); }
     .item small { color: var(--muted); cursor: copy; }
-
+    .item small.copyable:hover { color: var(--neon-cyan); }
+    
     .sep { height: 1px; background: linear-gradient(90deg, rgba(255,255,255,.0), rgba(255,255,255,.22), rgba(255,255,255,.0)); margin: 12px 0; }
-
     .hidden { display: none !important; }
-
+    
     .toast { position: fixed; right: 16px; top: 16px; display: grid; gap: 8px; z-index: 50; }
-    .toast-item { background: #0b1120; border: 1px solid rgba(255,255,255,.14); padding: 10px 12px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,.35); }
-
+    .toast-item { background: #0b1120; border: 1px solid rgba(255,255,255,.14); padding: 10px 12px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,.35); animation: card-in .3s ease; }
+    
     .adminLink { position: fixed; right: 14px; bottom: 10px; z-index: 60; opacity: .6; font-size: 12px; }
     .adminLink button { background: none; border: 0; color: #9feaff; text-decoration: underline; cursor: pointer; padding: 0; }
     .adminLink button:hover { opacity: .95; }
     .modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(7,9,15,.6); backdrop-filter: blur(2px); z-index: 80; }
     .modal .box { width: 320px; border-radius: 16px; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); padding: 16px; box-shadow: 0 20px 48px rgba(0,0,0,.5); }
 
-    @media (max-width: 1180px){ .grid { grid-template-columns: repeat(2, 1fr); } } }
-    @media (max-width: 980px){ .landing { grid-template-columns: 1fr; } .art { height: 38vh; grid-column: auto; } .grid { grid-template-columns: 1fr; } .loginFloat { width: 100%; margin-top: 12px; grid-column: auto; } } .art { height: 38vh; } .grid { grid-template-columns: 1fr; } .loginFloat { width: 100%; margin-top: 12px; } }
-
+    /* --- Media Queries Corregidas y Optimizadas --- */
+    @media (max-width: 1180px){ 
+        .grid { grid-template-columns: repeat(2, 1fr); } 
+    }
+    @media (max-width: 980px){
+        .landing { grid-template-columns: 1fr; }
+        .art { height: 38vh; grid-column: auto; }
+        .grid { grid-template-columns: 1fr; }
+        .loginFloat { width: 100%; margin-top: 12px; grid-column: auto; }
+    }
     @media (prefers-reduced-motion: reduce) {
       * { animation: none !important; transition: none !important; }
     }
@@ -174,122 +158,124 @@
   </svg>
 
   <div class="wrap">
-    <div class="hero">
-      <div class="gameover" id="title" data-text="Game Over · Rewards">Game Over · Rewards</div>
-    </div>
+    <header class="hero">
+      <h1 class="gameover" id="title" data-text="Game Over · Rewards">Game Over · Rewards</h1>
+    </header>
 
-    <section class="landing" id="authGrid">
-      <div class="art" aria-label="Tarjeta de acceso interactiva">
-        <span class="shine" aria-hidden="true"></span>
-      </div>
-
-      <div class="loginFloat" role="form" aria-labelledby="loginTitle">
-        <div class="loginTitle" id="loginTitle">Login</div>
-        <div class="phoneInput" id="loginBox">
-          <button class="ccBtn" id="ccBtn" type="button" aria-haspopup="listbox" aria-expanded="false"><span id="ccCode">CR</span>&nbsp;<span id="ccDial">+506</span>&nbsp;▾</button>
-          <input id="loginInput" type="tel" inputmode="numeric" placeholder="6004 8606" autocomplete="one-time-code" aria-label="Teléfono" />
-          <button id="loginGo" class="goBtn" aria-label="Entrar">ENTER</button>
-          <div id="ccMenu" class="ccMenu hidden" role="listbox" aria-label="Seleccionar país"></div>
+    <main>
+      <section class="landing" id="authGrid">
+        <div class="art" aria-label="Tarjeta de acceso interactiva">
+          <span class="shine" aria-hidden="true"></span>
         </div>
-        <div class="loginMeta" id="loginMsg" aria-live="polite"></div>
-      </div>
-    </section>
 
-    <div class="adminLink"><button id="adminOpen" type="button">[admin]</button></div>
-
-    <div id="adminModal" class="modal hidden" role="dialog" aria-modal="true">
-      <div class="box">
-        <div class="loginTitle">Admin</div>
-        <input id="adminPwd" type="password" class="neo" placeholder="Contraseña" aria-label="Contraseña de administrador" />
-        <div class="row" style="margin-top:10px;">
-          <button class="btn brand" id="adminEnter">Entrar</button>
-          <button class="btn" id="adminCancel">Cancelar</button>
+        <div class="loginFloat" role="form" aria-labelledby="loginFormTitle">
+          <div class="loginTitle" id="loginFormTitle">Login</div>
+          <div class="phoneInput" id="loginBox">
+            <button class="ccBtn" id="ccBtn" type="button" aria-haspopup="listbox" aria-expanded="false"><span id="ccCode">CR</span>&nbsp;<span id="ccDial">+506</span>&nbsp;▾</button>
+            <input id="loginInput" type="tel" inputmode="numeric" placeholder="6004 8606" autocomplete="one-time-code" aria-label="Teléfono" />
+            <button id="loginGo" class="goBtn" aria-label="Entrar">ENTER</button>
+            <div id="ccMenu" class="ccMenu hidden" role="listbox" aria-label="Seleccionar país"></div>
+          </div>
+          <div class="loginMeta" id="loginMsg" aria-live="polite"></div>
         </div>
-        <div class="loginMeta" id="adminMsg"></div>
-      </div>
-    </div>
+      </section>
 
-    <!-- Vista miembro -->
-    <div class="grid hidden" id="memberGrid">
-      <div class="card">
-        <h2>Tus tarjetas</h2>
-        <div id="memberCards" class="gallery"></div>
-        <div class="sep"></div>
-        <h2>Comentarios</h2>
-        <div id="memberComments" class="list"></div>
-        <div class="sep"></div>
-        <button class="btn" id="memberLogoutBtn">Salir</button>
-      </div>
-    </div>
+      <div class="adminLink"><button id="adminOpen" type="button">[admin]</button></div>
 
-    <!-- Vista admin -->
-    <div class="grid hidden" id="adminGrid">
-      <div class="card">
-        <h2>Alta rápida</h2>
-        <label for="newUserName">Nombre</label>
-        <div class="field"><span class="icon">👤</span><input class="neo" id="newUserName" type="text" placeholder="Nuevo miembro" /></div>
-        <label for="newUserPhone">Teléfono</label>
-        <div class="field"><span class="icon">📱</span><input class="neo" id="newUserPhone" type="text" placeholder="Ej. +506 6004 8606" /></div>
-        <label>Tarjetas</label>
-        <div id="newUserRewards" class="chips"></div>
-        <button class="btn accent" id="addUserBtn" style="margin-top:12px">Crear usuario</button>
+      <div id="adminModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="adminModalTitle">
+        <div class="box">
+          <div class="loginTitle" id="adminModalTitle">Admin</div>
+          <input id="adminPwd" type="password" class="neo" placeholder="Contraseña" aria-label="Contraseña de administrador" />
+          <div class="row" style="margin-top:10px;">
+            <button class="btn brand" id="adminEnter">Entrar</button>
+            <button class="btn" id="adminCancel">Cancelar</button>
+          </div>
+          <div class="loginMeta" id="adminMsg"></div>
+        </div>
       </div>
 
-      <div class="card">
-        <h2>Gestión</h2>
-        <label for="search">Buscar</label>
-        <div class="field"><span class="icon">🔎</span><input class="neo" id="search" type="text" placeholder="Nombre o teléfono" /></div>
-        <div class="list" id="usersList"></div>
-      </div>
+      <!-- Vista miembro -->
+      <section class="grid hidden" id="memberGrid">
+        <div class="card">
+          <h2>Tus tarjetas</h2>
+          <div id="memberCards" class="gallery"></div>
+          <div class="sep"></div>
+          <h2>Comentarios</h2>
+          <div id="memberComments" class="list"></div>
+          <div class="sep"></div>
+          <button class="btn" id="memberLogoutBtn">Salir</button>
+        </div>
+      </section>
 
-      <div class="card">
-        <h2>Editar</h2>
-        <div id="editPanel" class="hidden">
-          <div class="muted" id="editUserTitle"></div>
+      <!-- Vista admin -->
+      <section class="grid hidden" id="adminGrid">
+        <div class="card">
+          <h2>Alta rápida</h2>
+          <label for="newUserName">Nombre</label>
+          <div class="field"><span class="icon">👤</span><input class="neo" id="newUserName" type="text" placeholder="Nuevo miembro" /></div>
+          <label for="newUserPhone">Teléfono</label>
+          <div class="field"><span class="icon">📱</span><input class="neo" id="newUserPhone" type="text" placeholder="Ej: +506 6004 8606" /></div>
           <label>Tarjetas</label>
-          <div id="editRewards" class="chips"></div>
-          <label for="editComment">Comentario</label>
-          <div class="field"><span class="icon">💬</span><textarea class="neo" id="editComment" placeholder="Mensaje breve"></textarea></div>
-          <div class="row" style="margin-top:12px;">
-            <button class="btn brand" id="saveRewardsBtn">Guardar</button>
-            <button class="btn" id="addCommentBtn">Agregar comentario</button>
-          </div>
-          <div class="row" style="margin-top:8px;">
-            <button class="btn danger" id="deleteUserBtn">Eliminar usuario</button>
-            <button class="btn" id="clearPanelBtn">Limpiar panel</button>
-          </div>
+          <div id="newUserRewards" class="chips"></div>
+          <button class="btn accent" id="addUserBtn" style="margin-top:12px">Crear usuario</button>
         </div>
-        <div id="noUserSelected" class="muted">Selecciona un usuario para editar.</div>
-      </div>
 
-      <div class="card">
-        <h2>Sesión</h2>
-        <button class="btn" id="adminLogoutBtn">Cerrar sesión</button>
-      </div>
-    </div>
+        <div class="card">
+          <h2>Gestión</h2>
+          <label for="search">Buscar</label>
+          <div class="field"><span class="icon">🔎</span><input class="neo" id="search" type="text" placeholder="Nombre o teléfono" /></div>
+          <div class="list" id="usersList"></div>
+        </div>
+
+        <div class="card">
+          <h2>Editar</h2>
+          <div id="editPanel" class="hidden">
+            <div class="muted" id="editUserTitle"></div>
+            <label>Tarjetas</label>
+            <div id="editRewards" class="chips"></div>
+            <label for="editComment">Comentario</label>
+            <div class="field"><span class="icon">💬</span><textarea class="neo" id="editComment" placeholder="Mensaje breve"></textarea></div>
+            <div class="row" style="margin-top:12px;">
+              <button class="btn brand" id="saveRewardsBtn">Guardar</button>
+              <button class="btn" id="addCommentBtn">Agregar comentario</button>
+            </div>
+            <div class="row" style="margin-top:8px;">
+              <button class="btn danger" id="deleteUserBtn">Eliminar usuario</button>
+              <button class="btn" id="clearPanelBtn">Limpiar panel</button>
+            </div>
+          </div>
+          <div id="noUserSelected" class="muted">Selecciona un usuario para editar.</div>
+        </div>
+
+        <div class="card">
+          <h2>Sesión</h2>
+          <button class="btn" id="adminLogoutBtn">Cerrar sesión</button>
+        </div>
+      </section>
+    </main>
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+  <!-- SDKs de Firebase (API Modular moderna y optimizada) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { 
+        getFirestore, collection, doc, getDoc, setDoc, updateDoc, onSnapshot, 
+        query, orderBy, arrayUnion, deleteDoc 
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-  <script>
-    'use strict';
-    // 1) Configura Firebase
+    // --- CONFIGURACIÓN Y CONSTANTES ---
+
     const firebaseConfig = {
       apiKey: "AIzaSyBlevLcY3TKVYQpr4Hur1f7XeZoHLbXCC0",
       authDomain: "gameover-b6eb7.firebaseapp.com",
       projectId: "gameover-b6eb7",
-      storageBucket: "gameover-b6eb7.firebasestorage.app",
+      storageBucket: "gameover-b6eb7.appspot.com",
       messagingSenderId: "522023719283",
       appId: "1:522023719283:web:3e5ce88c28a52b56a27506"
     };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
 
-    // 2) Catálogo de tarjetas
     const REWARDS = [
       { id: "r1", label: "Joker",    img: "assets/card1.png", assignable: true },
       { id: "r2", label: "Predator", img: "assets/card2.png", assignable: true },
@@ -297,55 +283,129 @@
       { id: "r4", label: "Jason",    img: "assets/card4.png", assignable: true },
       { id: "r5", label: "Final Boss. Chucky", img: "assets/card5.png", assignable: false }
     ];
-    const ORDER = Object.fromEntries(REWARDS.map((r, i) => [r.id, i]));
+    
+    const REWARD_ORDER = Object.fromEntries(REWARDS.map((r, i) => [r.id, i]));
+    
+    /**
+     * NOTA DE SEGURIDAD: La contraseña de admin se guarda en el código.
+     * Esto NO es seguro para una aplicación pública. Para este proyecto privado
+     * y de confianza, es una solución simple que cumple el objetivo.
+     * En un entorno real, se usaría Firebase Authentication.
+     */
+    const ADMIN_KEY_B64 = 'RmluYWxCb3Nz'; // "FinalBoss" en Base64
 
-    const $ = sel => document.querySelector(sel);
+    const COUNTRIES = [
+      { code:'CR', cc:'506', name:'Costa Rica', placeholder: '6004 8606' },
+      { code:'US', cc:'1', name:'United States', placeholder: '202 555 0125' },
+      { code:'MX', cc:'52', name:'México', placeholder: '55 1234 5678' },
+      { code:'ES', cc:'34', name:'España', placeholder: '612 345 678' },
+      { code:'CO', cc:'57', name:'Colombia', placeholder: '300 1234567' },
+      { code:'AR', cc:'54',  name:'Argentina' }, { code:'CL', cc:'56',  name:'Chile' },
+      { code:'PE', cc:'51',  name:'Perú' }, { code:'GT', cc:'502', name:'Guatemala' },
+      { code:'SV', cc:'503', name:'El Salvador' }, { code:'HN', cc:'504', name:'Honduras' },
+      { code:'NI', cc:'505', name:'Nicaragua' }, { code:'PA', cc:'507', name:'Panamá' },
+    ];
+
+    // --- INICIALIZACIÓN DE FIREBASE ---
+    let db;
+    try {
+      const app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+    } catch (e) {
+      console.error("Error al inicializar Firebase. Revisa tu configuración.", e);
+      document.body.innerHTML = '<h1>Error de conexión con la base de datos.</h1>';
+    }
+    
+    // --- CACHE DE SELECTORES DEL DOM Y ESTADO ---
+    const UI = {
+        title: document.getElementById('title'), authGrid: document.getElementById('authGrid'),
+        loginBox: document.getElementById('loginBox'), loginInput: document.getElementById('loginInput'),
+        loginGo: document.getElementById('loginGo'), loginMsg: document.getElementById('loginMsg'),
+        ccBtn: document.getElementById('ccBtn'), ccCode: document.getElementById('ccCode'),
+        ccDial: document.getElementById('ccDial'), ccMenu: document.getElementById('ccMenu'),
+        adminOpen: document.getElementById('adminOpen'), adminModal: document.getElementById('adminModal'),
+        adminPwd: document.getElementById('adminPwd'), adminEnter: document.getElementById('adminEnter'),
+        adminCancel: document.getElementById('adminCancel'), adminMsg: document.getElementById('adminMsg'),
+        memberGrid: document.getElementById('memberGrid'), memberCards: document.getElementById('memberCards'),
+        memberComments: document.getElementById('memberComments'), memberLogoutBtn: document.getElementById('memberLogoutBtn'),
+        adminGrid: document.getElementById('adminGrid'), newUserName: document.getElementById('newUserName'),
+        newUserPhone: document.getElementById('newUserPhone'), newUserRewards: document.getElementById('newUserRewards'),
+        addUserBtn: document.getElementById('addUserBtn'), search: document.getElementById('search'),
+        usersList: document.getElementById('usersList'), editPanel: document.getElementById('editPanel'),
+        editUserTitle: document.getElementById('editUserTitle'), editRewards: document.getElementById('editRewards'),
+        editComment: document.getElementById('editComment'), saveRewardsBtn: document.getElementById('saveRewardsBtn'),
+        addCommentBtn: document.getElementById('addCommentBtn'), deleteUserBtn: document.getElementById('deleteUserBtn'),
+        clearPanelBtn: document.getElementById('clearPanelBtn'), noUserSelected: document.getElementById('noUserSelected'),
+        adminLogoutBtn: document.getElementById('adminLogoutBtn'), toast: document.getElementById('toast'),
+        art: document.querySelector('.art'), shine: document.querySelector('.shine'),
+    };
+
+    let unsubMember = null, unsubUsers = null, unsubEdit = null;
+    let cacheUsers = [];
+    let currentCountry = COUNTRIES[0];
+    let isTicking = false;
+
+    // --- FUNCIONES UTILITARIAS ---
+
     const el = (tag, attrs = {}, children = []) => {
       const n = document.createElement(tag);
       Object.entries(attrs).forEach(([k,v]) => {
         if (k === 'class') n.className = v;
         else if (k === 'text') n.textContent = v;
-        else if (k === 'dataset') Object.entries(v).forEach(([dk,dv])=> n.dataset[dk] = dv);
+        else if (k === 'dataset') Object.assign(n.dataset, v);
         else n.setAttribute(k, v);
       });
-      children.forEach(c => n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c));
+      children.forEach(c => n.append(c));
       return n;
     };
-    const digits = s => (s || '').replace(/\D+/g, '');
-
-    // Normaliza a clave basada en país seleccionado
-    function buildIdFromInput(){
-      const inp = document.getElementById('loginInput');
-      const d = digits(inp?.value || '');
-      if (!d) return '';
-      const cc = currentCountry.cc;
-      if (d.startsWith(cc)) return d;
-      return cc + d;
-    }
-
-    // Admin key ofuscada (evita lectura casual)
-    const ADMIN_KEY_B64 = 'RmluYWxCb3Nz'; // "FinalBoss"
-
-    // Estado + listeners
-    let unsubMember = null, unsubUsers = null, unsubEdit = null;
-    let cacheUsers = [];
-
-    const allow = rid => (REWARDS.find(r => r.id === rid)?.assignable !== false);
-    function debounce(fn, ms){ let t; return (...a)=>{ clearTimeout(t); t = setTimeout(()=>fn.apply(null,a), ms); }; }
-
-    function toast(msg){
-      const host = document.getElementById('toast');
-      const item = el('div', { class: 'toast-item' }, [msg]);
-      host.appendChild(item);
-      // Efecto breve
+    const getDigits = s => (s || '').replace(/\D+/g, '');
+    const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(()=>fn.apply(null,a), ms); }; };
+    const sortRewards = (ids) => (ids || []).slice().sort((a,b) => (REWARD_ORDER[a] ?? 99) - (REWARD_ORDER[b] ?? 99));
+    const isAssignable = rid => REWARDS.find(r => r.id === rid)?.assignable !== false;
+    
+    function toast(msg) {
+      const item = el('div', { class: 'toast-item', text: msg });
+      UI.toast.appendChild(item);
       item.style.filter = 'url(#g-glitch)';
-      setTimeout(()=>{ item.style.filter = 'none'; }, 360);
-      setTimeout(()=>{ item.style.opacity = '0'; item.style.transform = 'translateY(-4px)'; item.style.transition = 'opacity .4s ease, transform .4s ease'; }, 2000);
-      setTimeout(()=> item.remove(), 2600);
+      setTimeout(() => item.style.filter = 'none', 360);
+      setTimeout(() => {
+        item.style.transition = 'opacity .4s ease, transform .4s ease';
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(-4px)';
+      }, 2000);
+      setTimeout(() => item.remove(), 2600);
     }
+    
+    // --- VISTAS Y RENDERIZADO ---
 
-    // Chips de admin
-    function renderRewardChips(container, selected = new Set(), onToggle, { enforceAssignable = true } = {}){
+    function switchView(viewName) {
+        UI.authGrid.classList.add('hidden'); UI.memberGrid.classList.add('hidden'); UI.adminGrid.classList.add('hidden');
+        if (unsubMember) { unsubMember(); unsubMember = null; }
+        if (unsubUsers) { unsubUsers(); unsubUsers = null; }
+        if (unsubEdit) { unsubEdit(); unsubEdit = null; }
+
+        switch (viewName) {
+            case 'auth':
+                UI.authGrid.classList.remove('hidden');
+                UI.loginInput.focus();
+                pulseTitle();
+                localStorage.removeItem('memberId');
+                localStorage.removeItem('admin');
+                break;
+            case 'member':
+                UI.memberGrid.classList.remove('hidden');
+                startMemberListener(localStorage.getItem('memberId'));
+                break;
+            case 'admin':
+                UI.adminGrid.classList.remove('hidden');
+                setupCreateUserPanel();
+                startUsersListener();
+                UI.search.focus();
+                break;
+        }
+    }
+    
+    function renderRewardChips(container, selected, onToggle, { enforceAssignable = true } = {}) {
       container.innerHTML = '';
       REWARDS.forEach(r => {
         const disabled = enforceAssignable && !r.assignable;
@@ -355,342 +415,316 @@
         container.appendChild(chip);
       });
     }
+
     function makeChipToggle(container, selected, opts){
-      function toggle(rid){
+      const toggle = (rid) => {
         if (selected.has(rid)) selected.delete(rid); else selected.add(rid);
         renderRewardChips(container, selected, toggle, opts);
-      }
+      };
       renderRewardChips(container, selected, toggle, opts);
       return toggle;
     }
 
-    // Miembro: tiempo real
-    function startMemberListener(memberId){
-      if (unsubMember) { unsubMember(); unsubMember = null; }
-      if (!memberId) return;
-      const ref = db.collection('users').doc(memberId);
-      unsubMember = ref.onSnapshot(doc => {
-        if (!doc.exists) { document.getElementById('loginMsg').textContent = 'Este usuario ya no existe.'; return; }
-        const data = doc.data();
-        renderMemberPanels({ id: memberId, ...data });
-      }, err => console.error('member onSnapshot', err));
-    }
-
-    function sortRewards(ids){
-      return (ids || []).slice().sort((a,b)=> (ORDER[a] ?? 999) - (ORDER[b] ?? 999));
-    }
-
-    function renderMemberPanels(member){
+    function renderMemberPanels(member) {
       const rewards = sortRewards(member.rewards || []);
       const comments = member.comments || [];
 
-      const cardsBox = document.getElementById('memberCards');
-      cardsBox.innerHTML = '';
-      if (rewards.length === 0) cardsBox.appendChild(el('div', { class: 'muted', text: 'Sin tarjetas por ahora.' }));
+      UI.memberCards.innerHTML = '';
+      if (rewards.length === 0) UI.memberCards.appendChild(el('div', { class: 'muted', text: 'Sin tarjetas por ahora.' }));
       rewards.forEach(rid => {
         const r = REWARDS.find(x => x.id === rid);
-        const wrap = el('div', { class: 'cardart' }, [ el('img', { src: r?.img || '', alt: r?.label || rid }), el('div', { class: 'label', text: r?.label || rid }) ]);
-        cardsBox.appendChild(wrap);
+        const img = el('img', { src: r?.img || '', alt: r?.label || rid, loading: 'lazy', decoding: 'async' });
+        const wrap = el('div', { class: 'cardart' }, [img, el('div', { class: 'label', text: r?.label || rid })]);
+        UI.memberCards.appendChild(wrap);
       });
 
-      const commentsBox = document.getElementById('memberComments');
-      commentsBox.innerHTML = '';
-      if (comments.length === 0) commentsBox.appendChild(el('div', { class: 'muted', text: 'Sin comentarios.' }));
+      UI.memberComments.innerHTML = '';
+      if (comments.length === 0) UI.memberComments.appendChild(el('div', { class: 'muted', text: 'Sin comentarios.' }));
       comments.slice().reverse().forEach(c => {
         const item = el('div', { class: 'item' }, [
           el('div', {}, [ el('div', { text: c.text || '' }), el('small', {}, [new Date(c.ts || Date.now()).toLocaleString()]) ]),
           el('div', { class: 'chip is-selected' }, [c.author || 'admin'])
         ]);
-        commentsBox.appendChild(item);
+        UI.memberComments.appendChild(item);
       });
     }
 
-    // Admin: lista y edición en tiempo real
-    function startUsersListener(){
-      if (unsubUsers) { unsubUsers(); unsubUsers = null; }
-      unsubUsers = db.collection('users').orderBy('name').onSnapshot(snap => {
-        cacheUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        renderUsersList();
-      }, err => console.error('users onSnapshot', err));
-    }
-
-    function renderUsersList(){
-      const list = document.getElementById('usersList'); list.innerHTML = '';
-      const q = (document.getElementById('search').value || '').toLowerCase().trim();
+    function renderUsersList() {
+      UI.usersList.innerHTML = '';
+      const q = UI.search.value.toLowerCase().trim();
       cacheUsers
-        .filter(u => !q || (u.name || '').toLowerCase().includes(q) || (u.phone || '').includes(q.replace(/\D+/g,'')))
+        .filter(u => !q || (u.name || '').toLowerCase().includes(q) || (u.phone || '').includes(getDigits(q)))
         .forEach(u => {
-          const phoneTxt = (u.phone ? ('📱 ' + u.phone) : u.id);
+          const phoneTxt = u.phone ? `📱 ${u.phone}` : u.id;
+          const copyElem = el('small', { 
+              class: 'copyable', 
+              dataset: { phone: (u.phone || '') },
+              role: 'button',
+              tabindex: '0'
+          }, [ `${phoneTxt} • ${u.rewards?.length || 0} tarjetas` ]);
+
           const row = el('div', { class: 'item' }, [
-            el('div', {}, [
-              el('div', { text: u.name || u.id }),
-              el('small', { class: 'copyable', dataset: { phone: (u.phone || '') } }, [ phoneTxt + ' • ' + (u.rewards?.length || 0) + ' tarjetas' ])
-            ]),
+            el('div', {}, [ el('div', { text: u.name || u.id }), copyElem ]),
             el('div', {}, [ el('button', { class: 'btn', type: 'button' }, ['Editar']) ])
           ]);
+
           row.querySelector('button').addEventListener('click', () => selectUser(u.id, u.name || u.id));
-          row.querySelector('small.copyable').addEventListener('click', async (e) => {
-            const p = e.currentTarget.dataset.phone || '';
-            if (!p) return;
-            try { await navigator.clipboard.writeText(p); toast('Teléfono copiado'); } catch(_) { /* noop */ }
-          });
-          list.appendChild(row);
+          
+          const copyAction = async () => {
+              const p = copyElem.dataset.phone || '';
+              if (!p || !navigator.clipboard) return;
+              try { await navigator.clipboard.writeText(p); toast('Teléfono copiado'); } catch(_) { toast('Error al copiar'); }
+          };
+          copyElem.addEventListener('click', copyAction);
+          copyElem.addEventListener('keydown', (e) => { if(e.key === 'Enter') copyAction(); });
+          
+          UI.usersList.appendChild(row);
         });
     }
 
-    async function selectUser(id, name){
-      if (unsubEdit) { unsubEdit(); unsubEdit = null; }
-      document.getElementById('noUserSelected').classList.add('hidden');
-      document.getElementById('editPanel').classList.remove('hidden');
-      document.getElementById('editUserTitle').textContent = name + ' (' + id + ')';
-      const ref = db.collection('users').doc(id);
-      let selected = new Set();
-      makeChipToggle(document.getElementById('editRewards'), selected, { enforceAssignable: true });
+    // --- LÓGICA DE FIREBASE Y ESTADO ---
+    
+    function startMemberListener(memberId) {
+      if (!memberId || !db) return;
+      unsubMember = onSnapshot(doc(db, 'users', memberId), (doc) => {
+        if (!doc.exists()) { UI.loginMsg.textContent = 'Este usuario ya no existe.'; switchView('auth'); return; }
+        renderMemberPanels({ id: doc.id, ...doc.data() });
+      }, err => { console.error('member onSnapshot', err); toast('Error de conexión.'); });
+    }
 
-      unsubEdit = ref.onSnapshot(doc => {
-        if (!doc.exists) {
-          toast('Usuario eliminado');
-          document.getElementById('editPanel').classList.add('hidden');
-          document.getElementById('noUserSelected').classList.remove('hidden');
+    function startUsersListener() {
+      if (!db) return;
+      const usersQuery = query(collection(db, 'users'), orderBy('name'));
+      unsubUsers = onSnapshot(usersQuery, (snap) => {
+        cacheUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderUsersList();
+      }, err => { console.error('users onSnapshot', err); toast('Error al cargar usuarios.'); });
+    }
+
+    async function selectUser(id, name) {
+      if (unsubEdit) unsubEdit();
+      UI.noUserSelected.classList.add('hidden');
+      UI.editPanel.classList.remove('hidden');
+      UI.editUserTitle.textContent = `${name} (${id})`;
+      
+      const userRef = doc(db, 'users', id);
+      let selectedRewards = new Set();
+      makeChipToggle(UI.editRewards, selectedRewards, { enforceAssignable: true });
+
+      unsubEdit = onSnapshot(userRef, (doc) => {
+        if (!doc.exists()) {
+          toast('Usuario eliminado remotamente.');
+          clearEditPanel();
           return;
         }
         const data = doc.data();
-        selected = new Set(sortRewards((data.rewards || []).filter(allow)));
-        makeChipToggle(document.getElementById('editRewards'), selected, { enforceAssignable: true });
+        selectedRewards = new Set(sortRewards((data.rewards || []).filter(isAssignable)));
+        makeChipToggle(UI.editRewards, selectedRewards, { enforceAssignable: true });
       });
 
-      document.getElementById('saveRewardsBtn').onclick = async () => {
-        await ref.update({ rewards: sortRewards(Array.from(selected).filter(allow)) });
-        toast('Tarjetas guardadas');
+      UI.saveRewardsBtn.onclick = async () => {
+        try {
+          await updateDoc(userRef, { rewards: sortRewards(Array.from(selectedRewards).filter(isAssignable)) });
+          toast('Tarjetas guardadas');
+        } catch(e) { console.error(e); toast('Error al guardar'); }
       };
-      document.getElementById('addCommentBtn').onclick = async () => {
-        const text = document.getElementById('editComment').value.trim();
+
+      UI.addCommentBtn.onclick = async () => {
+        const text = UI.editComment.value.trim();
         if (!text) { toast('Escribe un comentario'); return; }
-        await ref.update({ comments: firebase.firestore.FieldValue.arrayUnion({ text, ts: Date.now(), author: 'admin' }) });
-        document.getElementById('editComment').value = '';
-        toast('Comentario agregado');
+        try {
+          await updateDoc(userRef, { comments: arrayUnion({ text, ts: Date.now(), author: 'admin' }) });
+          UI.editComment.value = '';
+          toast('Comentario agregado');
+        } catch(e) { console.error(e); toast('Error al comentar'); }
       };
-      document.getElementById('deleteUserBtn').onclick = async () => {
-        if (!confirm('¿Eliminar este usuario?')) return;
-        if (unsubEdit) { unsubEdit(); unsubEdit = null; }
-        await ref.delete();
-        toast('Usuario eliminado');
-        document.getElementById('editPanel').classList.add('hidden');
-        document.getElementById('noUserSelected').classList.remove('hidden');
-      };
-      document.getElementById('clearPanelBtn').onclick = () => {
-        if (unsubEdit) { unsubEdit(); unsubEdit = null; }
-        document.getElementById('editPanel').classList.add('hidden');
-        document.getElementById('noUserSelected').classList.remove('hidden');
+
+      UI.deleteUserBtn.onclick = async () => {
+        if (!confirm(`¿Estás seguro de que quieres eliminar a ${name}? Esta acción no se puede deshacer.`)) return;
+        if (unsubEdit) unsubEdit();
+        try {
+          await deleteDoc(userRef);
+          toast('Usuario eliminado');
+          clearEditPanel();
+        } catch(e) { console.error(e); toast('Error al eliminar'); }
       };
     }
 
-    // ----- LOGIN mejorado -----
-    const COUNTRIES = [
-      { code:'CR', cc:'506', name:'Costa Rica' },
-      { code:'US', cc:'1',   name:'United States' },
-      { code:'MX', cc:'52',  name:'México' },
-      { code:'AR', cc:'54',  name:'Argentina' },
-      { code:'CL', cc:'56',  name:'Chile' },
-      { code:'CO', cc:'57',  name:'Colombia' },
-      { code:'PE', cc:'51',  name:'Perú' },
-      { code:'ES', cc:'34',  name:'España' },
-      { code:'GT', cc:'502', name:'Guatemala' },
-      { code:'SV', cc:'503', name:'El Salvador' },
-      { code:'HN', cc:'504', name:'Honduras' },
-      { code:'NI', cc:'505', name:'Nicaragua' },
-      { code:'PA', cc:'507', name:'Panamá' },
-      { code:'DO', cc:'1',   name:'Rep. Dominicana' },
-      { code:'VE', cc:'58',  name:'Venezuela' },
-      { code:'BR', cc:'55',  name:'Brasil' },
-      { code:'EC', cc:'593', name:'Ecuador' },
-      { code:'PY', cc:'595', name:'Paraguay' },
-      { code:'UY', cc:'598', name:'Uruguay' },
-      { code:'UK', cc:'44',  name:'Reino Unido' },
-      { code:'FR', cc:'33',  name:'Francia' },
-      { code:'DE', cc:'49',  name:'Alemania' },
-      { code:'IT', cc:'39',  name:'Italia' },
-      { code:'CA', cc:'1',   name:'Canadá' },
-    ];
-    let currentCountry = COUNTRIES[0]; // CR por defecto
+    function clearEditPanel() {
+        if (unsubEdit) { unsubEdit(); unsubEdit = null; }
+        UI.editPanel.classList.add('hidden');
+        UI.noUserSelected.classList.remove('hidden');
+        UI.editUserTitle.textContent = '';
+        UI.editComment.value = '';
+        makeChipToggle(UI.editRewards, new Set(), { enforceAssignable: true });
+    }
+    
+    function setupCreateUserPanel() {
+        let selected = new Set();
+        makeChipToggle(UI.newUserRewards, selected, { enforceAssignable: true });
+        
+        UI.addUserBtn.onclick = async () => {
+            const name = UI.newUserName.value.trim();
+            const phone = getDigits(UI.newUserPhone.value);
 
-    function setCountryByCC(cc){ const c = COUNTRIES.find(x=>x.cc===cc) || COUNTRIES[0]; currentCountry = c; document.getElementById('ccCode').textContent = c.code; document.getElementById('ccDial').textContent = '+'+c.cc; localStorage.setItem('cc', c.cc); const inp = document.getElementById('loginInput'); if (inp){ inp.placeholder = (c.cc==='506') ? '6004 8606' : '123 456 789'; inp.value = formatDisplayGeneric(inp.value); } }
+            if (!name) { toast('Falta el nombre'); return; }
+            if (phone.length < 8) { toast('Teléfono inválido'); return; }
 
-    function buildCCMenu(){
-      const menu = document.getElementById('ccMenu');
-      if (!menu) return;
-      menu.innerHTML='';
-      COUNTRIES.forEach(c=>{
-        const item = el('div', { class: 'ccItem', 'data-cc': c.cc }, [ el('span', { text: c.name }), el('span', { text: '+'+c.cc }) ]);
-        item.addEventListener('click', ()=>{ setCountryByCC(c.cc); menu.classList.add('hidden'); document.getElementById('ccBtn').setAttribute('aria-expanded','false'); document.getElementById('loginInput').focus(); });
-        menu.appendChild(item);
+            const userRef = doc(db, 'users', phone);
+            try {
+                const docSnap = await getDoc(userRef);
+                if (docSnap.exists()) { toast('Ese teléfono ya está registrado'); return; }
+
+                await setDoc(userRef, { 
+                    name, 
+                    phone, 
+                    rewards: sortRewards(Array.from(selected).filter(isAssignable)), 
+                    comments: [], 
+                    createdAt: Date.now() 
+                });
+                
+                toast('Usuario creado con éxito');
+                UI.newUserName.value = '';
+                UI.newUserPhone.value = '';
+                selected.clear();
+                makeChipToggle(UI.newUserRewards, selected, { enforceAssignable: true });
+            } catch (e) {
+                console.error("Error creando usuario:", e);
+                toast('Error al crear usuario');
+            }
+        };
+    }
+
+    // --- LÓGICA DE UI Y EVENTOS ---
+    
+    function buildIdFromInput() {
+      const inputDigits = getDigits(UI.loginInput.value);
+      if (!inputDigits) return '';
+      if (inputDigits.startsWith(currentCountry.cc)) return inputDigits;
+      return currentCountry.cc + inputDigits;
+    }
+    
+    function setCountry(country) {
+      currentCountry = country;
+      UI.ccCode.textContent = country.code;
+      UI.ccDial.textContent = `+${country.cc}`;
+      UI.loginInput.placeholder = country.placeholder || '123 456 789';
+      localStorage.setItem('lastCountryCode', country.code);
+    }
+    
+    function buildCCMenu() {
+      UI.ccMenu.innerHTML = '';
+      COUNTRIES.forEach(c => {
+        const item = el('div', { class: 'ccItem', dataset: { code: c.code } }, [ el('span', { text: c.name }), el('span', { text: `+${c.cc}` }) ]);
+        item.addEventListener('click', () => {
+          setCountry(c);
+          UI.ccMenu.classList.add('hidden');
+          UI.ccBtn.setAttribute('aria-expanded', 'false');
+          UI.loginInput.focus();
+        });
+        UI.ccMenu.appendChild(item);
       });
     }
 
-    function formatDisplayGeneric(val){
-      const d = digits(val);
-      const cc = currentCountry.cc;
-      let core = d;
-      if (d.startsWith(cc)) core = d.slice(cc.length);
-      if (cc==='506'){
-        core = core.slice(0,8);
-        return (core.length<=4) ? core : (core.slice(0,4)+' '+core.slice(4));
-      }
-      const plain = d.startsWith(cc) ? d.slice(cc.length) : d;
-      return plain.replace(/(\d{3})(?=\d)/g,'$1 ').slice(0,17);
-    }
-
-    async function doLogin(){
-      const msg = document.getElementById('loginMsg');
-      const box = document.getElementById('loginBox');
+    async function doLogin() {
       const id = buildIdFromInput();
-      if (!id){ msg.textContent = 'Ingresa tu teléfono.'; box?.classList.add('shake'); setTimeout(()=> box?.classList.remove('shake'), 450); pulseTitle(); return; }
-      const localLen = id.startsWith(currentCountry.cc) ? id.slice(currentCountry.cc.length).length : id.length;
-      if (localLen < 6 || id.length > 15){ msg.textContent = 'Teléfono inválido.'; box?.classList.add('shake'); setTimeout(()=> box?.classList.remove('shake'), 450); return; }
-      try {
-        const ref = db.collection('users').doc(id);
-        const snap = await ref.get();
-        if (!snap.exists) { msg.textContent = 'No existe este usuario.'; return; }
-        localStorage.setItem('member', id);
-        showMemberView();
-        startMemberListener(id);
-      } catch(e){ msg.textContent = 'Error de conexión.'; console.error(e); }
-    }
-
-    // UI Login
-    (function setupLoginUI(){
-      buildCCMenu();
-      setCountryByCC(localStorage.getItem('cc') || '506');
-      const input = document.getElementById('loginInput');
-      if (input) {
-        input.addEventListener('input', (e)=>{
-          const cur = e.target.selectionStart;
-          const f = formatDisplayGeneric(e.target.value);
-          e.target.value = f;
-          try{ e.target.setSelectionRange(cur, cur);}catch(_){/* noop */}
-        });
-        input.addEventListener('keydown', (e)=>{ if (e.key === 'Enter') doLogin(); });
+      if (!id) {
+        UI.loginMsg.textContent = 'Ingresa tu teléfono.';
+        UI.loginBox.classList.add('shake');
+        setTimeout(() => UI.loginBox.classList.remove('shake'), 450);
+        return;
       }
-      document.getElementById('loginGo')?.addEventListener('click', doLogin);
-      const ccBtn = document.getElementById('ccBtn'); const ccMenu = document.getElementById('ccMenu');
-      ccBtn?.addEventListener('click', ()=> { ccMenu?.classList.toggle('hidden'); ccBtn.setAttribute('aria-expanded', ccMenu.classList.contains('hidden') ? 'false' : 'true'); });
-      document.addEventListener('click', (e)=>{ if (!e.target.closest('#ccBtn') && !e.target.closest('#ccMenu')) { ccMenu?.classList.add('hidden'); ccBtn?.setAttribute('aria-expanded','false'); } });
-      document.addEventListener('keydown', (e)=>{ if (e.key==='Escape'){ ccMenu?.classList.add('hidden'); ccBtn?.setAttribute('aria-expanded','false'); } });
-
-      // Admin modal
-      const open = document.getElementById('adminOpen'); const modal = document.getElementById('adminModal'); const pwd = document.getElementById('adminPwd');
-      const enter = document.getElementById('adminEnter'); const cancel = document.getElementById('adminCancel'); const aMsg = document.getElementById('adminMsg');
-      function close(){ modal.classList.add('hidden'); }
-      function openModal(){ aMsg.textContent=''; pwd.value=''; modal.classList.remove('hidden'); setTimeout(()=> pwd.focus(), 50); }
-      function tryAdmin(){ if (pwd.value.trim() === atob(ADMIN_KEY_B64)) { localStorage.setItem('admin','1'); close(); showAdminView(); } else { aMsg.textContent = 'Contraseña incorrecta'; } }
-      open?.addEventListener('click', openModal);
-      cancel?.addEventListener('click', close);
-      enter?.addEventListener('click', tryAdmin);
-      pwd?.addEventListener('keydown', (e)=>{ if (e.key==='Enter') tryAdmin(); if (e.key==='Escape') close(); });
-    })();
-
-    // Micro-efecto: glitch del título
-    function pulseTitle() {
-      const t = document.getElementById('title');
-      t.classList.add('glitching');
-      setTimeout(()=> t.classList.remove('glitching'), 520);
-    }
-
-    // Parallax suave de la tarjeta
-    (function tiltCard(){
-      const art = document.querySelector('.art');
-      const shine = document.querySelector('.shine');
-      if (!art || !shine) return;
-      const max = 10; // inclinación máx
-      function onMove(e){
-        const r = art.getBoundingClientRect();
-        const x = (e.clientX - r.left) / r.width; // 0..1
-        const y = (e.clientY - r.top) / r.height; // 0..1
-        const rx = ((0.5 - y) * max).toFixed(2);
-        const ry = ((x - 0.5) * max).toFixed(2);
-        art.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
-        // Glare que sigue al cursor
-        shine.style.setProperty('--gx', (x*100).toFixed(2)+'%');
-        shine.style.setProperty('--gy', (y*100).toFixed(2)+'%');
-      }
-      function reset(){ art.style.transform = ''; }
-      art.addEventListener('mousemove', onMove);
-      art.addEventListener('mouseleave', reset);
-    })();
-
-    document.getElementById('adminLogoutBtn')?.addEventListener('click', () => { localStorage.removeItem('admin'); if (unsubUsers) { unsubUsers(); unsubUsers = null; } if (unsubEdit) { unsubEdit(); unsubEdit = null; } showAuth(); });
-
-    function showAuth(){
-      document.getElementById('adminGrid').classList.add('hidden');
-      document.getElementById('memberGrid').classList.add('hidden');
-      document.getElementById('authGrid').classList.remove('hidden');
-      document.getElementById('loginInput')?.focus();
-      pulseTitle();
-    }
-    function showMemberView(){
-      document.getElementById('authGrid').classList.add('hidden');
-      document.getElementById('memberGrid').classList.remove('hidden');
-    }
-    function showAdminView(){
-      document.getElementById('authGrid').classList.add('hidden');
-      document.getElementById('adminGrid').classList.remove('hidden');
-      setupCreateUser();
-      startUsersListener();
-      document.getElementById('search').focus();
-    }
-
-    function setupCreateUser(){
-      const selected = new Set();
-      makeChipToggle(document.getElementById('newUserRewards'), selected, { enforceAssignable: true });
-      document.getElementById('addUserBtn').onclick = async () => {
-        const name = document.getElementById('newUserName').value.trim();
-        const phoneRaw = document.getElementById('newUserPhone').value.trim();
-        const phone = digits(phoneRaw);
-        const id = phone.startsWith('506') && phone.length===11 ? phone : (phone.length===8 ? '506'+phone : phone);
-        if (!name) { toast('Falta nombre'); return; }
-        if (!(id && /^506\d{8}$/.test(id))) { toast('Teléfono inválido'); return; }
-        const ref = db.collection('users').doc(id); const doc = await ref.get();
-        if (doc.exists) { toast('Teléfono ya registrado'); return; }
-        await ref.set({ name, phone: id, rewards: sortRewards(Array.from(selected).filter(allow)), comments: [], createdAt: Date.now() });
-        toast('Usuario creado');
-        document.getElementById('newUserName').value = '';
-        document.getElementById('newUserPhone').value = '';
-        selected.clear();
-        makeChipToggle(document.getElementById('newUserRewards'), selected, { enforceAssignable: true });
-      };
-    }
-
-    document.getElementById('search').addEventListener('input', debounce(renderUsersList, 180));
-
-    async function ensureDemoUser(){
-      const id = '50660048606';
-      const ref = db.collection('users').doc(id);
+      
+      UI.loginMsg.textContent = 'Verificando...';
       try {
-        const snap = await ref.get();
-        if (!snap.exists) {
-          await ref.set({ name: 'Demo CR', phone: id, rewards: ['r1'], comments: [{ text: 'Bienvenid@ 👾', ts: Date.now(), author: 'admin' }], createdAt: Date.now() });
-          console.log('Demo user creado');
+        const userRef = doc(db, 'users', id);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          localStorage.setItem('memberId', id);
+          switchView('member');
+        } else {
+          UI.loginMsg.textContent = 'No se encontró un usuario con ese teléfono.';
         }
-      } catch(e){ console.warn('No se pudo crear demo', e); }
+      } catch (e) {
+        console.error("Error en login:", e);
+        UI.loginMsg.textContent = 'Error de conexión.';
+      }
+    }
+    
+    function pulseTitle() {
+      UI.title.classList.add('glitching');
+      setTimeout(()=> UI.title.classList.remove('glitching'), 520);
     }
 
-    window.addEventListener('DOMContentLoaded', async () => {
-      try {
-        const results = [];
-        results.push(['Firebase', typeof firebase !== 'undefined']);
-        results.push(['DB', !!db]);
-        results.push(['Rewards', REWARDS.length === 5]);
-        await db.collection('users').limit(1).get(); results.push(['Lectura Firestore', true]);
-        console.log('Smoke:', results.map(([k,v])=>`${k}:${v?'✔':'✖'}`).join(' • '));
-      } catch(e){ console.warn('Smoke tests', e); }
+    function init() {
+        // --- Eventos de Login y UI General ---
+        UI.loginGo.addEventListener('click', doLogin);
+        UI.loginInput.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+        UI.ccBtn.addEventListener('click', () => {
+          const isHidden = UI.ccMenu.classList.toggle('hidden');
+          UI.ccBtn.setAttribute('aria-expanded', String(!isHidden));
+        });
+        document.addEventListener('click', e => {
+          if (!e.target.closest('#ccBtn') && !e.target.closest('#ccMenu')) {
+            UI.ccMenu.classList.add('hidden');
+            UI.ccBtn.setAttribute('aria-expanded', 'false');
+          }
+        });
 
-      // await ensureDemoUser(); // desactivado para evitar errores de permisos en Firestore
+        // --- Eventos del Modal de Admin ---
+        const closeModal = () => UI.adminModal.classList.add('hidden');
+        const openModal = () => { UI.adminMsg.textContent=''; UI.adminPwd.value=''; UI.adminModal.classList.remove('hidden'); setTimeout(()=> UI.adminPwd.focus(), 50); };
+        const tryAdmin = () => { if (UI.adminPwd.value.trim() === atob(ADMIN_KEY_B64)) { localStorage.setItem('admin','1'); closeModal(); switchView('admin'); } else { UI.adminMsg.textContent = 'Contraseña incorrecta'; } };
+        UI.adminOpen.addEventListener('click', openModal);
+        UI.adminCancel.addEventListener('click', closeModal);
+        UI.adminEnter.addEventListener('click', tryAdmin);
+        UI.adminPwd.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryAdmin(); if (e.key === 'Escape') closeModal(); });
+        
+        // --- Eventos de las vistas ---
+        UI.memberLogoutBtn.addEventListener('click', () => switchView('auth'));
+        UI.adminLogoutBtn.addEventListener('click', () => switchView('auth'));
+        UI.search.addEventListener('input', debounce(renderUsersList, 200));
+        UI.clearPanelBtn.addEventListener('click', clearEditPanel);
+        
+        // --- Efecto Parallax Optimizado ---
+        UI.art.addEventListener('mousemove', e => {
+            if (!isTicking) {
+                window.requestAnimationFrame(() => {
+                    const r = UI.art.getBoundingClientRect();
+                    const x = (e.clientX - r.left) / r.width; // 0..1
+                    const y = (e.clientY - r.top) / r.height; // 0..1
+                    const max = 10;
+                    const rx = ((0.5 - y) * max).toFixed(2);
+                    const ry = ((x - 0.5) * max).toFixed(2);
+                    UI.art.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+                    UI.shine.style.setProperty('--gx', `${(x*100).toFixed(2)}%`);
+                    UI.shine.style.setProperty('--gy', `${(y*100).toFixed(2)}%`);
+                    isTicking = false;
+                });
+                isTicking = true;
+            }
+        });
+        UI.art.addEventListener('mouseleave', () => { UI.art.style.transform = ''; });
 
-      const m = localStorage.getItem('member'); const a = localStorage.getItem('admin');
-      if (a === '1') { showAdminView(); return; }
-      if (m) { showMemberView(); startMemberListener(m); return; }
-      showAuth();
-    });
+        // --- Carga Inicial ---
+        buildCCMenu();
+        const lastCountry = COUNTRIES.find(c => c.code === localStorage.getItem('lastCountryCode')) || COUNTRIES[0];
+        setCountry(lastCountry);
+        
+        const memberId = localStorage.getItem('memberId');
+        const isAdmin = localStorage.getItem('admin') === '1';
+
+        if (isAdmin) {
+            switchView('admin');
+        } else if (memberId) {
+            switchView('member');
+        } else {
+            switchView('auth');
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', init);
+
   </script>
 </body>
 </html>
