@@ -10,7 +10,7 @@
   <link rel="preload" as="image" href="assets/card2.png"/>
   <link rel="preload" as="image" href="assets/card3.png"/>
   <link rel="preload" as="image" href="assets/card4.png"/>
-  <link rel="preload" as="image" href="assets/background.jpg"/>
+  <link rel="preload" as="image" href="assets/background.png"/>
   <title>GAME OVER · Rewards CRM</title>
   <style>
     :root {
@@ -30,8 +30,8 @@
 
     /* Fondo con imagen oscurecida + grid neón sutil */
     .bg-tech { position: fixed; inset: 0; z-index: -1; overflow: hidden; background:
-      linear-gradient(rgba(7,9,15,.78), rgba(7,9,15,.82)),
-      url('assets/background.jpg') center / cover no-repeat fixed,
+      linear-gradient(rgba(7,9,15,.80), rgba(7,9,15,.86)),
+      url('assets/background.png') center / cover no-repeat fixed,
       radial-gradient(800px 400px at 80% 0%, rgba(0,229,255,.10), transparent 60%),
       radial-gradient(600px 300px at 15% 100%, rgba(255,43,191,.10), transparent 60%),
       repeating-linear-gradient(90deg, rgba(0,229,255,.06), rgba(0,229,255,.06) 1px, transparent 1px, transparent 80px),
@@ -39,11 +39,8 @@
       var(--ink);
       filter: saturate(.9) brightness(.9);
     }
-    .bg-tech::before, .bg-tech::after{ content:""; position:absolute; inset:auto; pointer-events:none; }
-    .bg-tech::before{ bottom:0; left:0; right:0; height:32%; background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01)); border-top: 1px solid rgba(255,255,255,.08); clip-path: polygon(0 10%, 68% 0, 100% 6%, 100% 100%, 0 100%); }
-    .bg-tech::after{ top:8%; left:6%; width:160px; height:160px; border:2px dashed rgba(0,229,255,.35); border-radius:24px; transform: rotate(14deg); opacity:.6; }
 
-    .wrap { max-width: 1200px; margin: 0 auto; padding: 24px; }
+    .wrap { max-width: 1280px; margin: 0 auto; padding: 24px; }
 
     .hero { display: grid; gap: 6px; margin-bottom: 8px; }
     .gameover {
@@ -61,35 +58,36 @@
 
     @keyframes rgb-shift { 0%,100%{opacity:0; transform: translate(0,0);} 10%{opacity:.9; transform: translate(-1px,1px);} 20%{transform: translate(2px,-1px);} 30%{transform: translate(-1px,2px);} 40%{transform: translate(1px,-2px);} 50%{opacity:0;} }
 
-    /* Landing fullscreen: dos columnas, login destacado */
-    .landing { min-height: calc(100vh - 48px); display: grid; grid-template-columns: minmax(340px, 520px) 1fr; align-items: center; gap: clamp(16px, 4vw, 36px); }
-    .login-col { display: grid; gap: 18px; align-content: start; }
-    .art-col { position: relative; align-self: stretch; border-radius: 22px; overflow: hidden; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015)); }
-    .art-col::before { /* líneas diagonales suaves */ content:""; position:absolute; inset:-30% -10%; background: repeating-linear-gradient(45deg, rgba(0,229,255,.1), rgba(0,229,255,.1) 2px, transparent 2px, transparent 18px); filter: blur(10px); opacity:.35; }
-    .art-col::after { /* halo */ content:""; position:absolute; width: 60vmin; height: 60vmin; left: 50%; top: 50%; transform: translate(-50%,-50%); background: radial-gradient(closest-side, rgba(255,43,191,.12), transparent 60%); }
+    /* -------- Landing / Login desde cero -------- */
+    .landing { min-height: calc(100vh - 48px); display: grid; grid-template-columns: 1.05fr .95fr; align-items: center; gap: clamp(16px, 4vw, 40px); }
+    .login-stack { display: grid; gap: 18px; }
 
-    .card { background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015)); border: 1px solid var(--border); border-radius: 18px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.35); position:relative; overflow:hidden; }
-    .card.loginCard { padding: 22px; border-radius: 20px; }
-    .card.loginCard::after { /* scanlines sutiles */ content:""; position:absolute; inset:0; pointer-events:none; background: repeating-linear-gradient(0deg, rgba(255,255,255,.03), rgba(255,255,255,.03) 1px, transparent 1px, transparent 3px); opacity:.18; mix-blend-mode:soft-light; animation: scan 6s linear infinite; }
-    @keyframes scan { 0%{transform: translateY(-10%);} 100%{transform: translateY(10%);} }
+    .loginBox { position: relative; border-radius: 20px; padding: clamp(18px, 3vw, 28px); background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); border: 1px solid var(--border); box-shadow: 0 20px 48px rgba(0,0,0,.45), var(--glow); overflow:hidden; }
+    .loginBox::after { content:""; position:absolute; inset:-40%; background: radial-gradient(600px 220px at 10% 0%, rgba(0,229,255,.14), transparent 50%); pointer-events:none; }
+    .loginTitle { font-size: 14px; letter-spacing: 1.5px; text-transform: uppercase; opacity:.9; margin-bottom: 10px; }
 
-    .card h2 { margin: 0 0 8px; font-size: 18px; text-transform: uppercase; letter-spacing: .5px; color: var(--text); }
-    .muted { color: var(--muted); font-size: 14px; }
+    .phoneInput { position: relative; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; border: 1px solid var(--border); border-radius: 16px; padding: 12px 12px 12px 14px; background: #0b1120cc; backdrop-filter: blur(6px); box-shadow: var(--glow); }
+    .phonePrefix { font-weight: 800; color: var(--neon-cyan); text-shadow: 0 0 10px rgba(0,229,255,.65); }
+    #loginInput { width: 100%; border: 0; outline: 0; background: transparent; color: var(--text); font-size: 22px; letter-spacing: .6px; }
+    #loginInput::placeholder { color: #93a0b3; opacity:.9; }
+    .goBtn { border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; cursor: pointer; font-weight: 800; background: linear-gradient(180deg, rgba(0,229,255,.22), rgba(0,229,255,.08)); color: var(--text); }
+    .goBtn:hover { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); }
+    .phoneInput.shake { animation: shakeX 420ms cubic-bezier(.36,.07,.19,.97) both; }
 
-    /* Login minimalista con CTA embebido */
-    .loginRow { display:flex; align-items:center; gap:12px; }
-    .loginLabel { font-weight: 900; letter-spacing: 1px; color: var(--text); }
-    .bracket { position: relative; flex: 1; background: #0b1120cc; border: 1px solid var(--border); border-radius: 16px; padding: 12px 12px; padding-right: 56px; box-shadow: var(--glow); backdrop-filter: blur(4px); }
-    .bracket::before { content: '['; position: absolute; left: -18px; top: 50%; transform: translateY(-50%); color: var(--neon-cyan); font-weight: 900; font-size: 22px; text-shadow: 0 0 8px rgba(0,229,255,.6); }
-    .bracket::after { content: '}'; position: absolute; right: -18px; top: 50%; transform: translateY(-50%); color: var(--neon-cyan); font-weight: 900; font-size: 22px; text-shadow: 0 0 8px rgba(0,229,255,.6); }
-    .bracket input { width: 100%; border: 0; outline: 0; background: transparent; color: var(--text); font-size: 18px; letter-spacing:.3px; }
-    .bracket .submit { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border: 1px solid var(--border); background: rgba(255,255,255,.08); border-radius: 12px; padding: 8px 12px; cursor: pointer; color: var(--text); font-size:18px; }
-    .bracket .submit:hover { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); }
-    .bracket.shake { animation: shakeX 420ms cubic-bezier(.36,.07,.19,.97) both; }
+    .loginMeta { display:flex; gap:12px; align-items:center; color: var(--muted); font-size: 13px; min-height: 18px; }
+
+    /* Panel arte complementario */
+    .art { position: relative; height: min(72vh, 680px); border-radius: 22px; overflow: hidden; border: 1px solid var(--border); background:
+      linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)); }
+    .art::before { content:""; position:absolute; inset:0; background:
+      radial-gradient(80% 40% at 20% 10%, rgba(0,229,255,.14), transparent 60%),
+      radial-gradient(60% 40% at 70% 80%, rgba(255,43,191,.16), transparent 60%),
+      url('assets/background.png') center / cover no-repeat; filter: brightness(.7) contrast(1); }
+    .art::after { content:""; position:absolute; inset:0; background: repeating-linear-gradient(90deg, rgba(255,255,255,.05), rgba(255,255,255,.05) 1px, transparent 1px, transparent 60px), repeating-linear-gradient(0deg, rgba(0,0,0,.12), rgba(0,0,0,.12) 1px, transparent 1px, transparent 60px); opacity:.25; mix-blend-mode: soft-light; }
 
     @keyframes shakeX { 10%,90%{ transform: translateX(-1px);} 20%,80%{ transform: translateX(2px);} 30%,50%,70%{ transform: translateX(-4px);} 40%,60%{ transform: translateX(4px);} }
 
-    /* Botones */
+    /* Botones y campos generales */
     .btn { display: inline-flex; gap: 8px; align-items: center; padding: 10px 14px; color: var(--text); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; text-decoration: none; transition: transform .05s ease, filter .2s ease, box-shadow .2s ease; background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06)); }
     .btn:hover { filter: brightness(1.08); box-shadow: var(--glow); }
     .btn:active { transform: translateY(1px); }
@@ -99,7 +97,7 @@
 
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
-    /* Campos visuales modernos */
+    /* Campos visuales modernos (admin) */
     .field { position: relative; margin: 8px 0; }
     .field .icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); opacity: .85; font-size: 14px; pointer-events: none; }
     .neo { width: 100%; padding: 12px 12px 12px 36px; border-radius: 14px; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); color: var(--text); outline: none; box-shadow: inset 0 1px 0 rgba(255,255,255,.04); transition: box-shadow .2s ease, border-color .2s ease, filter .2s ease; }
@@ -133,9 +131,9 @@
     .toast-item { background: #0b1120; border: 1px solid rgba(255,255,255,.14); padding: 10px 12px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,.35); }
 
     /* Responsivo */
-    @media (max-width: 860px){
-      .landing { grid-template-columns: 1fr; align-content: center; }
-      .art-col { display:none; }
+    @media (max-width: 980px){
+      .landing { grid-template-columns: 1fr; }
+      .art { height: 38vh; }
     }
 
     /* Accesibilidad */
@@ -149,9 +147,6 @@
 
   <!-- Filtros SVG para glitch/desplazamiento -->
   <svg aria-hidden="true" focusable="false" width="0" height="0" style="position:absolute; overflow:hidden">
-    <filter id="g-noise">
-      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="2" result="noise"/>
-    </filter>
     <filter id="g-glitch">
       <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="1" seed="3" result="t"/>
       <feDisplacementMap in="SourceGraphic" in2="t" scale="18" xChannelSelector="R" yChannelSelector="G"/>
@@ -163,21 +158,20 @@
       <div class="gameover" id="title" data-text="Game Over · Rewards">Game Over · Rewards</div>
     </div>
 
-    <!-- Landing fullscreen con login a la izquierda y arte a la derecha -->
+    <!-- Landing / LOGIN desde cero -->
     <section class="landing" id="authGrid">
-      <div class="login-col">
-        <div class="card loginCard">
-          <div class="loginRow">
-            <span class="loginLabel">LOGIN</span>
-            <div class="bracket" id="loginBracket">
-              <input id="loginKey" type="text" placeholder="Ingresa tu teléfono" autocomplete="off" inputmode="numeric" aria-label="Teléfono" aria-describedby="loginMsg" />
-              <button id="loginBtn" class="submit" aria-label="Entrar">⚡</button>
-            </div>
+      <div class="login-stack">
+        <div class="loginBox">
+          <div class="loginTitle">Login</div>
+          <div class="phoneInput" id="loginBox">
+            <div class="phonePrefix" aria-hidden="true">CR&nbsp;+506</div>
+            <input id="loginInput" type="tel" inputmode="numeric" placeholder="6004 8606" autocomplete="one-time-code" aria-label="Teléfono" />
+            <button id="loginGo" class="goBtn" aria-label="Entrar">ENTER</button>
           </div>
-          <p class="muted" id="loginMsg" aria-live="polite" style="margin-top:6px"></p>
+          <div class="loginMeta" id="loginMsg" aria-live="polite"></div>
         </div>
       </div>
-      <div class="art-col" aria-hidden="true"></div>
+      <div class="art" aria-hidden="true"></div>
     </section>
 
     <!-- Vista miembro -->
@@ -272,7 +266,14 @@
 
     const $ = sel => document.querySelector(sel);
     const el = (tag, attrs = {}, children = []) => { const n = document.createElement(tag); Object.entries(attrs).forEach(([k,v]) => { if (k === 'class') n.className = v; else if (k === 'text') n.textContent = v; else n.setAttribute(k, v); }); children.forEach(c => n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c)); return n; };
-    const phoneKey = s => (s || '').replace(/\D+/g, ''); // solo dígitos para ID
+    const digits = s => (s || '').replace(/\D+/g, '');
+    const phoneKey = (s) => { // normaliza a CR: 506 + 8 dígitos
+      const d = digits(s);
+      if (!d) return '';
+      if (d.startsWith('506') && d.length === 11) return d;
+      if (d.length === 8) return '506' + d;
+      return d; // deja otros países tal cual (por si acaso)
+    };
 
     // Admin key levemente ofuscada (evita lectura casual en código)
     const ADMIN_KEY_B64 = 'RmluYWxCb3Nz'; // "FinalBoss" en Base64
@@ -288,7 +289,8 @@
       const host = document.getElementById('toast');
       const item = el('div', { class: 'toast-item' }, [msg]);
       host.appendChild(item);
-      glitchPulse(item, 320);
+      item.style.filter = 'url(#g-glitch)';
+      setTimeout(()=>{ item.style.filter = 'none'; }, 360);
       setTimeout(()=>{ item.style.opacity = '0'; item.style.transform = 'translateY(-4px)'; item.style.transition = 'opacity .4s ease, transform .4s ease'; }, 2000);
       setTimeout(()=> item.remove(), 2600);
     }
@@ -414,56 +416,72 @@
       document.getElementById('clearPanelBtn').onclick = () => { if (unsubEdit) { unsubEdit(); unsubEdit = null; } document.getElementById('editPanel').classList.add('hidden'); document.getElementById('noUserSelected').classList.remove('hidden'); };
     }
 
-    // Login unificado: Enter o botón ⚡
+    // ----- LOGIN nuevo -----
+    function formatCRDisplay(val){
+      const d = digits(val);
+      let core = d.startsWith('506') ? d.slice(3) : d;
+      core = core.slice(0,8);
+      if (core.length <= 4) return core;
+      return core.slice(0,4) + ' ' + core.slice(4);
+    }
+
     async function doLogin(){
-      const key = document.getElementById('loginKey').value.trim();
+      const input = document.getElementById('loginInput') || document.getElementById('loginKey');
       const msg = document.getElementById('loginMsg');
-      const bracket = document.getElementById('loginBracket');
-      if (!key) { msg.textContent = 'Ingresa tu teléfono.'; pulseTitle(); bracket.classList.add('shake'); setTimeout(()=>bracket.classList.remove('shake'), 450); return; }
-      // Admin: palabra secreta (no visible en UI)
-      if (key.toLowerCase() === atob(ADMIN_KEY_B64).toLowerCase()) {
-        localStorage.setItem('admin','1');
-        pulseTitle();
-        showAdminView();
-        return;
+      const box = document.getElementById('loginBox') || document.getElementById('loginBracket');
+      const raw = (input?.value || '').trim();
+      if (!raw) { msg.textContent = 'Ingresa tu teléfono.'; box?.classList.add('shake'); setTimeout(()=> box?.classList.remove('shake'), 450); pulseTitle(); return; }
+
+      // Admin secreto
+      try {
+        if (raw.toLowerCase() === atob(ADMIN_KEY_B64).toLowerCase()) {
+          localStorage.setItem('admin','1'); showAdminView(); return;
+        }
+      } catch(_){}
+
+      const id = phoneKey(raw);
+      if (!(id && (/^506\d{8}$/.test(id) || id.length >= 7))) { // CR o fallback simple
+        msg.textContent = 'Teléfono inválido.'; box?.classList.add('shake'); setTimeout(()=> box?.classList.remove('shake'), 450); return;
       }
-      const id = phoneKey(key);
-      if (!id) { msg.textContent = 'Teléfono inválido.'; pulseTitle(); bracket.classList.add('shake'); setTimeout(()=>bracket.classList.remove('shake'), 450); return; }
+
       try {
         const ref = db.collection('users').doc(id); const snap = await ref.get();
-        if (!snap.exists) { msg.textContent = 'No existe este usuario.'; pulseTitle(); return; }
-        localStorage.setItem('member', id);
-        showMemberView(); startMemberListener(id);
+        if (!snap.exists) { msg.textContent = 'No existe este usuario.'; return; }
+        localStorage.setItem('member', id); showMemberView(); startMemberListener(id);
       } catch(e){ msg.textContent = 'Error de conexión.'; console.error(e); }
     }
 
-    document.getElementById('loginKey').addEventListener('keydown', (e)=>{ if (e.key === 'Enter') doLogin(); });
-    document.getElementById('loginBtn').addEventListener('click', doLogin);
-
-    // Copiar teléfono rápido desde la lista
-    document.getElementById('usersList').addEventListener('click', (e)=>{
-      const tgt = e.target.closest('.copyable');
-      if (tgt && tgt.dataset.phone) {
-        navigator.clipboard?.writeText(tgt.dataset.phone).then(()=> toast('Teléfono copiado'));
+    // Listeners del nuevo login
+    (function setupLoginUI(){
+      const input = document.getElementById('loginInput');
+      if (input) {
+        input.addEventListener('input', (e)=>{ const cur = e.target.selectionStart; const v = e.target.value; const f = formatCRDisplay(v); e.target.value = f; try{ e.target.setSelectionRange(cur, cur);}catch(_){} });
+        input.addEventListener('keydown', (e)=>{ if (e.key === 'Enter') doLogin(); });
       }
-    });
+      const go = document.getElementById('loginGo'); if (go) go.addEventListener('click', doLogin);
+      // Soporte legado (por si queda caché de HTML):
+      const lk = document.getElementById('loginKey'); if (lk) lk.addEventListener('keydown', (e)=>{ if (e.key === 'Enter') doLogin(); });
+      const lb = document.getElementById('loginBtn'); if (lb) lb.addEventListener('click', doLogin);
+    })();
 
-    // Micro-efectos: glitch del título en momentos clave
+    // Micro-efecto: glitch del título
     function pulseTitle() {
       const t = document.getElementById('title');
       t.classList.add('glitching');
       setTimeout(()=> t.classList.remove('glitching'), 520);
-    }
-    function glitchPulse(el, ms=360){
-      el.style.filter = 'url(#g-glitch)';
-      setTimeout(()=>{ el.style.filter = 'none'; }, ms);
     }
 
     // Controles de sesión
     document.getElementById('memberLogoutBtn')?.addEventListener('click', () => { localStorage.removeItem('member'); if (unsubMember) { unsubMember(); unsubMember = null; } showAuth(); });
     document.getElementById('adminLogoutBtn')?.addEventListener('click', () => { localStorage.removeItem('admin'); if (unsubUsers) { unsubUsers(); unsubUsers = null; } if (unsubEdit) { unsubEdit(); unsubEdit = null; } showAuth(); });
 
-    function showAuth(){ document.getElementById('adminGrid').classList.add('hidden'); document.getElementById('memberGrid').classList.add('hidden'); document.getElementById('authGrid').classList.remove('hidden'); document.getElementById('loginKey').focus(); pulseTitle(); }
+    function showAuth(){
+      document.getElementById('adminGrid').classList.add('hidden');
+      document.getElementById('memberGrid').classList.add('hidden');
+      document.getElementById('authGrid').classList.remove('hidden');
+      (document.getElementById('loginInput') || document.getElementById('loginKey'))?.focus();
+      pulseTitle();
+    }
     function showMemberView(){ document.getElementById('authGrid').classList.add('hidden'); document.getElementById('memberGrid').classList.remove('hidden'); }
     function showAdminView(){ document.getElementById('authGrid').classList.add('hidden'); document.getElementById('adminGrid').classList.remove('hidden'); setupCreateUser(); startUsersListener(); document.getElementById('search').focus(); }
 
@@ -472,12 +490,13 @@
       makeChipToggle(document.getElementById('newUserRewards'), selected, { enforceAssignable: true });
       document.getElementById('addUserBtn').onclick = async () => {
         const name = document.getElementById('newUserName').value.trim();
-        const phone = phoneKey(document.getElementById('newUserPhone').value.trim());
+        const phone = digits(document.getElementById('newUserPhone').value.trim());
+        const id = phoneKey(phone);
         if (!name) { toast('Falta nombre'); return; }
-        if (!phone) { toast('Teléfono inválido'); return; }
-        const ref = db.collection('users').doc(phone); const doc = await ref.get();
+        if (!(id && /^506\d{8}$/.test(id))) { toast('Teléfono inválido'); return; }
+        const ref = db.collection('users').doc(id); const doc = await ref.get();
         if (doc.exists) { toast('Teléfono ya registrado'); return; }
-        await ref.set({ name, phone, rewards: sortRewards(Array.from(selected).filter(allow)), comments: [], createdAt: Date.now() });
+        await ref.set({ name, phone: id, rewards: sortRewards(Array.from(selected).filter(allow)), comments: [], createdAt: Date.now() });
         toast('Usuario creado');
         document.getElementById('newUserName').value = ''; document.getElementById('newUserPhone').value = ''; selected.clear();
         makeChipToggle(document.getElementById('newUserRewards'), selected, { enforceAssignable: true });
@@ -487,14 +506,16 @@
     document.getElementById('search').addEventListener('input', debounce(renderUsersList, 180));
 
     async function ensureDemoUser(){
-      // Crea un único usuario demo si no existe (CR: +506 6004 8606)
-      const phone = '50660048606';
-      const ref = db.collection('users').doc(phone);
-      const snap = await ref.get();
-      if (!snap.exists) {
-        await ref.set({ name: 'Demo CR', phone, rewards: ['r1'], comments: [{ text: 'Bienvenid@ 👾', ts: Date.now(), author: 'admin' }], createdAt: Date.now() });
-        console.log('Demo user creado');
-      }
+      // Seed: único demo CR +506 6004 8606
+      const id = '50660048606';
+      const ref = db.collection('users').doc(id);
+      try {
+        const snap = await ref.get();
+        if (!snap.exists) {
+          await ref.set({ name: 'Demo CR', phone: id, rewards: ['r1'], comments: [{ text: 'Bienvenid@ 👾', ts: Date.now(), author: 'admin' }], createdAt: Date.now() });
+          console.log('Demo user creado');
+        }
+      } catch(e){ console.warn('No se pudo crear demo', e); }
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
@@ -509,7 +530,7 @@
       } catch(e){ console.warn('Smoke tests', e); }
 
       // Semilla: único demo
-      try { await ensureDemoUser(); } catch(e) { console.warn('No se pudo crear demo', e); }
+      await ensureDemoUser();
 
       const m = localStorage.getItem('member'); const a = localStorage.getItem('admin');
       if (a === '1') { showAdminView(); return; }
