@@ -11,7 +11,7 @@
       --panel: #0f1424;         /* paneles */
       --neon-yellow: #f6f200;   /* amarillo ácido */
       --neon-cyan: #00e5ff;     /* cian eléctrico */
-      --neon-pink: #ff0078;     /* magenta graffiti */
+      --neon-pink: #ff2bbf;     /* magenta graffiti */
       --muted: #a7b0c0;
       --text: #f2f6ff;          /* texto alto contraste */
       --border: rgba(255,255,255,.12);
@@ -45,7 +45,7 @@
     .muted { color: var(--muted); font-size: 14px; }
 
     label { display: block; font-size: 13px; margin: 10px 0 6px; color: var(--muted); text-transform: uppercase; }
-    input[type="text"], input[type="password"], textarea { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border); background: #0b1120; color: var(--text); outline: none; }
+    input[type="text"], textarea { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border); background: #0b1120; color: var(--text); outline: none; }
     input:focus, textarea:focus { box-shadow: var(--glow); border-color: rgba(0,229,255,.45); }
     textarea { min-height: 86px; resize: vertical; }
 
@@ -68,7 +68,7 @@
     .gallery { display:grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap:12px; }
     .gallery .cardart { border-radius: 16px; overflow:hidden; border:1px solid var(--border); box-shadow: 0 8px 20px rgba(0,0,0,.35); background:#0d1222; }
     .gallery .cardart img { width:100%; display:block; aspect-ratio: 2/3; object-fit: cover; filter: contrast(1.05); }
-    .gallery .label { padding:6px 8px; font-size:12px; color:#0b0b0b; background: linear-gradient(90deg, var(--neon-yellow), var(--neon-pink)); font-weight: 700; }
+    .gallery .label { padding:6px 8px; font-size:12px; color:#0b0b0b; background: linear-gradient(90deg, var(--neon-yellow), var(--neon-cyan)); font-weight: 700; }
 
     .list { display: grid; gap: 8px; margin-top: 8px; max-height: 340px; overflow: auto; }
     .item { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.03); }
@@ -89,15 +89,13 @@
       <p id="testStatus" class="status"></p>
     </div>
 
-    <!-- Login unificado -->
+    <!-- Login unificado (teléfono o "FinalBoss") -->
     <div class="grid" id="authGrid">
       <div class="card">
         <h2>Ingreso</h2>
-        <p class="muted">Escribe tu nombre para entrar como miembro. Si agregas la clave, entrarás como admin.</p>
-        <label>Nombre</label>
-        <input id="loginName" type="text" placeholder="Ej. Ana López" />
-        <label>Clave admin (opcional)</label>
-        <input id="loginAdmin" type="password" placeholder="Clave del admin" />
+        <p class="muted">Ingresa tu <strong>número de teléfono</strong> para entrar. Si escribes <strong>FinalBoss</strong>, entrarás como admin.</p>
+        <label>Teléfono o "FinalBoss"</label>
+        <input id="loginKey" type="text" placeholder="Ej. +52 55 1234 5678" />
         <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
           <button class="btn brand" id="loginBtn">Entrar</button>
           <button class="btn" id="demoMemberBtn">Demo miembro</button>
@@ -126,6 +124,8 @@
         <h2>Alta rápida</h2>
         <label>Nombre del usuario</label>
         <input id="newUserName" type="text" placeholder="Nuevo miembro" />
+        <label>Teléfono (login)</label>
+        <input id="newUserPhone" type="text" placeholder="Ej. +52 55 1234 5678" />
         <label>Selecciona tarjetas</label>
         <div id="newUserRewards" class="chips"></div>
         <small class="muted">Final Boss se desbloquea en el evento final y no se asigna manualmente.</small>
@@ -136,7 +136,7 @@
       <div class="card">
         <h2>Gestión de usuarios</h2>
         <label>Buscar</label>
-        <input id="search" type="text" placeholder="Filtra por nombre" />
+        <input id="search" type="text" placeholder="Filtra por nombre o teléfono" />
         <div class="list" id="usersList"></div>
       </div>
 
@@ -186,18 +186,18 @@
     const db = firebase.firestore();
 
     // 2) Parámetros del sistema y catálogo de tarjetas
-    const ADMIN_SECRET = "admin-123"; // cambia esta clave
     const REWARDS = [
       { id: "r1", label: "Joker",    img: "assets/card1.png", assignable: true },
       { id: "r2", label: "Predator", img: "assets/card2.png", assignable: true },
       { id: "r3", label: "Alien",    img: "assets/card3.png", assignable: true },
-      { id: "r4", label: "Jason",    img: "assets/card4.png", assignable: true }, // nivel máximo para usuarios
-      { id: "r5", label: "Final Boss. Chucky", img: "assets/card5.png", assignable: false } // evento final
+      { id: "r4", label: "Jason",    img: "assets/card4.png", assignable: true },
+      { id: "r5", label: "Final Boss. Chucky", img: "assets/card5.png", assignable: false }
     ];
+    const ORDER = Object.fromEntries(REWARDS.map((r, i) => [r.id, i]));
 
     const $ = sel => document.querySelector(sel);
     const el = (tag, attrs = {}, children = []) => { const n = document.createElement(tag); Object.entries(attrs).forEach(([k,v]) => { if (k === 'class') n.className = v; else if (k === 'text') n.textContent = v; else n.setAttribute(k, v); }); children.forEach(c => n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c)); return n; };
-    const kebab = s => s.toLowerCase().trim().replace(/\s+/g,'-');
+    const phoneKey = s => (s || '').replace(/\D+/g, ''); // solo dígitos para ID
 
     // Estado + listeners
     let unsubMember = null, unsubUsers = null, unsubEdit = null;
@@ -234,8 +234,12 @@
       }, err => console.error('member onSnapshot', err));
     }
 
+    function sortRewards(ids){
+      return (ids || []).slice().sort((a,b)=> (ORDER[a] ?? 999) - (ORDER[b] ?? 999));
+    }
+
     function renderMemberPanels(member){
-      const rewards = member.rewards || [];
+      const rewards = sortRewards(member.rewards || []);
       const comments = member.comments || [];
 
       const cardsBox = document.getElementById('memberCards');
@@ -271,9 +275,9 @@
     function renderUsersList(){
       const list = document.getElementById('usersList'); list.innerHTML = '';
       const q = (document.getElementById('search').value || '').toLowerCase().trim();
-      cacheUsers.filter(u => !q || (u.name || '').toLowerCase().includes(q)).forEach(u => {
+      cacheUsers.filter(u => !q || (u.name || '').toLowerCase().includes(q) || (u.phone || '').includes(q.replace(/\D+/g,''))).forEach(u => {
         const row = el('div', { class: 'item' }, [
-          el('div', {}, [ el('div', { text: u.name || u.id }), el('small', {}, [(u.rewards?.length || 0) + ' tarjetas']) ]),
+          el('div', {}, [ el('div', { text: u.name || u.id }), el('small', {}, [ (u.phone ? ('📱 ' + u.phone) : u.id) + ' • ' + (u.rewards?.length || 0) + ' tarjetas' ]) ]),
           el('div', {}, [ el('button', { class: 'btn', type: 'button' }, ['Editar']) ])
         ]);
         row.querySelector('button').addEventListener('click', () => selectUser(u.id, u.name || u.id));
@@ -293,12 +297,12 @@
       unsubEdit = ref.onSnapshot(doc => {
         if (!doc.exists) { document.getElementById('editMsg').textContent = 'El usuario fue eliminado.'; document.getElementById('editPanel').classList.add('hidden'); document.getElementById('noUserSelected').classList.remove('hidden'); return; }
         const data = doc.data();
-        selected = new Set((data.rewards || []).filter(allow));
+        selected = new Set(sortRewards((data.rewards || []).filter(allow)));
         makeChipToggle(document.getElementById('editRewards'), selected, { enforceAssignable: true });
       });
 
       document.getElementById('saveRewardsBtn').onclick = async () => {
-        await ref.update({ rewards: Array.from(selected).filter(allow) });
+        await ref.update({ rewards: sortRewards(Array.from(selected).filter(allow)) });
         document.getElementById('editMsg').textContent = 'Tarjetas guardadas.';
       };
       document.getElementById('addCommentBtn').onclick = async () => {
@@ -316,24 +320,24 @@
 
     // Login unificado
     document.getElementById('loginBtn').addEventListener('click', async () => {
-      const name = document.getElementById('loginName').value.trim();
-      const adminKey = document.getElementById('loginAdmin').value.trim();
+      const key = document.getElementById('loginKey').value.trim();
       const msg = document.getElementById('loginMsg');
-      if (adminKey) {
-        if (adminKey === ADMIN_SECRET) { localStorage.setItem('admin','1'); showAdminView(); return; }
-        msg.textContent = 'Clave admin incorrecta.'; return;
+      if (!key) { msg.textContent = 'Escribe tu teléfono o "FinalBoss".'; return; }
+      if (key.toLowerCase() === 'finalboss'.toLowerCase()) { // admin directo
+        localStorage.setItem('admin','1'); showAdminView(); return;
       }
-      if (!name) { msg.textContent = 'Escribe tu nombre.'; return; }
+      const id = phoneKey(key);
+      if (!id) { msg.textContent = 'Teléfono inválido.'; return; }
       try {
-        const id = kebab(name); const ref = db.collection('users').doc(id); const snap = await ref.get();
+        const ref = db.collection('users').doc(id); const snap = await ref.get();
         if (!snap.exists) { msg.textContent = 'No existe este usuario. Pide alta al admin.'; return; }
         localStorage.setItem('member', id); showMemberView(); startMemberListener(id);
       } catch(e){ msg.textContent = 'Error de conexión. Intenta de nuevo.'; console.error(e); }
     });
 
     // Botones demo
-    document.getElementById('demoMemberBtn').addEventListener('click', async () => { document.getElementById('loginName').value = 'Demo User'; await ensureDemoData(); document.getElementById('loginBtn').click(); });
-    document.getElementById('demoAdminBtn').addEventListener('click', () => { document.getElementById('loginAdmin').value = ADMIN_SECRET; document.getElementById('loginBtn').click(); });
+    document.getElementById('demoMemberBtn').addEventListener('click', async () => { document.getElementById('loginKey').value = '+52 555 111 2233'; await ensureDemoData(); document.getElementById('loginBtn').click(); });
+    document.getElementById('demoAdminBtn').addEventListener('click', () => { document.getElementById('loginKey').value = 'FinalBoss'; document.getElementById('loginBtn').click(); });
 
     // Controles de sesión
     document.getElementById('memberLogoutBtn').addEventListener('click', () => { localStorage.removeItem('member'); if (unsubMember) { unsubMember(); unsubMember = null; } showAuth(); });
@@ -347,11 +351,16 @@
       const selected = new Set();
       makeChipToggle(document.getElementById('newUserRewards'), selected, { enforceAssignable: true });
       document.getElementById('addUserBtn').onclick = async () => {
-        const name = document.getElementById('newUserName').value.trim(); if (!name) { document.getElementById('addUserMsg').textContent = 'Escribe un nombre.'; return; }
-        const id = kebab(name); const ref = db.collection('users').doc(id); const doc = await ref.get();
-        if (doc.exists) { document.getElementById('addUserMsg').textContent = 'Ese usuario ya existe.'; return; }
-        await ref.set({ name, rewards: Array.from(selected).filter(allow), comments: [], createdAt: Date.now() });
-        document.getElementById('addUserMsg').textContent = 'Usuario creado.'; document.getElementById('newUserName').value = ''; selected.clear(); makeChipToggle(document.getElementById('newUserRewards'), selected, { enforceAssignable: true });
+        const name = document.getElementById('newUserName').value.trim();
+        const phone = phoneKey(document.getElementById('newUserPhone').value.trim());
+        if (!name) { document.getElementById('addUserMsg').textContent = 'Escribe un nombre.'; return; }
+        if (!phone) { document.getElementById('addUserMsg').textContent = 'Escribe un teléfono válido.'; return; }
+        const ref = db.collection('users').doc(phone); const doc = await ref.get();
+        if (doc.exists) { document.getElementById('addUserMsg').textContent = 'Ese teléfono ya está registrado.'; return; }
+        await ref.set({ name, phone, rewards: sortRewards(Array.from(selected).filter(allow)), comments: [], createdAt: Date.now() });
+        document.getElementById('addUserMsg').textContent = 'Usuario creado.';
+        document.getElementById('newUserName').value = ''; document.getElementById('newUserPhone').value = ''; selected.clear();
+        makeChipToggle(document.getElementById('newUserRewards'), selected, { enforceAssignable: true });
       };
     }
 
@@ -367,12 +376,12 @@
 
     async function ensureDemoData(){
       const sample = [
-        { name: 'Demo User', rewards: ['r1','r3'], comments: [{ text: 'Bienvenido a la comunidad', ts: Date.now()-86400000, author: 'admin' }] },
-        { name: 'Ana López', rewards: ['r2'], comments: [] },
-        { name: 'Carlos Pérez', rewards: ['r4'], comments: [{ text: 'Felicidades por el logro', ts: Date.now()-3600000, author: 'admin' }] }
+        { name: 'Demo User', phone: '5551112233', rewards: ['r1','r3'], comments: [{ text: 'Bienvenido a la comunidad', ts: Date.now()-86400000, author: 'admin' }] },
+        { name: 'Ana López',  phone: '5552223344', rewards: ['r2'], comments: [] },
+        { name: 'Carlos Pérez', phone: '5553334455', rewards: ['r4'], comments: [{ text: 'Felicidades por el logro', ts: Date.now()-3600000, author: 'admin' }] }
       ];
       for (const u of sample) {
-        const id = kebab(u.name); const ref = db.collection('users').doc(id); const snap = await ref.get(); if (!snap.exists) await ref.set({ ...u, createdAt: Date.now() });
+        const ref = db.collection('users').doc(u.phone); const snap = await ref.get(); if (!snap.exists) await ref.set({ ...u, createdAt: Date.now() });
       }
     }
 
@@ -382,7 +391,7 @@
         results.push(['Firebase cargó', typeof firebase !== 'undefined']);
         results.push(['DB inicializada', !!db]);
         results.push(['Catálogo 5 tarjetas', REWARDS.length === 5 && REWARDS.some(r=>!r.assignable)]);
-        results.push(['Funciones clave', ['renderRewardChips','makeChipToggle','startUsersListener','startMemberListener','selectUser'].every(k => typeof window[k] === 'function')]);
+        results.push(['Funciones clave', ['renderRewardChips','makeChipToggle','startUsersListener','startMemberListener','selectUser','sortRewards'].every(k => typeof window[k] === 'function')]);
         await db.collection('users').limit(1).get(); results.push(['Permisos de lectura', true]);
       } catch(e){ console.warn('Smoke tests', e); results.push(['Autochequeo falló', false]); }
       const elStatus = document.getElementById('testStatus'); if (elStatus) elStatus.textContent = 'Autochequeo: ' + results.map(r=>`${r[0]}: ${r[1]?'✔':'✖'}`).join(' • ');
