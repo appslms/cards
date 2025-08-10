@@ -109,7 +109,15 @@
     .ccMenu { position:absolute; top: calc(100% + 8px); left: 0; width: 280px; max-height: 260px; overflow:auto; background:#0b1120; border:1px solid var(--border); border-radius:12px; box-shadow: 0 16px 40px rgba(0,0,0,.55); z-index: 15; }
     .ccItem { padding:8px 10px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
     .ccItem:hover { background: rgba(0,229,255,.10); }
-    #loginInput { width: 100%; border: 0; outline: 0; background: transparent; color: var(--text); font-size: 22px; letter-spacing: .6px; }
+    #loginInput {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+      font-size: clamp(16px, 4vw, 20px); /* CORRECCIÓN: Fuente fluida */
+      letter-spacing: .6px;
+    }
     #loginInput::placeholder { color: #93a0b3; opacity:.9; }
     .goBtn { border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; cursor: pointer; font-weight: 800; background: linear-gradient(180deg, rgba(0,229,255,.22), rgba(0,229,255,.08)); color: var(--text); }
     .loginMeta { display:flex; gap:12px; align-items:center; color: var(--muted); font-size: 13px; min-height: 18px; }
@@ -133,7 +141,7 @@
       }
     }
 
-    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 2rem; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
     .card { border: 1px solid var(--border); border-radius: 18px; padding: 16px; background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); box-shadow: 0 20px 48px rgba(0,0,0,.45); }
     .card h2 { margin: 0 0 8px 0; font-size: 18px; letter-spacing: .5px; }
     .btn { display: inline-flex; gap: 8px; align-items: center; padding: 10px 14px; color: var(--text); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; text-decoration: none; }
@@ -168,38 +176,36 @@
     @media (max-width: 1180px){ .grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 980px){ .grid { grid-template-columns: 1fr; } }
     
+    /* CORRECCIÓN: Media query para móviles, ahora robusta */
     @media (max-width: 500px) {
       .art {
-        height: auto;
-        display: flex; /* Cambia a flex para el contenido interno */
+        /* La tarjeta de fondo ya tiene un tamaño responsivo gracias a clamp, no se toca */
+        display: flex; /* Asegura que pueda contener el flexbox de floating-content */
         align-items: center;
         justify-content: center;
-        padding: 2rem 1rem;
       }
       .floating-content {
         position: static;
         display: flex;
         flex-direction: column;
-        align-items: center;
         justify-content: center;
-        height: auto;
-        max-height: none;
+        align-items: center;
         width: 100%;
         max-width: 400px;
-        pointer-events: auto; /* Se necesitan eventos aquí */
+        height: auto;
+        padding: 2rem 1rem;
+        pointer-events: auto;
       }
       .floating-logo {
         position: static;
         transform: none;
-        margin-bottom: -60px; /* Recupera el solapamiento */
+        width: clamp(240px, 70vw, 320px);
+        margin-bottom: -60px; /* Restaura la superposición */
       }
       .loginFloat {
         position: static;
         transform: none;
         width: 100%;
-      }
-      #loginInput {
-        font-size: 18px; /* Reduce el tamaño de la fuente en móviles */
       }
     }
 
@@ -245,8 +251,8 @@
           <div class="loginMeta" id="adminMsg"></div>
         </div>
       </div>
-      <div id="views-container">
-        <section class="grid hidden" id="memberGrid">
+      <div id="views-container" class="hidden">
+        <section class="grid" id="memberGrid">
           <div class="card">
             <h2>Tus tarjetas</h2>
             <div id="memberCards" class="gallery"></div>
@@ -257,7 +263,7 @@
             <button class="btn" id="memberLogoutBtn">Salir</button>
           </div>
         </section>
-        <section class="grid hidden" id="adminGrid">
+        <section class="grid" id="adminGrid">
           <div class="card">
             <h2>Alta rápida</h2>
             <label for="newUserName">Nombre</label>
@@ -354,6 +360,7 @@
     
     const UI = {
         authGrid: document.getElementById('authGrid'),
+        viewsContainer: document.getElementById('views-container'),
         loginBox: document.getElementById('loginBox'), loginInput: document.getElementById('loginInput'),
         loginGo: document.getElementById('loginGo'), loginMsg: document.getElementById('loginMsg'),
         ccBtn: document.getElementById('ccBtn'), ccCode: document.getElementById('ccCode'),
@@ -405,8 +412,9 @@
     
     function switchView(viewName) {
         UI.authGrid.classList.add('hidden');
-        UI.memberGrid.classList.add('hidden');
-        UI.adminGrid.classList.add('hidden');
+        UI.viewsContainer.classList.add('hidden');
+        UI.memberGrid.parentElement.classList.add('hidden');
+        UI.adminGrid.parentElement.classList.add('hidden');
 
         if (unsubMember) { unsubMember(); unsubMember = null; }
         if (unsubUsers) { unsubUsers(); unsubUsers = null; }
@@ -420,11 +428,13 @@
                 localStorage.removeItem('admin');
                 break;
             case 'member':
-                UI.memberGrid.classList.remove('hidden');
+                UI.viewsContainer.classList.remove('hidden');
+                UI.memberGrid.parentElement.classList.remove('hidden');
                 startMemberListener(localStorage.getItem('memberId'));
                 break;
             case 'admin':
-                UI.adminGrid.classList.remove('hidden');
+                UI.viewsContainer.classList.remove('hidden');
+                UI.adminGrid.parentElement.classList.remove('hidden');
                 setupCreateUserPanel();
                 startUsersListener();
                 UI.search.focus();
@@ -604,8 +614,6 @@
       const id = buildIdFromInput();
       if (!id) {
         UI.loginMsg.textContent = 'Ingresa tu teléfono.';
-        UI.loginBox.classList.add('shake');
-        setTimeout(() => UI.loginBox.classList.remove('shake'), 450);
         return;
       }
       UI.loginMsg.textContent = 'Verificando...';
