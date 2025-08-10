@@ -65,7 +65,7 @@
     .muted { color: var(--muted); }
 
     /* Landing / Login */
-    .landing { min-height: calc(100vh - 120px); display: grid; grid-template-columns: minmax(540px, 980px); justify-content: center; align-content: center; align-items: center; }
+    .landing { position: relative; min-height: calc(100vh - 120px); display: grid; grid-template-columns: minmax(540px, 980px); place-items: center; }
     .login-stack { display: grid; gap: 18px; justify-self: center; width: 100%; max-width: 560px; }
 
     .loginBox { position: relative; border-radius: 20px; padding: clamp(18px, 3vw, 28px); background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); border: 1px solid var(--border); box-shadow: 0 20px 48px rgba(0,0,0,.45), var(--glow); overflow:hidden; }
@@ -95,12 +95,12 @@
     .art::after { content:""; position:absolute; inset:0; background: repeating-linear-gradient(90deg, rgba(255,255,255,.05), rgba(255,255,255,.05) 1px, transparent 1px, transparent 60px), repeating-linear-gradient(0deg, rgba(0,0,0,.12), rgba(0,0,0,.12) 1px, transparent 1px, transparent 60px); opacity:.25; mix-blend-mode: soft-light; z-index:1; pointer-events:none; }
 
     /* Overlay con efecto glass dentro de la tarjeta */
-    .art { perspective: 900px; transform-style: preserve-3d; position: relative; }
-    .art .overlay { position: absolute; left: clamp(16px, 4vw, 32px); right: clamp(16px, 4vw, 32px); bottom: clamp(16px, 4vw, 32px); display: grid; gap: 12px; background: rgba(11,17,32,.72); backdrop-filter: blur(10px) saturate(1.1); -webkit-backdrop-filter: blur(10px) saturate(1.1); border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: var(--glow); z-index: 3; isolation: isolate; backface-visibility: hidden; transform: translateZ(0); }
+    .art { perspective: 900px; transform-style: preserve-3d; position: relative; height: clamp(420px, 58vh, 640px); border-radius: 22px; overflow: hidden; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)); justify-self: center; width: 100%; max-width: 760px; }
+    .loginFloat { position: absolute; left: max(4vw, 24px); top: 50%; transform: translateY(-50%); display: grid; gap: 12px; width: min(520px, 86vw); background: rgba(11,17,32,.80); backdrop-filter: blur(10px) saturate(1.1); -webkit-backdrop-filter: blur(10px) saturate(1.1); border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: 0 12px 32px rgba(0,0,0,.5), var(--glow); z-index: 4; }
     .shine { position: absolute; inset: -20%; background:
-      radial-gradient(40% 12% at 30% 0%, rgba(255,255,255,.08), transparent 60%),
+      radial-gradient(40% 12% at var(--gx,30%) var(--gy,10%), rgba(255,255,255,.10), transparent 60%),
       linear-gradient(115deg, transparent 40%, rgba(255,255,255,.06) 50%, transparent 60%);
-      mix-blend-mode: screen; animation: sweep 6s linear infinite; pointer-events: none; z-index:2; opacity:.8; transition: opacity .2s ease; }
+      mix-blend-mode: screen; pointer-events: none; z-index:2; opacity:.9; transition: opacity .2s ease; }
     @keyframes sweep { from { transform: translateX(-20%) rotate(.001deg); } to { transform: translateX(20%) rotate(.001deg); } }
 
     /* Estado al escribir: apaga el brillo para máxima nitidez */
@@ -156,7 +156,7 @@
     .modal .box { width: 320px; border-radius: 16px; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); padding: 16px; box-shadow: 0 20px 48px rgba(0,0,0,.5); }
 
     @media (max-width: 1180px){ .grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 980px){ .landing { grid-template-columns: 1fr; } .art { height: 38vh; } .grid { grid-template-columns: 1fr; } }
+    @media (max-width: 980px){ .landing { grid-template-columns: 1fr; } .art { height: 38vh; } .grid { grid-template-columns: 1fr; } .loginFloat { position: static; transform: none; width: 100%; margin-top: 12px; } } .art { height: 38vh; } .grid { grid-template-columns: 1fr; } 
 
     @media (prefers-reduced-motion: reduce) {
       * { animation: none !important; transition: none !important; }
@@ -179,18 +179,19 @@
     </div>
 
     <section class="landing" id="authGrid">
-      <div class="art" aria-label="Tarjeta de acceso">
+      <div class="art" aria-label="Tarjeta de acceso interactiva">
         <span class="shine" aria-hidden="true"></span>
-        <div class="overlay">
-          <div class="loginTitle">Login</div>
-          <div class="phoneInput" id="loginBox">
-            <button class="ccBtn" id="ccBtn" type="button" aria-haspopup="listbox" aria-expanded="false"><span id="ccCode">CR</span>&nbsp;<span id="ccDial">+506</span>&nbsp;▾</button>
-            <input id="loginInput" type="tel" inputmode="numeric" placeholder="6004 8606" autocomplete="one-time-code" aria-label="Teléfono" />
-            <button id="loginGo" class="goBtn" aria-label="Entrar">ENTER</button>
-            <div id="ccMenu" class="ccMenu hidden" role="listbox" aria-label="Seleccionar país"></div>
-          </div>
-          <div class="loginMeta" id="loginMsg" aria-live="polite"></div>
+      </div>
+
+      <div class="loginFloat" role="form" aria-labelledby="loginTitle">
+        <div class="loginTitle" id="loginTitle">Login</div>
+        <div class="phoneInput" id="loginBox">
+          <button class="ccBtn" id="ccBtn" type="button" aria-haspopup="listbox" aria-expanded="false"><span id="ccCode">CR</span>&nbsp;<span id="ccDial">+506</span>&nbsp;▾</button>
+          <input id="loginInput" type="tel" inputmode="numeric" placeholder="6004 8606" autocomplete="one-time-code" aria-label="Teléfono" />
+          <button id="loginGo" class="goBtn" aria-label="Entrar">ENTER</button>
+          <div id="ccMenu" class="ccMenu hidden" role="listbox" aria-label="Seleccionar país"></div>
         </div>
+        <div class="loginMeta" id="loginMsg" aria-live="polite"></div>
       </div>
     </section>
 
@@ -598,26 +599,23 @@
     // Parallax suave de la tarjeta
     (function tiltCard(){
       const art = document.querySelector('.art');
-      if (!art) return;
-      const max = 8;
+      const shine = document.querySelector('.shine');
+      if (!art || !shine) return;
+      const max = 10; // inclinación máx
       function onMove(e){
         const r = art.getBoundingClientRect();
-        const x = (e.clientX - r.left) / r.width;
-        const y = (e.clientY - r.top) / r.height;
-        const overOverlay = e.target.closest('.overlay');
-        const amp = overOverlay ? 2 : max;
-        const rx = ((0.5 - y) * amp).toFixed(2);
-        const ry = ((x - 0.5) * amp).toFixed(2);
+        const x = (e.clientX - r.left) / r.width; // 0..1
+        const y = (e.clientY - r.top) / r.height; // 0..1
+        const rx = ((0.5 - y) * max).toFixed(2);
+        const ry = ((x - 0.5) * max).toFixed(2);
         art.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+        // Glare que sigue al cursor
+        shine.style.setProperty('--gx', (x*100).toFixed(2)+'%');
+        shine.style.setProperty('--gy', (y*100).toFixed(2)+'%');
       }
       function reset(){ art.style.transform = ''; }
       art.addEventListener('mousemove', onMove);
       art.addEventListener('mouseleave', reset);
-      const overlay = document.querySelector('.art .overlay');
-      if (overlay){
-        overlay.addEventListener('focusin', ()=> art.classList.add('typing'));
-        overlay.addEventListener('focusout', ()=> art.classList.remove('typing'));
-      }
     })();
 
     document.getElementById('adminLogoutBtn')?.addEventListener('click', () => { localStorage.removeItem('admin'); if (unsubUsers) { unsubUsers(); unsubUsers = null; } if (unsubEdit) { unsubEdit(); unsubEdit = null; } showAuth(); });
