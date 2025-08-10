@@ -38,22 +38,16 @@
     }
     .wrap { max-width: 1300px; margin: 0 auto; padding: clamp(16px, 4vw, 24px); }
     
-    /* --- ESTRUCTURA DE CAPAS DEL LOGIN --- */
     .landing {
       min-height: calc(100vh - 32px);
       display: grid;
       place-items: center;
     }
+    .landing > * { grid-area: 1 / 1; }
 
-    .landing > * {
-      grid-area: 1 / 1;
-    }
-
-    /* CAPA 1: Fondo con efectos Parallax */
     .art {
-      perspective: 900px;
+      perspective: 1000px;
       transform-style: preserve-3d;
-      position: relative;
       width: 100%;
       max-width: 760px;
       height: clamp(520px, 80vh, 700px);
@@ -62,12 +56,12 @@
       border: 1px solid var(--border);
       background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
       z-index: 1;
+      transition: transform 0.1s ease-out; /* Suaviza el movimiento del giroscopio */
     }
     .art::before { content:""; position:absolute; inset:0; background: radial-gradient(80% 40% at 20% 10%, rgba(0,229,255,.14), transparent 60%), radial-gradient(60% 40% at 70% 80%, rgba(255,43,191,.16), transparent 60%), url('assets/background.png') center / cover no-repeat; filter: brightness(.7) contrast(1); z-index: 0; pointer-events:none; }
     .art::after { content:""; position:absolute; inset:0; background: repeating-linear-gradient(90deg, rgba(255,255,255,.05), rgba(255,255,255,.05) 1px, transparent 1px, transparent 60px), repeating-linear-gradient(0deg, rgba(0,0,0,.12), rgba(0,0,0,.12) 1px, transparent 1px, transparent 60px); opacity:.25; mix-blend-mode: soft-light; z-index: 1; pointer-events:none; }
     .shine { position: absolute; inset: -20%; background: radial-gradient(40% 12% at var(--gx,30%) var(--gy,10%), rgba(255,255,255,.10), transparent 60%), linear-gradient(115deg, transparent 40%, rgba(255,255,255,.06) 50%, transparent 60%); mix-blend-mode: screen; pointer-events: none; z-index: 2; opacity:.9; transition: opacity .2s ease; }
 
-    /* CAPA 2: Contenedor para posicionar el contenido flotante */
     .floating-content {
       position: relative;
       z-index: 10;
@@ -75,11 +69,9 @@
       height: 100%;
       max-width: 760px;
       max-height: clamp(520px, 80vh, 700px);
-      pointer-events: none; /* Permite que el hover pase a la tarjeta de atrás */
+      pointer-events: none;
     }
-    .floating-content > * {
-      pointer-events: auto; /* Reactiva los eventos en los hijos */
-    }
+    .floating-content > * { pointer-events: auto; }
     
     .floating-logo {
       position: absolute;
@@ -89,6 +81,7 @@
       width: clamp(280px, 50vw, 420px);
       height: auto;
       z-index: 11;
+      transition: transform 0.1s ease-out;
     }
     
     .loginFloat {
@@ -96,7 +89,6 @@
       bottom: 15%;
       left: 50%;
       transform: translateX(-50%);
-      
       display: grid;
       gap: 12px;
       width: 90%;
@@ -114,23 +106,37 @@
     .loginTitle { font-size: 14px; letter-spacing: 1.5px; text-transform: uppercase; opacity:.9; margin-bottom: 10px; }
     .phoneInput { position: relative; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; border: 1px solid var(--border); border-radius: 16px; padding: 12px 12px 12px 14px; background: #0b1120cc; box-shadow: var(--glow); }
     .ccBtn { display:inline-flex; align-items:center; gap:6px; padding:8px 10px; border-radius:10px; border:1px solid var(--border); background: linear-gradient(180deg, rgba(0,229,255,.16), rgba(0,229,255,.06)); color: var(--text); font-weight:800; cursor:pointer; }
-    .ccBtn:hover { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); }
     .ccMenu { position:absolute; top: calc(100% + 8px); left: 0; width: 280px; max-height: 260px; overflow:auto; background:#0b1120; border:1px solid var(--border); border-radius:12px; box-shadow: 0 16px 40px rgba(0,0,0,.55); z-index: 15; }
     .ccItem { padding:8px 10px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
     .ccItem:hover { background: rgba(0,229,255,.10); }
     #loginInput { width: 100%; border: 0; outline: 0; background: transparent; color: var(--text); font-size: 22px; letter-spacing: .6px; }
     #loginInput::placeholder { color: #93a0b3; opacity:.9; }
     .goBtn { border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; cursor: pointer; font-weight: 800; background: linear-gradient(180deg, rgba(0,229,255,.22), rgba(0,229,255,.08)); color: var(--text); }
-    .goBtn:hover { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); }
-    .phoneInput.shake { animation: shakeX 420ms cubic-bezier(.36,.07,.19,.97) both; }
     .loginMeta { display:flex; gap:12px; align-items:center; color: var(--muted); font-size: 13px; min-height: 18px; }
-    @keyframes shakeX { 10%,90%{ transform: translateX(-1px);} 20%,80%{ transform: translateX(2px);} 30%,50%,70%{ transform: translateX(-4px);} 40%,60%{ transform: translateX(4px);} }
     
-    /* Vistas de Admin y Miembro (sin cambios) */
+    .hidden { display: none !important; }
+    .toast { position: fixed; right: 16px; top: 16px; display: grid; gap: 8px; z-index: 999; }
+    .toast-item { background: #0b1120; border: 1px solid rgba(255,255,255,.14); padding: 10px 12px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,.35); animation: card-in .3s ease; }
+    @keyframes card-in { to { opacity:1; transform: none; } }
+
+    @keyframes gentle-float {
+      0% { transform: rotateX(4deg) rotateY(-5deg); }
+      25% { transform: rotateX(-3deg) rotateY(4deg); }
+      50% { transform: rotateX(3deg) rotateY(2deg); }
+      75% { transform: rotateX(-4deg) rotateY(-3deg); }
+      100% { transform: rotateX(4deg) rotateY(-5deg); }
+    }
+    
+    @media (hover: hover) and (pointer: fine) {
+      .art {
+        animation: gentle-float 25s ease-in-out infinite alternate;
+      }
+    }
+
     .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 2rem; }
     .card { border: 1px solid var(--border); border-radius: 18px; padding: 16px; background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); box-shadow: 0 20px 48px rgba(0,0,0,.45); }
     .card h2 { margin: 0 0 8px 0; font-size: 18px; letter-spacing: .5px; }
-    .btn { display: inline-flex; gap: 8px; align-items: center; padding: 10px 14px; color: var(--text); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; text-decoration: none; transition: transform .05s ease, filter .2s ease, box-shadow .2s ease; background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06)); }
+    .btn { display: inline-flex; gap: 8px; align-items: center; padding: 10px 14px; color: var(--text); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; text-decoration: none; }
     .btn:hover { filter: brightness(1.08); box-shadow: var(--glow); }
     .btn:active { transform: translateY(1px); }
     .btn.brand { background: linear-gradient(180deg, rgba(0,229,255,.22), rgba(0,229,255,.10)); border-color: rgba(0,229,255,.6); }
@@ -139,59 +145,34 @@
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .field { position: relative; margin: 8px 0; }
     .field .icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); opacity: .85; font-size: 14px; pointer-events: none; }
-    .neo { width: 100%; padding: 12px 12px 12px 36px; border-radius: 14px; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); color: var(--text); outline: none; box-shadow: inset 0 1px 0 rgba(255,255,255,.04); transition: box-shadow .2s ease, border-color .2s ease, filter .2s ease; }
-    .neo:focus { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); filter: brightness(1.02); }
-    .neo::placeholder { color: var(--muted); opacity: .75; }
+    .neo { width: 100%; padding: 12px 12px 12px 36px; border-radius: 14px; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); color: var(--text); outline: none; }
+    .neo:focus { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); }
     .chips { display: flex; flex-wrap: wrap; gap: 8px; }
     .chip { padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border); background: #0d1222; font-size: 13px; cursor: pointer; }
     .chip.is-selected { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); }
     .chip.lock { cursor: not-allowed; opacity: .6; }
     .gallery { display:grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap:12px; }
-    .gallery .cardart { border-radius: 16px; overflow:hidden; border:1px solid var(--border); box-shadow: 0 8px 20px rgba(0,0,0,.35); background:#0d1222; opacity:0; transform: translateY(6px) scale(.995); animation: card-in .5s ease forwards; }
-    .gallery .cardart img { width:100%; display:block; aspect-ratio: 2/3; object-fit: cover; filter: contrast(1.05); }
+    .gallery .cardart { border-radius: 16px; overflow:hidden; border:1px solid var(--border); background:#0d1222; opacity:0; transform: translateY(6px) scale(.995); animation: card-in .5s ease forwards; }
+    .gallery .cardart img { width:100%; display:block; aspect-ratio: 2/3; object-fit: cover; }
     .gallery .label { padding:6px 8px; font-size:12px; color:#0b0b0b; background: linear-gradient(90deg, var(--neon-yellow), var(--neon-cyan)); font-weight: 700; }
-    @keyframes card-in { to { opacity:1; transform: none; } }
     .list { display: grid; gap: 8px; margin-top: 8px; max-height: 340px; overflow: auto; }
     .item { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.03); }
     .item small { color: var(--muted); cursor: copy; }
     .item small.copyable:hover { color: var(--neon-cyan); }
     .sep { height: 1px; background: linear-gradient(90deg, rgba(255,255,255,.0), rgba(255,255,255,.22), rgba(255,255,255,.0)); margin: 12px 0; }
-    .hidden { display: none !important; }
-    .toast { position: fixed; right: 16px; top: 16px; display: grid; gap: 8px; z-index: 999; }
-    .toast-item { background: #0b1120; border: 1px solid rgba(255,255,255,.14); padding: 10px 12px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,.35); animation: card-in .3s ease; }
     .adminLink { position: fixed; right: 14px; bottom: 10px; z-index: 60; opacity: .6; font-size: 12px; }
     .adminLink button { background: none; border: 0; color: #9feaff; text-decoration: underline; cursor: pointer; padding: 0; }
-    .adminLink button:hover { opacity: .95; }
     .modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(7,9,15,.6); backdrop-filter: blur(2px); z-index: 80; }
-    .modal .box { width: 320px; border-radius: 16px; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); padding: 16px; box-shadow: 0 20px 48px rgba(0,0,0,.5); }
+    .modal .box { width: 320px; border-radius: 16px; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); padding: 16px; }
 
-    /* --- Media Queries --- */
     @media (max-width: 1180px){ .grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 980px){ .grid { grid-template-columns: 1fr; } }
     
-    /* Fallback para pantallas pequeñas: vuelve al layout apilado */
     @media (max-width: 500px) {
-      .floating-content {
-        position: static;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 1rem;
-      }
-      .floating-logo {
-        position: static;
-        transform: none;
-        margin-bottom: -60px; /* Recupera el solapamiento */
-      }
-      .loginFloat {
-        position: static;
-        transform: none;
-        width: 100%;
-      }
-      .art {
-        height: auto;
-      }
+      .floating-content { position: static; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; }
+      .floating-logo { position: static; transform: none; margin-bottom: -60px; }
+      .loginFloat { position: static; transform: none; width: 100%; }
+      .art { height: auto; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -205,15 +186,12 @@
   <div class="wrap">
     <main>
       <section class="landing" id="authGrid">
-        <!-- Capa 1: Fondo con Efectos -->
         <div class="art" aria-hidden="true">
           <span class="shine"></span>
         </div>
         
-        <!-- Capa 2: Contenido Flotante -->
         <div class="floating-content">
           <img src="logo.svg" alt="Game Over Logo" class="floating-logo" />
-          
           <div class="loginFloat" role="form" aria-labelledby="loginFormTitle">
             <div class="loginTitle" id="loginFormTitle">Login</div>
             <div class="phoneInput" id="loginBox">
@@ -227,7 +205,6 @@
         </div>
       </section>
 
-      <!-- El resto del HTML no necesita cambios -->
       <div class="adminLink"><button id="adminOpen" type="button">[admin]</button></div>
       <div id="adminModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="adminModalTitle">
         <div class="box">
@@ -298,7 +275,6 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script type="module">
-    // El JavaScript no necesita cambios, se mantiene la versión optimizada.
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import { 
         getFirestore, collection, doc, getDoc, setDoc, updateDoc, onSnapshot, 
@@ -367,13 +343,13 @@
         clearPanelBtn: document.getElementById('clearPanelBtn'), noUserSelected: document.getElementById('noUserSelected'),
         adminLogoutBtn: document.getElementById('adminLogoutBtn'), toast: document.getElementById('toast'),
         art: document.querySelector('.art'), shine: document.querySelector('.shine'),
+        floatingLogo: document.querySelector('.floating-logo'),
     };
 
     let unsubMember = null, unsubUsers = null, unsubEdit = null;
     let cacheUsers = [];
     let currentCountry = COUNTRIES[0];
-    let isTicking = false;
-
+    
     const el = (tag, attrs = {}, children = []) => {
       const n = document.createElement(tag);
       Object.entries(attrs).forEach(([k,v]) => {
@@ -612,6 +588,43 @@
       } catch (e) { console.error("Error en login:", e); UI.loginMsg.textContent = 'Error de conexión.'; }
     }
     
+    function initGyroscope() {
+      if (!('ontouchstart' in window) || !window.DeviceOrientationEvent) {
+        return;
+      }
+
+      const handleOrientation = (event) => {
+        const { beta, gamma } = event; 
+        const tiltY = (gamma || 0) / 3.0;
+        const tiltX = ((beta || 0) - 45) / -3.0;
+
+        const maxTilt = 8;
+        const finalTiltX = Math.max(-maxTilt, Math.min(maxTilt, tiltX));
+        const finalTiltY = Math.max(-maxTilt, Math.min(maxTilt, tiltY));
+
+        requestAnimationFrame(() => {
+          UI.art.style.transform = `rotateX(${finalTiltX}deg) rotateY(${finalTiltY}deg)`;
+          UI.floatingLogo.style.transform = `translateX(-50%) rotateX(${-finalTiltX / 2}deg) rotateY(${-finalTiltY / 2}deg) translateZ(20px)`;
+        });
+      };
+
+      if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+        const requestPermission = () => {
+          DeviceOrientationEvent.requestPermission()
+            .then(permissionState => {
+              if (permissionState === 'granted') {
+                window.addEventListener('deviceorientation', handleOrientation);
+              }
+            })
+            .catch(console.error);
+          document.body.removeEventListener('touchstart', requestPermission);
+        };
+        document.body.addEventListener('touchstart', requestPermission, { once: true });
+      } else {
+        window.addEventListener('deviceorientation', handleOrientation);
+      }
+    }
+    
     function init() {
         UI.loginGo.addEventListener('click', doLogin);
         UI.loginInput.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
@@ -636,24 +649,9 @@
         UI.adminLogoutBtn.addEventListener('click', () => switchView('auth'));
         UI.search.addEventListener('input', debounce(renderUsersList, 200));
         UI.clearPanelBtn.addEventListener('click', clearEditPanel);
-        UI.art.addEventListener('mousemove', e => {
-            if (!isTicking) {
-                window.requestAnimationFrame(() => {
-                    const r = UI.art.getBoundingClientRect();
-                    const x = (e.clientX - r.left) / r.width;
-                    const y = (e.clientY - r.top) / r.height;
-                    const max = 10;
-                    const rx = ((0.5 - y) * max).toFixed(2);
-                    const ry = ((x - 0.5) * max).toFixed(2);
-                    UI.art.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
-                    UI.shine.style.setProperty('--gx', `${(x*100).toFixed(2)}%`);
-                    UI.shine.style.setProperty('--gy', `${(y*100).toFixed(2)}%`);
-                    isTicking = false;
-                });
-                isTicking = true;
-            }
-        });
-        UI.art.addEventListener('mouseleave', () => { UI.art.style.transform = ''; });
+        
+        initGyroscope();
+
         buildCCMenu();
         const lastCountry = COUNTRIES.find(c => c.code === localStorage.getItem('lastCountryCode')) || COUNTRIES[0];
         setCountry(lastCountry);
