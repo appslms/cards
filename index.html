@@ -88,6 +88,14 @@
 
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
+    /* Campos visuales modernos */
+    .field { position: relative; margin: 8px 0; }
+    .field .icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); opacity: .85; font-size: 14px; pointer-events: none; }
+    .neo { width: 100%; padding: 12px 12px 12px 36px; border-radius: 14px; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); color: var(--text); outline: none; box-shadow: inset 0 1px 0 rgba(255,255,255,.04); transition: box-shadow .2s ease, border-color .2s ease, filter .2s ease; }
+    .neo:focus { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); filter: brightness(1.02); }
+    .neo::placeholder { color: var(--muted); opacity: .75; }
+    textarea.neo { min-height: 96px; resize: vertical; padding-top: 12px; }
+
     /* Chips de admin (solo texto) */
     .chips { display: flex; flex-wrap: wrap; gap: 8px; }
     .chip { padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border); background: #0d1222; font-size: 13px; cursor: pointer; }
@@ -145,7 +153,7 @@
           <span class="loginLabel">LOGIN</span>
           <div class="bracket" id="loginBracket">
             <input id="loginKey" type="text" placeholder="Ingresa tu teléfono" autocomplete="off" inputmode="numeric" aria-label="Teléfono" aria-describedby="loginMsg" />
-            <button id="loginBtn" class="submit" aria-label="Entrar">→</button>
+            <button id="loginBtn" class="submit" aria-label="Entrar">⚡</button>
           </div>
         </div>
         <p class="muted" id="loginMsg" aria-live="polite" style="margin-top:6px"></p>
@@ -170,9 +178,9 @@
       <div class="card">
         <h2>Alta rápida</h2>
         <label>Nombre</label>
-        <input id="newUserName" type="text" placeholder="Nuevo miembro" />
+        <div class="field"><span class="icon">👤</span><input class="neo" id="newUserName" type="text" placeholder="Nuevo miembro" /></div>
         <label>Teléfono</label>
-        <input id="newUserPhone" type="text" placeholder="Ej. +52 55 1234 5678" />
+        <div class="field"><span class="icon">📱</span><input class="neo" id="newUserPhone" type="text" placeholder="Ej. +506 6004 8606" /></div>
         <label>Tarjetas</label>
         <div id="newUserRewards" class="chips"></div>
         <button class="btn accent" id="addUserBtn" style="margin-top:12px">Crear usuario</button>
@@ -181,7 +189,7 @@
       <div class="card">
         <h2>Gestión</h2>
         <label>Buscar</label>
-        <input id="search" type="text" placeholder="Nombre o teléfono" />
+        <div class="field"><span class="icon">🔎</span><input class="neo" id="search" type="text" placeholder="Nombre o teléfono" /></div>
         <div class="list" id="usersList"></div>
       </div>
 
@@ -192,7 +200,7 @@
           <label>Tarjetas</label>
           <div id="editRewards" class="chips"></div>
           <label>Comentario</label>
-          <textarea id="editComment" placeholder="Mensaje breve"></textarea>
+          <div class="field"><span class="icon">💬</span><textarea class="neo" id="editComment" placeholder="Mensaje breve"></textarea></div>
           <div class="row" style="margin-top:12px;">
             <button class="btn brand" id="saveRewardsBtn">Guardar</button>
             <button class="btn" id="addCommentBtn">Agregar comentario</button>
@@ -260,7 +268,6 @@
       const host = document.getElementById('toast');
       const item = el('div', { class: 'toast-item' }, [msg]);
       host.appendChild(item);
-      // pequeño glitch al aparecer
       glitchPulse(item, 320);
       setTimeout(()=>{ item.style.opacity = '0'; item.style.transform = 'translateY(-4px)'; item.style.transition = 'opacity .4s ease, transform .4s ease'; }, 2000);
       setTimeout(()=> item.remove(), 2600);
@@ -387,7 +394,7 @@
       document.getElementById('clearPanelBtn').onclick = () => { if (unsubEdit) { unsubEdit(); unsubEdit = null; } document.getElementById('editPanel').classList.add('hidden'); document.getElementById('noUserSelected').classList.remove('hidden'); };
     }
 
-    // Login unificado: Enter o botón →
+    // Login unificado: Enter o botón ⚡
     async function doLogin(){
       const key = document.getElementById('loginKey').value.trim();
       const msg = document.getElementById('loginMsg');
@@ -459,6 +466,17 @@
 
     document.getElementById('search').addEventListener('input', debounce(renderUsersList, 180));
 
+    async function ensureDemoUser(){
+      // Crea un único usuario demo si no existe (CR: +506 6004 8606)
+      const phone = '50660048606';
+      const ref = db.collection('users').doc(phone);
+      const snap = await ref.get();
+      if (!snap.exists) {
+        await ref.set({ name: 'Demo CR', phone, rewards: ['r1'], comments: [{ text: 'Bienvenid@ 👾', ts: Date.now(), author: 'admin' }], createdAt: Date.now() });
+        console.log('Demo user creado');
+      }
+    }
+
     window.addEventListener('DOMContentLoaded', async () => {
       // Chequeo silencioso
       try {
@@ -469,6 +487,9 @@
         await db.collection('users').limit(1).get(); results.push(['Lectura Firestore', true]);
         console.log('Smoke:', results.map(([k,v])=>`${k}:${v?'✔':'✖'}`).join(' • '));
       } catch(e){ console.warn('Smoke tests', e); }
+
+      // Semilla: único demo
+      try { await ensureDemoUser(); } catch(e) { console.warn('No se pudo crear demo', e); }
 
       const m = localStorage.getItem('member'); const a = localStorage.getItem('admin');
       if (a === '1') { showAdminView(); return; }
