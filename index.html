@@ -94,7 +94,7 @@
 
     /* --- ADMIN UI ESPECÍFICO --- */
     .admin-dashboard { display: grid; grid-template-columns: minmax(320px, 1fr) 2fr; gap: 16px; align-items: start; }
-    .admin-reward-selector { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; }
+    .admin-reward-selector { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; margin-bottom: 20px; }
     .admin-reward-card { cursor: pointer; text-align: center; border-radius: 8px; border: 2px solid transparent; padding: 4px; transition: all .2s ease; }
     .admin-reward-card img { border-radius: 6px; width: 100%; aspect-ratio: 4/6; object-fit: cover; }
     .admin-reward-card span { font-size: 11px; color: var(--muted); }
@@ -102,7 +102,8 @@
     .admin-reward-card.is-selected span { color: var(--text); }
     .admin-reward-card:not(.is-selected) { opacity: 0.7; }
     .admin-reward-card:not(.is-selected):hover { opacity: 1; background-color: rgba(255,255,255,.05); }
-    .list { display: grid; gap: 8px; max-height: calc(100vh - 280px); min-height: 300px; overflow: auto; padding-right: 4px; }
+    .list { display: grid; gap: 8px; overflow: auto; padding-right: 4px; }
+    #usersList { max-height: calc(100vh - 280px); min-height: 300px; }
     .item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; border: 1px solid transparent; background-color: rgba(255,255,255,.03); cursor: pointer; transition: all .2s ease; }
     .item:hover { background-color: rgba(255,255,255,.06); border-color: var(--border); }
     .item.is-selected { color: var(--neon-cyan); background-color: rgba(0,229,255,.10); border-color: rgba(0,229,255,.6); }
@@ -117,6 +118,9 @@
     .comment-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--muted); }
     .comment-author { font-weight: 700; color: var(--neon-pink); }
     .comment-text { font-size: 14px; line-height: 1.5; color: var(--text); margin: 0; }
+    #memberCommentsContainer { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-in-out; }
+    #memberCommentsContainer.is-open { max-height: 500px; }
+
 
     /* --- MEMBER UI ESPECÍFICO --- */
     .member-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; }
@@ -126,10 +130,7 @@
     .member-virtual-card .label { position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 10px; font-size: 13px; font-weight: 700; color: #0b0b0b; background: linear-gradient(90deg, var(--neon-yellow), var(--neon-cyan)); text-shadow: 0 1px 1px rgba(0,0,0,.1); }
     .member-virtual-card:not(.is-owned) { filter: grayscale(1) saturate(0.5) brightness(0.5); opacity: 0.7; }
     .member-virtual-card.is-owned { filter: none; opacity: 1; }
-    .progress-tracker { display: flex; gap: 8px; margin-bottom: 24px; }
-    .progress-cell { flex: 1; height: 10px; border: 1px solid var(--border); border-radius: 4px; background-color: rgba(255,255,255,.05); transition: background-color .3s ease; }
-    .progress-cell.is-filled { background-color: var(--neon-cyan); box-shadow: 0 0 8px var(--neon-cyan); }
-
+    .comments-header { display: flex; justify-content: space-between; align-items: center; }
 
     /* --- EFECTO VENENO / GLITCH --- */
     body.is-poisoned .bg-tech {
@@ -179,14 +180,18 @@
         <section id="memberGrid">
           <div class="card">
             <h2 id="memberGridTitle">Tus Recompensas</h2>
-            <div id="memberProgressTracker" class="progress-tracker"></div>
             <div id="memberCards" class="member-cards-grid"></div>
             <hr style="border-color: var(--border); margin: 24px 0;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="comments-header">
                 <h2>Comentarios</h2>
-                <button class="btn" id="memberLogoutBtn">Salir</button>
+                <div>
+                  <button class="btn" id="toggleCommentsBtn">Ver Comentarios</button>
+                  <button class="btn" id="memberLogoutBtn" style="margin-left: 8px;">Salir</button>
+                </div>
             </div>
-            <div id="memberComments" class="list" style="margin-top: 1rem;"></div>
+            <div id="memberCommentsContainer">
+              <div id="memberComments" class="list" style="margin-top: 1rem;"></div>
+            </div>
           </div>
         </section>
 
@@ -198,41 +203,43 @@
                 <button class="btn accent" id="openAddUserModalBtn">+ Añadir</button>
               </div>
               <div class="field"><span class="icon">🔎</span><input class="neo" id="search" type="text" placeholder="Buscar..." /></div>
-              <div class="list" id="usersList"></div>
+              <div id="usersList" class="list"></div>
             </div>
             <div class="card">
               <div id="editPanel" class="hidden">
                 <div class="card-header">
                   <h2>Editar Usuario</h2>
                 </div>
-                <label class="form-label" for="editUserName">Nombre</label>
-                <div class="field"><span class="icon">👤</span><input class="neo" id="editUserName" type="text" /></div>
-                <label class="form-label" for="editUserNumericId">ID Numérico</label>
-                <div class="field"><span class="icon">#️⃣</span><input class="neo" id="editUserNumericId" type="text" /></div>
-                <label class="form-label" for="editUserPhone">Teléfono</label>
-                <div class="field"><span class="icon">📱</span><input class="neo" id="editUserPhone" type="tel" /></div>
                 
-                <label class="form-label">Tarjetas del Usuario</label>
-                <div id="editRewards" class="admin-reward-selector"></div>
-                <div style="margin-top: 16px;">
-                  <button class="btn brand" id="saveUserBtn" style="width: 100%;">Guardar Cambios</button>
-                </div>
-                
-                <hr style="border-color: var(--border); margin: 20px 0;">
-                <label class="form-label">Acciones</label>
-                <div class="row">
-                    <button class="btn" id="addCommentBtn">Añadir Comentario</button>
-                    <button class="btn danger" id="poisonBtn">☠️ Envenenar</button>
-                </div>
-                 <div class="field" style="margin-top: 8px;"><span class="icon">💬</span><textarea class="neo" id="editComment" placeholder="Añadir comentario..."></textarea></div>
+                <form id="editUserForm">
+                    <label class="form-label" for="editUserName">Nombre</label>
+                    <div class="field"><span class="icon">👤</span><input class="neo" id="editUserName" type="text" /></div>
+                    <label class="form-label" for="editUserNumericId">ID Numérico</label>
+                    <div class="field"><span class="icon">#️⃣</span><input class="neo" id="editUserNumericId" type="text" /></div>
+                    <label class="form-label" for="editUserPhone">Teléfono (ID de Login)</label>
+                    <div class="field"><span class="icon">📱</span><input class="neo" id="editUserPhone" type="tel" /></div>
+                    
+                    <label class="form-label">Tarjetas del Usuario</label>
+                    <div id="editRewards" class="admin-reward-selector"></div>
+
+                    <button class="btn brand" id="saveUserBtn" type="submit" style="width: 100%;">Guardar Cambios</button>
+                </form>
 
                 <hr style="border-color: var(--border); margin: 20px 0;">
+                
+                <label class="form-label">Comentarios</label>
+                <div class="field"><span class="icon">💬</span><textarea class="neo" id="editComment" placeholder="Añadir comentario..." style="height: 60px;"></textarea></div>
+                <button class="btn" id="addCommentBtn" style="width: 100%; margin-top: 8px;">Añadir Comentario</button>
+
+                <hr style="border-color: var(--border); margin: 20px 0;">
+
+                <label class="form-label">Acciones Peligrosas</label>
                 <div class="row">
+                    <button class="btn danger" id="poisonBtn">☠️ Envenenar</button>
                     <button class="btn danger" id="deleteUserBtn">Eliminar Usuario</button>
-                    <button class="btn" id="clearPanelBtn">Cerrar Panel</button>
                 </div>
               </div>
-              <div id="noUserSelected">Selecciona un usuario de la lista<br>para ver sus detalles.</div>
+              <div id="noUserSelected">Selecciona un usuario de la lista<br>para ver o editar sus detalles.</div>
             </div>
           </div>
           <div class="card" style="margin-top: 16px;">
@@ -334,8 +341,9 @@
         adminPwd: document.getElementById('adminPwd'), adminEnter: document.getElementById('adminEnter'),
         adminCancel: document.getElementById('adminCancel'), adminMsg: document.getElementById('adminMsg'),
         memberGrid: document.getElementById('memberGrid'), memberGridTitle: document.getElementById('memberGridTitle'),
-        memberProgressTracker: document.getElementById('memberProgressTracker'), memberCards: document.getElementById('memberCards'),
-        memberComments: document.getElementById('memberComments'), memberLogoutBtn: document.getElementById('memberLogoutBtn'),
+        memberCards: document.getElementById('memberCards'), toggleCommentsBtn: document.getElementById('toggleCommentsBtn'),
+        memberCommentsContainer: document.getElementById('memberCommentsContainer'), memberComments: document.getElementById('memberComments'), 
+        memberLogoutBtn: document.getElementById('memberLogoutBtn'),
         adminGrid: document.getElementById('adminGrid'),
         openAddUserModalBtn: document.getElementById('openAddUserModalBtn'),
         addUserModal: document.getElementById('addUserModal'),
@@ -343,14 +351,14 @@
         newUserPhone: document.getElementById('newUserPhone'), newUserRewards: document.getElementById('newUserRewards'),
         addUserBtn: document.getElementById('addUserBtn'), cancelAddUserBtn: document.getElementById('cancelAddUserBtn'),
         search: document.getElementById('search'), usersList: document.getElementById('usersList'),
-        editPanel: document.getElementById('editPanel'),
+        editPanel: document.getElementById('editPanel'), editUserForm: document.getElementById('editUserForm'),
         editUserName: document.getElementById('editUserName'), editUserNumericId: document.getElementById('editUserNumericId'),
         editUserPhone: document.getElementById('editUserPhone'),
         editRewards: document.getElementById('editRewards'), editComment: document.getElementById('editComment'),
         saveUserBtn: document.getElementById('saveUserBtn'),
         addCommentBtn: document.getElementById('addCommentBtn'),
         poisonBtn: document.getElementById('poisonBtn'), deleteUserBtn: document.getElementById('deleteUserBtn'),
-        clearPanelBtn: document.getElementById('clearPanelBtn'), noUserSelected: document.getElementById('noUserSelected'),
+        noUserSelected: document.getElementById('noUserSelected'),
         adminLogoutBtn: document.getElementById('adminLogoutBtn'),
         cardDetailModal: document.getElementById('cardDetailModal'), cardDetailImg: document.getElementById('cardDetailImg'),
         cardDetailTitle: document.getElementById('cardDetailTitle'), cardDetailDesc: document.getElementById('cardDetailDesc'),
@@ -406,13 +414,6 @@
       const hasAllRewards = memberRewards.size === REWARDS.length;
 
       UI.memberGridTitle.textContent = hasAllRewards ? `🏆 ¡COLECCIÓN COMPLETA! 🏆` : `Recompensas de ${member.name}`;
-      
-      UI.memberProgressTracker.innerHTML = '';
-      REWARDS.forEach(reward => {
-        const cell = el('div', { class: 'progress-cell' });
-        if(memberRewards.has(reward.id)) cell.classList.add('is-filled');
-        UI.memberProgressTracker.appendChild(cell);
-      });
 
       UI.memberCards.innerHTML = '';
       REWARDS.forEach(reward => {
@@ -453,7 +454,9 @@
               el('div', {class: 'item-meta'}, [ el('span', {text: `${rewardsCount}/${REWARDS.length} 🃏`}) ])
           ]);
           if (u.id === selectedUserId) row.classList.add('is-selected');
-          row.addEventListener('click', () => selectUser(u.id));
+          row.addEventListener('click', () => {
+              if (u.id === selectedUserId) { clearEditPanel(); } else { selectUser(u.id); }
+          });
           UI.usersList.appendChild(row);
         });
     }
@@ -561,7 +564,8 @@
       UI.cardDetailModal.classList.add('is-open');
     }
 
-    async function handleSaveUser() {
+    async function handleSaveUser(event) {
+        event.preventDefault();
         if (!selectedUserId) return;
 
         const originalUser = cacheUsers.find(u => u.id === selectedUserId);
@@ -576,7 +580,6 @@
         
         const updatedData = { ...originalUser, name: newName, numericId: newNumericId, phone: newPhone, rewards: newRewards };
         
-        // Caso 1: El teléfono (ID) no cambió. Es una simple actualización.
         if (newPhone === selectedUserId) {
             try {
                 await updateDoc(doc(db, 'users', selectedUserId), { name: newName, numericId: newNumericId, rewards: newRewards });
@@ -585,7 +588,6 @@
             return;
         }
 
-        // Caso 2: El teléfono (ID) cambió. Operación compleja: Crear nuevo, borrar viejo.
         if (!confirm(`Estás a punto de cambiar el teléfono (ID) del usuario. Esta es una operación compleja y puede requerir que el usuario vuelva a iniciar sesión.\n\n¿Deseas continuar?`)) return;
 
         try {
@@ -595,18 +597,15 @@
                 toast('El nuevo número de teléfono ya está registrado por otro usuario.', 'error');
                 return;
             }
-            
-            // Crear el nuevo documento con todos los datos
+            delete updatedData.id;
             await setDoc(newDocRef, updatedData);
-            
-            // Eliminar el documento antiguo
             await deleteDoc(doc(db, 'users', selectedUserId));
 
-            toast('Usuario actualizado y migrado a nuevo ID con éxito.', 'success');
-            clearEditPanel(); // Limpia y deselecciona para forzar la actualización de la lista.
+            toast('Usuario migrado a nuevo ID con éxito.', 'success');
+            clearEditPanel();
         } catch (e) {
             console.error(e);
-            toast('Error crítico durante la migración de usuario.', 'error');
+            toast('Error crítico durante la migración.', 'error');
         }
     }
     
@@ -625,10 +624,12 @@
         UI.memberLogoutBtn.addEventListener('click', ()=>switchView('auth'));
         UI.adminLogoutBtn.addEventListener('click', ()=>switchView('auth'));
         UI.search.addEventListener('input', debounce(renderUsersList, 200));
-        UI.clearPanelBtn.addEventListener('click', clearEditPanel);
-        UI.closeCardDetailBtn.addEventListener('click', () => UI.cardDetailModal.classList.remove('is-open'));
         
-        UI.saveUserBtn.addEventListener('click', handleSaveUser);
+        UI.cardDetailModal.addEventListener('click', (e) => { if(e.target === UI.cardDetailModal) UI.cardDetailModal.classList.remove('is-open'); });
+        UI.closeCardDetailBtn.addEventListener('click', () => UI.cardDetailModal.classList.remove('is-open'));
+        UI.toggleCommentsBtn.addEventListener('click', () => { UI.memberCommentsContainer.classList.toggle('is-open'); UI.toggleCommentsBtn.textContent = UI.memberCommentsContainer.classList.contains('is-open') ? 'Ocultar Comentarios' : 'Ver Comentarios'; });
+        
+        UI.editUserForm.addEventListener('submit', handleSaveUser);
         UI.addCommentBtn.onclick = async () => { if(!selectedUserId)return; const t=UI.editComment.value.trim(); if(!t){toast('Escribe un comentario', 'error');return;} const ref=doc(db,'users',selectedUserId); try{await updateDoc(ref,{comments:arrayUnion({text:t,ts:Date.now(),author:'admin'})});UI.editComment.value='';toast('Comentario agregado', 'success');}catch(e){console.error(e);toast('Error al comentar', 'error');}};
         UI.deleteUserBtn.onclick = async () => { if(!selectedUserId)return; const u=cacheUsers.find(u=>u.id===selectedUserId); if(!confirm(`¿Eliminar a ${u?.name || 'este usuario'}? Esta acción no se puede deshacer.`))return; const ref=doc(db,'users',selectedUserId); if(unsubEdit)unsubEdit(); try{await deleteDoc(ref);toast('Usuario eliminado', 'success');clearEditPanel();}catch(e){console.error(e);toast('Error al eliminar', 'error');}};
         UI.poisonBtn.onclick = async () => { if(!selectedUserId) return; const user = cacheUsers.find(u => u.id === selectedUserId); if(!user) return; const ref = doc(db, 'users', selectedUserId); const currentStatus = user.isPoisoned || false; try { await updateDoc(ref, {isPoisoned: !currentStatus}); toast(`Usuario ${!currentStatus ? 'envenenado' : 'curado'}.`, 'success'); } catch(e) { toast('Error al cambiar estado.', 'error'); }};
