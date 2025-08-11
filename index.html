@@ -20,6 +20,7 @@
       --neon-cyan: #00e5ff;
       --neon-pink: #ff2bbf;
       --muted: #a7b0c0;
+      --muted-bright: #b8c1d1;
       --text: #f2f6ff;
       --border: rgba(255,255,255,.12);
       --glow: 0 0 0 2px rgba(0,229,255,.25), 0 0 0 6px rgba(0,229,255,.12);
@@ -121,42 +122,47 @@
     @media (hover: hover) and (pointer: fine) { .art { animation: gentle-float 25s ease-in-out infinite alternate; } }
 
     /* --- NUEVO ADMIN UI --- */
-    .admin-grid {
+    .admin-dashboard {
       display: grid;
-      grid-template-columns: minmax(300px, 2fr) 3fr;
+      grid-template-columns: minmax(320px, 1fr) 2fr;
       gap: 16px;
       align-items: start;
     }
-    .card { border: 1px solid var(--border); border-radius: 18px; padding: 16px; background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); box-shadow: 0 20px 48px rgba(0,0,0,.45); }
-    .card h2 { margin: 0 0 8px 0; font-size: 18px; letter-spacing: .5px; }
-    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .btn { display: inline-flex; gap: 8px; align-items: center; padding: 10px 14px; color: var(--text); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; text-decoration: none; }
-    .btn:hover { filter: brightness(1.08); box-shadow: var(--glow); }
-    .btn:active { transform: translateY(1px); }
-    .btn.brand { background: linear-gradient(180deg, rgba(0,229,255,.22), rgba(0,229,255,.10)); border-color: rgba(0,229,255,.6); }
-    .btn.accent { background: linear-gradient(180deg, rgba(255,43,191,.22), rgba(255,43,191,.10)); border-color: rgba(255,43,191,.6); }
-    .btn.danger { background: linear-gradient(180deg, rgba(255,79,79,.2), rgba(255,79,79,.1)); border-color: rgba(255,79,79,.55); }
+    .card { border: 1px solid var(--border); border-radius: 18px; padding: 24px; background: var(--panel); box-shadow: 0 20px 48px rgba(0,0,0,.45); }
+    .card h2 { margin: 0; font-size: 20px; color: var(--text); }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .form-label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--muted-bright); margin: 16px 0 8px 0; }
+    .btn { display: inline-flex; gap: 8px; align-items: center; padding: 10px 14px; color: var(--text); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; text-decoration: none; transition: all .2s ease; }
+    .btn:hover { filter: brightness(1.1); box-shadow: var(--glow); }
+    .btn:active { transform: translateY(1px); filter: brightness(1); }
+    .btn.brand { background-color: rgba(0,229,255,.15); border-color: rgba(0,229,255,.6); }
+    .btn.accent { background-color: rgba(255,43,191,.15); border-color: rgba(255,43,191,.6); }
+    .btn.danger { background-color: rgba(255,79,79,.15); border-color: rgba(255,79,79,.55); }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .field { position: relative; margin: 8px 0; }
-    .field .icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); opacity: .85; font-size: 14px; pointer-events: none; }
-    .neo { width: 100%; padding: 12px 12px 12px 36px; border-radius: 14px; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); color: var(--text); outline: none; }
+    .secondary-actions { margin-top: 12px; }
+    .field { position: relative; }
+    .field .icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: .85; font-size: 14px; pointer-events: none; }
+    .neo { width: 100%; padding: 12px 12px 12px 40px; border-radius: 14px; border: 1px solid var(--border); background: var(--ink); color: var(--text); outline: none; transition: all .2s ease; }
     .neo:focus { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); }
     .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-    .chip { padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border); background: #0d1222; font-size: 13px; cursor: pointer; }
-    .chip.is-selected { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); }
-    .chip.lock { cursor: not-allowed; opacity: .6; }
-    .list { display: grid; gap: 8px; margin-top: 8px; max-height: 450px; overflow: auto; padding-right: 4px; }
-    .item { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.03); }
-    .item.is-selected { border-color: var(--neon-cyan); background-color: rgba(0,229,255,.10); }
-    .item small { color: var(--muted); cursor: copy; }
-    .item small.copyable:hover { color: var(--neon-cyan); }
+    .chip { padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border); background: #0d1222; font-size: 13px; cursor: pointer; transition: all .2s ease; }
+    .chip:hover { background-color: var(--ink); }
+    .chip.is-selected { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); background-color: rgba(0,229,255,.1); }
+    .list { display: grid; gap: 8px; max-height: calc(100vh - 280px); min-height: 300px; overflow: auto; padding-right: 4px; }
+    .item { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 12px; border-radius: 12px; border: 1px solid transparent; background-color: rgba(255,255,255,.03); cursor: pointer; transition: all .2s ease; }
+    .item:hover { background-color: rgba(255,255,255,.06); border-color: var(--border); }
+    .item.is-selected { color: var(--neon-cyan); background-color: rgba(0,229,255,.10); border-color: rgba(0,229,255,.6); }
+    .item.is-selected small { color: var(--neon-cyan); opacity: .8; }
+    .item small { color: var(--muted); }
+    #noUserSelected { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; color: var(--muted); font-size: 16px; text-align: center; }
+    #noUserSelected::before { content: '👆'; font-size: 48px; margin-bottom: 16px; }
     .adminLink { position: fixed; right: 14px; bottom: 10px; z-index: 60; opacity: .6; font-size: 12px; }
     .adminLink button { background: none; border: 0; color: #9feaff; text-decoration: underline; cursor: pointer; padding: 0; }
-    .modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(7,9,15,.6); backdrop-filter: blur(2px); z-index: 80; }
-    .modal .box { width: 100%; max-width: 400px; border-radius: 16px; border: 1px solid var(--border); background: #0f1424; padding: 16px; box-shadow: 0 20px 48px rgba(0,0,0,.5); }
+    .modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(7,9,15,.6); backdrop-filter: blur(4px); z-index: 80; opacity: 0; pointer-events: none; transition: opacity .2s ease; }
+    .modal.is-open { opacity: 1; pointer-events: auto; }
+    .modal .box { width: 100%; max-width: 420px; border-radius: 16px; border: 1px solid var(--border); background: var(--panel); padding: 24px; box-shadow: 0 20px 48px rgba(0,0,0,.5); }
 
-    /* Media Queries */
-    @media (max-width: 980px) { .admin-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 980px) { .admin-dashboard { grid-template-columns: 1fr; } }
     @media (max-width: 500px) {
       .art { display: flex; align-items: center; justify-content: center; height: auto; min-height: 90vh; }
       .floating-content { position: static; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; max-width: 400px; height: auto; padding: 2rem 1rem; pointer-events: auto; }
@@ -192,83 +198,78 @@
 
       <div class="adminLink"><button id="adminOpen" type="button">[admin]</button></div>
       
-      <!-- Vistas principales -->
       <div id="views-container" class="hidden">
         <section id="memberGrid">
           <div class="card">
-            <h2>Tus tarjetas</h2>
-            <div id="memberCards" class="gallery"></div>
-            <div class="sep"></div>
-            <h2>Comentarios</h2>
-            <div id="memberComments" class="list"></div>
-            <div class="sep"></div>
+            <h2>Tus tarjetas</h2><div id="memberCards" class="gallery" style="margin-top: 1rem;"></div>
+            <hr style="border-color: var(--border); margin: 16px 0;">
+            <h2>Comentarios</h2><div id="memberComments" class="list"></div>
+            <hr style="border-color: var(--border); margin: 16px 0;">
             <button class="btn" id="memberLogoutBtn">Salir</button>
           </div>
         </section>
 
-        <!-- NUEVA ESTRUCTURA ADMIN -->
         <section id="adminGrid">
-          <div class="admin-grid">
-            <!-- Columna Izquierda: Maestro -->
+          <div class="admin-dashboard">
             <div class="card">
               <div class="card-header">
                 <h2>Usuarios</h2>
-                <button class="btn accent" id="openAddUserModalBtn">+ Añadir Usuario</button>
+                <button class="btn accent" id="openAddUserModalBtn">+ Añadir</button>
               </div>
-              <label for="search">Buscar</label>
-              <div class="field"><span class="icon">🔎</span><input class="neo" id="search" type="text" placeholder="Nombre o teléfono" /></div>
+              <div class="field"><span class="icon">🔎</span><input class="neo" id="search" type="text" placeholder="Buscar por nombre o teléfono..." /></div>
               <div class="list" id="usersList"></div>
             </div>
-            <!-- Columna Derecha: Detalle -->
             <div class="card">
               <div id="editPanel" class="hidden">
                 <div class="card-header">
-                  <h2 id="editUserTitle"></h2>
+                  <div>
+                    <h2 id="editUserTitle"></h2>
+                    <small id="editUserPhone" class="muted"></small>
+                  </div>
                 </div>
-                <label>Tarjetas</label>
+                <label class="form-label">Tarjetas</label>
                 <div id="editRewards" class="chips"></div>
-                <label for="editComment" style="margin-top: 1rem;">Comentario</label>
-                <div class="field"><span class="icon">💬</span><textarea class="neo" id="editComment" placeholder="Mensaje breve"></textarea></div>
-                <div class="row" style="margin-top:12px;">
+                <label class="form-label">Añadir Comentario</label>
+                <div class="field"><span class="icon">💬</span><textarea class="neo" id="editComment" placeholder="Mensaje breve..."></textarea></div>
+                <div class="row" style="margin-top:16px;">
                   <button class="btn brand" id="saveRewardsBtn">Guardar Cambios</button>
-                  <button class="btn" id="addCommentBtn">Agregar Comentario</button>
+                  <button class="btn" id="addCommentBtn">Añadir Comentario</button>
                 </div>
-                <hr style="border-color: var(--border); margin: 16px 0;">
-                <div class="row">
+                <hr style="border-color: var(--border); margin: 20px 0;">
+                <div class="secondary-actions">
                     <button class="btn danger" id="deleteUserBtn">Eliminar Usuario</button>
-                    <button class="btn" id="clearPanelBtn">Deseleccionar</button>
+                    <button class="btn" id="clearPanelBtn" style="margin-left: auto;">Cerrar Panel</button>
                 </div>
               </div>
-              <div id="noUserSelected" class="muted">Selecciona un usuario de la lista para ver sus detalles.</div>
+              <div id="noUserSelected">Selecciona un usuario de la lista<br>para ver sus detalles.</div>
             </div>
           </div>
           <div class="card" style="margin-top: 16px;">
-            <h2>Sesión</h2>
             <button class="btn" id="adminLogoutBtn">Cerrar Sesión de Administrador</button>
           </div>
         </section>
       </div>
 
-      <!-- Modales -->
-      <div id="adminModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="adminModalTitle">
+      <div id="adminModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="adminModalTitle">
         <div class="box">
-          <div class="loginTitle" id="adminModalTitle">Admin</div>
-          <input id="adminPwd" type="password" class="neo" placeholder="Contraseña" aria-label="Contraseña de administrador" />
-          <div class="row" style="margin-top:10px;">
+          <h2 id="adminModalTitle" class="loginTitle">Acceso de Administrador</h2>
+          <label class="form-label" for="adminPwd">Contraseña</label>
+          <input id="adminPwd" type="password" class="neo" aria-label="Contraseña de administrador" />
+          <div class="row" style="margin-top:16px;">
             <button class="btn brand" id="adminEnter">Entrar</button>
             <button class="btn" id="adminCancel">Cancelar</button>
           </div>
-          <div class="loginMeta" id="adminMsg"></div>
+          <div class="loginMeta" id="adminMsg" style="margin-top: 8px;"></div>
         </div>
       </div>
-      <div id="addUserModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="addUserModalTitle">
+      <div id="addUserModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="addUserModalTitle">
         <div class="box">
-          <div class="loginTitle" id="addUserModalTitle">Añadir Nuevo Usuario</div>
-          <label for="newUserName">Nombre</label>
+          <h2 id="addUserModalTitle" class="loginTitle">Añadir Nuevo Usuario</h2>
+          <label class="form-label" for="newUserName">Nombre</label>
           <div class="field"><span class="icon">👤</span><input class="neo" id="newUserName" type="text" placeholder="Nombre completo" /></div>
-          <label for="newUserPhone">Teléfono</label>
+          <label class="form-label" for="newUserPhone">Teléfono</label>
           <div class="field"><span class="icon">📱</span><input class="neo" id="newUserPhone" type="tel" placeholder="Ej: 50660048606" /></div>
-          <label>Tarjetas Iniciales</label>
+          <label class="form-label">Tarjetas Iniciales</label>
           <div id="newUserRewards" class="chips"></div>
           <div class="row" style="margin-top:16px;">
             <button class="btn accent" id="addUserBtn">Crear Usuario</button>
@@ -314,10 +315,6 @@
       { code:'MX', cc:'52', name:'México', placeholder: '55 1234 5678' },
       { code:'ES', cc:'34', name:'España', placeholder: '612 345 678' },
       { code:'CO', cc:'57', name:'Colombia', placeholder: '300 1234567' },
-      { code:'AR', cc:'54',  name:'Argentina' }, { code:'CL', cc:'56',  name:'Chile' },
-      { code:'PE', cc:'51',  name:'Perú' }, { code:'GT', cc:'502', name:'Guatemala' },
-      { code:'SV', cc:'503', name:'El Salvador' }, { code:'HN', cc:'504', name:'Honduras' },
-      { code:'NI', cc:'505', name:'Nicaragua' }, { code:'PA', cc:'507', name:'Panamá' },
     ];
 
     let db;
@@ -353,6 +350,7 @@
         usersList: document.getElementById('usersList'),
         editPanel: document.getElementById('editPanel'),
         editUserTitle: document.getElementById('editUserTitle'),
+        editUserPhone: document.getElementById('editUserPhone'),
         editRewards: document.getElementById('editRewards'),
         editComment: document.getElementById('editComment'),
         saveRewardsBtn: document.getElementById('saveRewardsBtn'),
@@ -375,13 +373,10 @@
     const el = (tag, attrs = {}, children = []) => {
       const n = document.createElement(tag);
       Object.entries(attrs).forEach(([k,v]) => {
-        if (k === 'class') n.className = v;
-        else if (k === 'text') n.textContent = v;
-        else if (k === 'dataset') Object.assign(n.dataset, v);
-        else n.setAttribute(k, v);
+        if (k === 'class') n.className = v; else if (k === 'text') n.textContent = v;
+        else if (k === 'dataset') Object.assign(n.dataset, v); else n.setAttribute(k, v);
       });
-      children.forEach(c => n.append(c));
-      return n;
+      children.forEach(c => n.append(c)); return n;
     };
     const getDigits = s => (s || '').replace(/\D+/g, '');
     const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(()=>fn.apply(null,a), ms); }; };
@@ -405,22 +400,13 @@
         switch (viewName) {
             case 'auth':
                 UI.authGrid.classList.remove('hidden');
-                UI.loginInput.focus();
-                localStorage.removeItem('memberId');
-                localStorage.removeItem('admin');
-                break;
+                UI.loginInput.focus(); localStorage.removeItem('memberId'); localStorage.removeItem('admin'); break;
             case 'member':
-                UI.viewsContainer.classList.remove('hidden');
-                UI.memberGrid.classList.remove('hidden');
-                UI.adminGrid.classList.add('hidden');
-                startMemberListener(localStorage.getItem('memberId'));
-                break;
+                UI.viewsContainer.classList.remove('hidden'); UI.memberGrid.classList.remove('hidden'); UI.adminGrid.classList.add('hidden');
+                startMemberListener(localStorage.getItem('memberId')); break;
             case 'admin':
-                UI.viewsContainer.classList.remove('hidden');
-                UI.adminGrid.classList.remove('hidden');
-                UI.memberGrid.classList.add('hidden');
-                startUsersListener();
-                break;
+                UI.viewsContainer.classList.remove('hidden'); UI.adminGrid.classList.remove('hidden'); UI.memberGrid.classList.add('hidden');
+                startUsersListener(); break;
         }
     }
     
@@ -430,179 +416,16 @@
         const disabled = enforceAssignable && !r.assignable;
         const chip = el('button', { class: 'chip' + (disabled ? ' lock' : ''), type: 'button' }, [r.label]);
         if (selected.has(r.id)) chip.classList.add('is-selected');
-        if (!disabled) chip.addEventListener('click', () => onToggle(r.id));
-        container.appendChild(chip);
+        if (!disabled) chip.addEventListener('click', () => onToggle(r.id)); container.appendChild(chip);
       });
     }
 
     function makeChipToggle(container, selected, opts){
-      const toggle = (rid) => {
-        if (selected.has(rid)) selected.delete(rid); else selected.add(rid);
-        renderRewardChips(container, selected, toggle, opts);
-      };
-      renderRewardChips(container, selected, toggle, opts);
-      return toggle;
+      const toggle = (rid) => { if (selected.has(rid)) selected.delete(rid); else selected.add(rid); renderRewardChips(container, selected, toggle, opts); };
+      renderRewardChips(container, selected, toggle, opts); return toggle;
     }
 
-    function renderMemberPanels(member) { /* ... no changes ... */ }
-
-    function renderUsersList() {
-      UI.usersList.innerHTML = '';
-      const q = UI.search.value.toLowerCase().trim();
-      cacheUsers
-        .filter(u => !q || (u.name || '').toLowerCase().includes(q) || (u.phone || '').includes(getDigits(q)))
-        .forEach(u => {
-          const phoneTxt = u.phone ? `📱 ${u.phone}` : u.id;
-          const copyElem = el('small', { class: 'copyable', dataset: { phone: (u.phone || '') }, role: 'button', tabindex: '0' }, [ `${phoneTxt} • ${u.rewards?.length || 0} tarjetas` ]);
-          const row = el('div', { class: 'item' }, [
-            el('div', {}, [ el('div', { text: u.name || u.id }), copyElem ]),
-          ]);
-          if (u.id === selectedUserId) {
-            row.classList.add('is-selected');
-          }
-          row.addEventListener('click', () => selectUser(u.id, u.name || u.id));
-          const copyAction = async (e) => {
-              e.stopPropagation();
-              const p = copyElem.dataset.phone || '';
-              if (!p || !navigator.clipboard) return;
-              try { await navigator.clipboard.writeText(p); toast('Teléfono copiado'); } catch(_) { toast('Error al copiar'); }
-          };
-          copyElem.addEventListener('click', copyAction);
-          copyElem.addEventListener('keydown', (e) => { if(e.key === 'Enter') copyAction(e); });
-          UI.usersList.appendChild(row);
-        });
-    }
-
-    function startMemberListener(memberId) { /* ... no changes ... */ }
-
-    function startUsersListener() {
-      if (!db) return;
-      const usersQuery = query(collection(db, 'users'), orderBy('name'));
-      unsubUsers = onSnapshot(usersQuery, (snap) => {
-        cacheUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        renderUsersList();
-      }, err => { console.error('users onSnapshot', err); toast('Error al cargar usuarios.'); });
-    }
-
-    async function selectUser(id, name) {
-      if (unsubEdit) unsubEdit();
-      selectedUserId = id;
-      renderUsersList();
-
-      UI.noUserSelected.classList.add('hidden');
-      UI.editPanel.classList.remove('hidden');
-      UI.editUserTitle.textContent = name;
-      
-      const userRef = doc(db, 'users', id);
-      let selectedRewards = new Set();
-      makeChipToggle(UI.editRewards, selectedRewards, { enforceAssignable: true });
-
-      unsubEdit = onSnapshot(userRef, (doc) => {
-        if (!doc.exists()) {
-          toast('Usuario eliminado remotamente.');
-          clearEditPanel();
-          return;
-        }
-        const data = doc.data();
-        selectedRewards = new Set(sortRewards((data.rewards || []).filter(isAssignable)));
-        makeChipToggle(UI.editRewards, selectedRewards, { enforceAssignable: true });
-      });
-
-      UI.saveRewardsBtn.onclick = async () => { /* ... no changes ... */ };
-      UI.addCommentBtn.onclick = async () => { /* ... no changes ... */ };
-      UI.deleteUserBtn.onclick = async () => { /* ... no changes ... */ };
-    }
-
-    function clearEditPanel() {
-        if (unsubEdit) { unsubEdit(); unsubEdit = null; }
-        selectedUserId = null;
-        if (cacheUsers.length > 0) renderUsersList();
-        UI.editPanel.classList.add('hidden');
-        UI.noUserSelected.classList.remove('hidden');
-        UI.editUserTitle.textContent = '';
-        UI.editComment.value = '';
-        makeChipToggle(UI.editRewards, new Set(), { enforceAssignable: true });
-    }
-    
-    function setupAddUserModal() {
-        let selected = new Set();
-        const openModal = () => {
-          UI.newUserName.value = '';
-          UI.newUserPhone.value = '';
-          selected.clear();
-          makeChipToggle(UI.newUserRewards, selected, { enforceAssignable: true });
-          UI.addUserModal.classList.remove('hidden');
-          UI.newUserName.focus();
-        };
-        const closeModal = () => UI.addUserModal.classList.add('hidden');
-
-        UI.openAddUserModalBtn.addEventListener('click', openModal);
-        UI.cancelAddUserBtn.addEventListener('click', closeModal);
-        
-        UI.addUserBtn.onclick = async () => {
-            const name = UI.newUserName.value.trim();
-            const phone = getDigits(UI.newUserPhone.value);
-            if (!name) { toast('Falta el nombre'); return; }
-            if (phone.length < 8) { toast('Teléfono inválido'); return; }
-
-            const userRef = doc(db, 'users', phone);
-            try {
-                const docSnap = await getDoc(userRef);
-                if (docSnap.exists()) { toast('Ese teléfono ya está registrado'); return; }
-                await setDoc(userRef, { name, phone, rewards: sortRewards(Array.from(selected).filter(isAssignable)), comments: [], createdAt: Date.now() });
-                toast('Usuario creado con éxito');
-                closeModal();
-            } catch (e) { console.error("Error creando usuario:", e); toast('Error al crear usuario'); }
-        };
-    }
-    
-    function buildIdFromInput() { /* ... no changes ... */ }
-    function setCountry(country) { /* ... no changes ... */ }
-    function buildCCMenu() { /* ... no changes ... */ }
-    async function doLogin() { /* ... no changes ... */ }
-    function initGyroscope() { /* ... no changes ... */ }
-    
-    function init() {
-        UI.loginGo.addEventListener('click', doLogin);
-        UI.loginInput.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-        UI.ccBtn.addEventListener('click', () => {
-          const isHidden = UI.ccMenu.classList.toggle('hidden');
-          UI.ccBtn.setAttribute('aria-expanded', String(!isHidden));
-        });
-        document.addEventListener('click', e => {
-          if (!e.target.closest('#ccBtn') && !e.target.closest('#ccMenu')) {
-            UI.ccMenu.classList.add('hidden');
-            UI.ccBtn.setAttribute('aria-expanded', 'false');
-          }
-        });
-        const closeAdminModal = () => UI.adminModal.classList.add('hidden');
-        const openAdminModal = () => { UI.adminMsg.textContent=''; UI.adminPwd.value=''; UI.adminModal.classList.remove('hidden'); setTimeout(()=> UI.adminPwd.focus(), 50); };
-        const tryAdmin = () => { if (UI.adminPwd.value.trim() === atob(ADMIN_KEY_B64)) { localStorage.setItem('admin','1'); closeAdminModal(); switchView('admin'); } else { UI.adminMsg.textContent = 'Contraseña incorrecta'; } };
-        UI.adminOpen.addEventListener('click', openAdminModal);
-        UI.adminCancel.addEventListener('click', closeAdminModal);
-        UI.adminEnter.addEventListener('click', tryAdmin);
-        UI.adminPwd.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryAdmin(); if (e.key === 'Escape') closeAdminModal(); });
-        
-        UI.memberLogoutBtn.addEventListener('click', () => switchView('auth'));
-        UI.adminLogoutBtn.addEventListener('click', () => switchView('auth'));
-        UI.search.addEventListener('input', debounce(renderUsersList, 200));
-        UI.clearPanelBtn.addEventListener('click', clearEditPanel);
-        
-        setupAddUserModal();
-        initGyroscope();
-        buildCCMenu();
-
-        const lastCountry = COUNTRIES.find(c => c.code === localStorage.getItem('lastCountryCode')) || COUNTRIES[0];
-        setCountry(lastCountry);
-        const memberId = localStorage.getItem('memberId');
-        const isAdmin = localStorage.getItem('admin') === '1';
-        if (isAdmin) { switchView('admin'); } else if (memberId) { switchView('member'); } else { switchView('auth'); }
-    }
-    
-    document.addEventListener('DOMContentLoaded', init);
-
-    // --- Funciones completas que fueron abreviadas previamente ---
-    renderMemberPanels = function(member) {
+    function renderMemberPanels(member) {
       const rewards = sortRewards(member.rewards || []);
       const comments = member.comments || [];
       UI.memberCards.innerHTML = '';
@@ -624,7 +447,24 @@
       });
     }
 
-    startMemberListener = function(memberId) {
+    function renderUsersList() {
+      UI.usersList.innerHTML = '';
+      const q = UI.search.value.toLowerCase().trim();
+      cacheUsers
+        .filter(u => !q || (u.name || '').toLowerCase().includes(q) || (u.phone || '').includes(getDigits(q)))
+        .forEach(u => {
+          const phoneTxt = u.phone ? `📱 ${u.phone}` : u.id;
+          const copyElem = el('small', { class: 'copyable', dataset: { phone: (u.phone || '') }, role: 'button', tabindex: '0' }, [ phoneTxt, ` • ${u.rewards?.length || 0} tarjetas` ]);
+          const row = el('div', { class: 'item', 'data-id': u.id }, [ el('div', {}, [ el('div', { text: u.name || u.id }), copyElem ]) ]);
+          if (u.id === selectedUserId) row.classList.add('is-selected');
+          row.addEventListener('click', () => selectUser(u.id));
+          const copyAction = async (e) => { e.stopPropagation(); const p = copyElem.dataset.phone || ''; if (!p || !navigator.clipboard) return; try { await navigator.clipboard.writeText(p); toast('Teléfono copiado'); } catch(_) { toast('Error al copiar'); } };
+          copyElem.addEventListener('click', copyAction); copyElem.addEventListener('keydown', (e) => { if(e.key === 'Enter') copyAction(e); });
+          UI.usersList.appendChild(row);
+        });
+    }
+
+    function startMemberListener(memberId) {
       if (!memberId || !db) return;
       unsubMember = onSnapshot(doc(db, 'users', memberId), (doc) => {
         if (!doc.exists()) { UI.loginMsg.textContent = 'Este usuario ya no existe.'; switchView('auth'); return; }
@@ -632,107 +472,103 @@
       }, err => { console.error('member onSnapshot', err); toast('Error de conexión.'); });
     }
 
-    UI.saveRewardsBtn.onclick = async () => {
-      if (!selectedUserId) return;
-      const userRef = doc(db, 'users', selectedUserId);
-      let selectedRewards = new Set();
-      UI.editRewards.querySelectorAll('.is-selected').forEach(chip => {
-          const reward = REWARDS.find(r => r.label === chip.textContent);
-          if (reward && isAssignable(reward.id)) selectedRewards.add(reward.id);
-      });
-      try { await updateDoc(userRef, { rewards: sortRewards(Array.from(selectedRewards)) }); toast('Tarjetas guardadas'); } catch(e) { console.error(e); toast('Error al guardar'); }
-    };
-    UI.addCommentBtn.onclick = async () => {
-      if (!selectedUserId) return;
-      const text = UI.editComment.value.trim();
-      if (!text) { toast('Escribe un comentario'); return; }
-      const userRef = doc(db, 'users', selectedUserId);
-      try { await updateDoc(userRef, { comments: arrayUnion({ text, ts: Date.now(), author: 'admin' }) }); UI.editComment.value = ''; toast('Comentario agregado'); } catch(e) { console.error(e); toast('Error al comentar'); }
-    };
-    UI.deleteUserBtn.onclick = async () => {
-      if (!selectedUserId) return;
-      const user = cacheUsers.find(u => u.id === selectedUserId);
-      if (!confirm(`¿Estás seguro de que quieres eliminar a ${user?.name || 'este usuario'}? Esta acción no se puede deshacer.`)) return;
-      const userRef = doc(db, 'users', selectedUserId);
+    function startUsersListener() {
+      if (!db) return;
+      const usersQuery = query(collection(db, 'users'), orderBy('name'));
+      unsubUsers = onSnapshot(usersQuery, (snap) => {
+        cacheUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderUsersList();
+      }, err => { console.error('users onSnapshot', err); toast('Error al cargar usuarios.'); });
+    }
+
+    function selectUser(id) {
       if (unsubEdit) unsubEdit();
-      try { await deleteDoc(userRef); toast('Usuario eliminado'); clearEditPanel(); } catch(e) { console.error(e); toast('Error al eliminar'); }
-    };
+      selectedUserId = id;
+      renderUsersList();
 
-    buildIdFromInput = function() {
-      const inputDigits = getDigits(UI.loginInput.value);
-      if (!inputDigits) return '';
-      if (inputDigits.startsWith(currentCountry.cc)) return inputDigits;
-      return currentCountry.cc + inputDigits;
-    };
+      const user = cacheUsers.find(u => u.id === id);
+      if (!user) { clearEditPanel(); return; }
 
-    setCountry = function(country) {
-      currentCountry = country;
-      UI.ccCode.textContent = country.code;
-      UI.ccDial.textContent = `+${country.cc}`;
-      UI.loginInput.placeholder = country.placeholder || '123 456 789';
-      localStorage.setItem('lastCountryCode', country.code);
-    };
+      UI.noUserSelected.classList.add('hidden');
+      UI.editPanel.classList.remove('hidden');
+      UI.editUserTitle.textContent = user.name || user.id;
+      UI.editUserPhone.textContent = user.phone || '';
+      
+      const userRef = doc(db, 'users', id);
+      let selectedRewards = new Set();
+      makeChipToggle(UI.editRewards, selectedRewards, { enforceAssignable: true });
 
-    buildCCMenu = function() {
-      UI.ccMenu.innerHTML = '';
-      COUNTRIES.forEach(c => {
-        const item = el('div', { class: 'ccItem', dataset: { code: c.code } }, [ el('span', { text: c.name }), el('span', { text: `+${c.cc}` }) ]);
-        item.addEventListener('click', () => {
-          setCountry(c);
-          UI.ccMenu.classList.add('hidden');
-          UI.ccBtn.setAttribute('aria-expanded', 'false');
-          UI.loginInput.focus();
-        });
-        UI.ccMenu.appendChild(item);
+      unsubEdit = onSnapshot(userRef, (doc) => {
+        if (!doc.exists()) { toast('Usuario eliminado remotamente.'); clearEditPanel(); return; }
+        const data = doc.data();
+        selectedRewards = new Set(sortRewards((data.rewards || []).filter(isAssignable)));
+        makeChipToggle(UI.editRewards, selectedRewards, { enforceAssignable: true });
       });
-    };
+    }
 
-    doLogin = async function() {
-      const id = buildIdFromInput();
-      if (!id) {
-        UI.loginMsg.textContent = 'Ingresa tu teléfono.';
-        return;
-      }
-      UI.loginMsg.textContent = 'Verificando...';
-      try {
-        const userRef = doc(db, 'users', id);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-          localStorage.setItem('memberId', id);
-          switchView('member');
-        } else {
-          UI.loginMsg.textContent = 'No se encontró un usuario con ese teléfono.';
-        }
-      } catch (e) { console.error("Error en login:", e); UI.loginMsg.textContent = 'Error de conexión.'; }
-    };
-
-    initGyroscope = function() {
-      if (!('ontouchstart' in window) || !window.DeviceOrientationEvent) {
-        return;
-      }
-      const handleOrientation = (event) => {
-        const { beta, gamma } = event; 
-        const tiltY = (gamma || 0) / 3.0;
-        const tiltX = ((beta || 0) - 45) / -3.0;
-        const maxTilt = 8;
-        const finalTiltX = Math.max(-maxTilt, Math.min(maxTilt, tiltX));
-        const finalTiltY = Math.max(-maxTilt, Math.min(maxTilt, tiltY));
-        requestAnimationFrame(() => {
-          UI.art.style.transform = `rotateX(${finalTiltX}deg) rotateY(${finalTiltY}deg)`;
-          UI.floatingLogo.style.transform = `translateX(-50%) rotateX(${-finalTiltX / 2}deg) rotateY(${-finalTiltY / 2}deg) translateZ(20px)`;
-        });
-      };
-      if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-        const requestPermission = () => {
-          DeviceOrientationEvent.requestPermission()
-            .then(permissionState => { if (permissionState === 'granted') { window.addEventListener('deviceorientation', handleOrientation); } })
-            .catch(console.error);
+    function clearEditPanel() {
+        if (unsubEdit) { unsubEdit(); unsubEdit = null; }
+        selectedUserId = null;
+        if (cacheUsers.length > 0) renderUsersList();
+        UI.editPanel.classList.add('hidden');
+        UI.noUserSelected.classList.remove('hidden');
+    }
+    
+    function setupAddUserModal() {
+        let selected = new Set();
+        const openModal = () => {
+          UI.newUserName.value = ''; UI.newUserPhone.value = ''; selected.clear();
+          makeChipToggle(UI.newUserRewards, selected, { enforceAssignable: true });
+          UI.addUserModal.classList.add('is-open'); UI.newUserName.focus();
         };
-        document.body.addEventListener('touchstart', requestPermission, { once: true });
-      } else {
-        window.addEventListener('deviceorientation', handleOrientation);
-      }
-    };
+        const closeModal = () => UI.addUserModal.classList.remove('is-open');
+
+        UI.openAddUserModalBtn.addEventListener('click', openModal);
+        UI.cancelAddUserBtn.addEventListener('click', closeModal);
+        
+        UI.addUserBtn.onclick = async () => {
+            const name = UI.newUserName.value.trim(); const phone = getDigits(UI.newUserPhone.value);
+            if (!name) { toast('Falta el nombre'); return; }
+            if (phone.length < 8) { toast('Teléfono inválido'); return; }
+            const userRef = doc(db, 'users', phone);
+            try {
+                const docSnap = await getDoc(userRef);
+                if (docSnap.exists()) { toast('Ese teléfono ya está registrado'); return; }
+                await setDoc(userRef, { name, phone, rewards: sortRewards(Array.from(selected).filter(isAssignable)), comments: [], createdAt: Date.now() });
+                toast('Usuario creado con éxito'); closeModal();
+            } catch (e) { console.error("Error creando usuario:", e); toast('Error al crear usuario'); }
+        };
+    }
+    
+    function buildIdFromInput() { const d = getDigits(UI.loginInput.value); return !d ? '' : d.startsWith(currentCountry.cc) ? d : currentCountry.cc + d; }
+    function setCountry(country) { currentCountry = country; UI.ccCode.textContent = country.code; UI.ccDial.textContent = `+${country.cc}`; UI.loginInput.placeholder = country.placeholder || '123 456 789'; localStorage.setItem('lastCountryCode', country.code); }
+    function buildCCMenu() { UI.ccMenu.innerHTML = ''; COUNTRIES.forEach(c => { const i = el('div', { class: 'ccItem', dataset: { code: c.code } }, [ el('span', { text: c.name }), el('span', { text: `+${c.cc}` }) ]); i.addEventListener('click', () => { setCountry(c); UI.ccMenu.classList.add('hidden'); UI.ccBtn.setAttribute('aria-expanded', 'false'); UI.loginInput.focus(); }); UI.ccMenu.appendChild(i); }); }
+    async function doLogin() { const id = buildIdFromInput(); if (!id) { UI.loginMsg.textContent = 'Ingresa tu teléfono.'; return; } UI.loginMsg.textContent = 'Verificando...'; try { const ref = doc(db, 'users', id); const snap = await getDoc(ref); if (snap.exists()) { localStorage.setItem('memberId', id); switchView('member'); } else { UI.loginMsg.textContent = 'No se encontró un usuario con ese teléfono.'; } } catch (e) { console.error("Error en login:", e); UI.loginMsg.textContent = 'Error de conexión.'; } }
+    function initGyroscope() { if (!('ontouchstart' in window) || !window.DeviceOrientationEvent) return; const h = (e) => { const { beta, gamma } = e; const y = (gamma || 0)/3.0; const x = ((beta || 0)-45)/-3.0; const m=8; const fx=Math.max(-m,Math.min(m,x)); const fy=Math.max(-m,Math.min(m,y)); requestAnimationFrame(()=>{ UI.art.style.transform=`rotateX(${fx}deg) rotateY(${fy}deg)`; UI.floatingLogo.style.transform=`translateX(-50%) rotateX(${-fx/2}deg) rotateY(${-fy/2}deg) translateZ(20px)`; }); }; if(typeof DeviceOrientationEvent.requestPermission==='function'){ const r=()=>{ DeviceOrientationEvent.requestPermission().then(p=>{ if(p==='granted') window.addEventListener('deviceorientation',h); }).catch(console.error); }; document.body.addEventListener('touchstart',r,{once:true}); } else { window.addEventListener('deviceorientation',h); } }
+    
+    function init() {
+        UI.loginGo.addEventListener('click', doLogin);
+        UI.loginInput.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+        UI.ccBtn.addEventListener('click', () => { const i=UI.ccMenu.classList.toggle('hidden'); UI.ccBtn.setAttribute('aria-expanded', String(!i)); });
+        document.addEventListener('click', e => { if (!e.target.closest('#ccBtn') && !e.target.closest('#ccMenu')) { UI.ccMenu.classList.add('hidden'); UI.ccBtn.setAttribute('aria-expanded', 'false'); } });
+        const cM=()=>UI.adminModal.classList.remove('is-open'); const oM=()=>{ UI.adminMsg.textContent=''; UI.adminPwd.value=''; UI.adminModal.classList.add('is-open'); setTimeout(()=>UI.adminPwd.focus(), 50); }; const tA=()=>{ if(UI.adminPwd.value.trim()===atob(ADMIN_KEY_B64)){localStorage.setItem('admin','1'); cM(); switchView('admin');}else{UI.adminMsg.textContent='Contraseña incorrecta';}};
+        UI.adminOpen.addEventListener('click', oM); UI.adminCancel.addEventListener('click', cM); UI.adminEnter.addEventListener('click', tA); UI.adminPwd.addEventListener('keydown', (e)=>{if(e.key==='Enter')tA();if(e.key==='Escape')cM();});
+        UI.memberLogoutBtn.addEventListener('click', ()=>switchView('auth'));
+        UI.adminLogoutBtn.addEventListener('click', ()=>switchView('auth'));
+        UI.search.addEventListener('input', debounce(renderUsersList, 200));
+        UI.clearPanelBtn.addEventListener('click', clearEditPanel);
+        
+        UI.saveRewardsBtn.onclick = async () => { if(!selectedUserId)return; const ref=doc(db,'users',selectedUserId); let sR=new Set(); UI.editRewards.querySelectorAll('.is-selected').forEach(c=>{const r=REWARDS.find(r=>r.label===c.textContent); if(r&&isAssignable(r.id))sR.add(r.id);}); try{await updateDoc(ref,{rewards:sortRewards(Array.from(sR))});toast('Tarjetas guardadas');}catch(e){console.error(e);toast('Error al guardar');}};
+        UI.addCommentBtn.onclick = async () => { if(!selectedUserId)return; const t=UI.editComment.value.trim(); if(!t){toast('Escribe un comentario');return;} const ref=doc(db,'users',selectedUserId); try{await updateDoc(ref,{comments:arrayUnion({text:t,ts:Date.now(),author:'admin'})});UI.editComment.value='';toast('Comentario agregado');}catch(e){console.error(e);toast('Error al comentar');}};
+        UI.deleteUserBtn.onclick = async () => { if(!selectedUserId)return; const u=cacheUsers.find(u=>u.id===selectedUserId); if(!confirm(`¿Eliminar a ${u?.name || 'este usuario'}?`))return; const ref=doc(db,'users',selectedUserId); if(unsubEdit)unsubEdit(); try{await deleteDoc(ref);toast('Usuario eliminado');clearEditPanel();}catch(e){console.error(e);toast('Error al eliminar');}};
+
+        setupAddUserModal(); initGyroscope(); buildCCMenu();
+        const lastCountry=COUNTRIES.find(c=>c.code===localStorage.getItem('lastCountryCode'))||COUNTRIES[0]; setCountry(lastCountry);
+        const memberId=localStorage.getItem('memberId'); const isAdmin=localStorage.getItem('admin')==='1';
+        if(isAdmin){switchView('admin');}else if(memberId){switchView('member');}else{switchView('auth');}
+    }
+    
+    document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
 </html>
