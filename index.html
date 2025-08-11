@@ -31,137 +31,87 @@
 
     .bg-tech { position: fixed; inset: 0; z-index: -1; overflow: hidden; background:
       linear-gradient(rgba(7,9,15,.80), rgba(7,9,15,.86)),
-      url('assets/background.png') center / cover no-repeat fixed,
-      radial-gradient(800px 400px at 80% 0%, rgba(0,229,255,.10), transparent 60%),
-      radial-gradient(600px 300px at 15% 100%, rgba(255,43,191,.10), transparent 60%),
-      var(--ink);
+      url('assets/background.png') center / cover no-repeat fixed;
       filter: saturate(.9) brightness(.9);
     }
     .wrap { max-width: 1300px; margin: 0 auto; padding: clamp(16px, 4vw, 24px); }
     
-    .landing {
-      min-height: calc(100vh - 32px);
-      display: grid;
-      place-items: center;
-    }
+    .landing { min-height: calc(100vh - 32px); display: grid; place-items: center; }
     .landing > * { grid-area: 1 / 1; }
 
-    .art {
-      perspective: 1000px;
-      transform-style: preserve-3d;
-      width: 100%;
-      max-width: 760px;
-      height: clamp(520px, 80vh, 700px);
-      border-radius: 22px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
-      z-index: 1;
-      transition: transform 0.1s ease-out;
-    }
+    .art { perspective: 1000px; transform-style: preserve-3d; width: 100%; max-width: 760px; height: clamp(520px, 80vh, 700px); border-radius: 22px; overflow: hidden; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)); z-index: 1; transition: transform 0.1s ease-out; }
     .art::before { content:""; position:absolute; inset:0; background: radial-gradient(80% 40% at 20% 10%, rgba(0,229,255,.14), transparent 60%), radial-gradient(60% 40% at 70% 80%, rgba(255,43,191,.16), transparent 60%), url('assets/background.png') center / cover no-repeat; filter: brightness(.7) contrast(1); z-index: 0; pointer-events:none; }
-    .art::after { content:""; position:absolute; inset:0; background: repeating-linear-gradient(90deg, rgba(255,255,255,.05), rgba(255,255,255,.05) 1px, transparent 1px, transparent 60px), repeating-linear-gradient(0deg, rgba(0,0,0,.12), rgba(0,0,0,.12) 1px, transparent 1px, transparent 60px); opacity:.25; mix-blend-mode: soft-light; z-index: 1; pointer-events:none; }
     .shine { position: absolute; inset: -20%; background: radial-gradient(40% 12% at var(--gx,30%) var(--gy,10%), rgba(255,255,255,.10), transparent 60%), linear-gradient(115deg, transparent 40%, rgba(255,255,255,.06) 50%, transparent 60%); mix-blend-mode: screen; pointer-events: none; z-index: 2; opacity:.9; transition: opacity .2s ease; }
-
-    .floating-content {
-      position: relative;
-      z-index: 10;
-      width: 100%;
-      height: 100%;
-      max-width: 760px;
-      max-height: clamp(520px, 80vh, 700px);
-      pointer-events: none;
-    }
+    .floating-content { position: relative; z-index: 10; width: 100%; height: 100%; max-width: 760px; max-height: clamp(520px, 80vh, 700px); pointer-events: none; }
     .floating-content > * { pointer-events: auto; }
-    
-    .floating-logo {
-      position: absolute;
-      top: 10%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: clamp(280px, 50vw, 420px);
-      height: auto;
-      z-index: 11;
-      transition: transform 0.1s ease-out;
-    }
-    
-    .loginFloat {
-      position: absolute;
-      bottom: 15%;
-      left: 50%;
-      transform: translateX(-50%);
-      display: grid;
-      gap: 12px;
-      width: 90%;
-      max-width: 480px;
-      background: rgba(11,17,32,.85);
-      backdrop-filter: blur(12px) saturate(1.1);
-      -webkit-backdrop-filter: blur(12px) saturate(1.1);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px;
-      box-shadow: 0 12px 32px rgba(0,0,0,.5);
-      z-index: 10;
-    }
-    
+    .floating-logo { position: absolute; top: 10%; left: 50%; transform: translateX(-50%); width: clamp(280px, 50vw, 420px); height: auto; z-index: 11; transition: transform 0.1s ease-out; }
+    .loginFloat { position: absolute; bottom: 15%; left: 50%; transform: translateX(-50%); display: grid; gap: 12px; width: 90%; max-width: 480px; background: rgba(11,17,32,.85); backdrop-filter: blur(12px) saturate(1.1); -webkit-backdrop-filter: blur(12px) saturate(1.1); border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: 0 12px 32px rgba(0,0,0,.5); z-index: 10; }
     .loginTitle { font-size: 14px; letter-spacing: 1.5px; text-transform: uppercase; opacity:.9; margin-bottom: 10px; }
     .phoneInput { position: relative; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; border: 1px solid var(--border); border-radius: 16px; padding: 12px 12px 12px 14px; background: #0b1120cc; }
     .ccBtn { display:inline-flex; align-items:center; gap:6px; padding:8px 10px; border-radius:10px; border:1px solid var(--border); background: linear-gradient(180deg, rgba(0,229,255,.16), rgba(0,229,255,.06)); color: var(--text); font-weight:800; cursor:pointer; }
     .ccMenu { position:absolute; top: calc(100% + 8px); left: 0; width: 280px; max-height: 260px; overflow:auto; background:#0b1120; border:1px solid var(--border); border-radius:12px; box-shadow: 0 16px 40px rgba(0,0,0,.55); z-index: 15; }
     .ccItem { padding:8px 10px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
     #loginInput { width: 100%; border: 0; outline: 0; background: transparent; color: var(--text); font-size: clamp(16px, 4vw, 20px); letter-spacing: .6px; }
-    #loginInput::placeholder { color: #93a0b3; opacity:.9; }
     .goBtn { border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; cursor: pointer; font-weight: 800; background: linear-gradient(180deg, rgba(0,229,255,.22), rgba(0,229,255,.08)); color: var(--text); font-size: 18px; line-height: 1; }
     .loginMeta { display:flex; gap:12px; align-items:center; color: var(--muted); font-size: 13px; min-height: 18px; }
     .hidden { display: none !important; }
     .toast { position: fixed; right: 16px; top: 16px; display: grid; gap: 8px; z-index: 999; }
     .toast-item { background: #0b1120; border: 1px solid rgba(255,255,255,.14); padding: 10px 12px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,.35); animation: card-in .3s ease; }
     @keyframes card-in { to { opacity:1; transform: none; } }
-
     @keyframes gentle-float { 0% { transform: rotateX(4deg) rotateY(-5deg); } 25% { transform: rotateX(-3deg) rotateY(4deg); } 50% { transform: rotateX(3deg) rotateY(2deg); } 75% { transform: rotateX(-4deg) rotateY(-3deg); } 100% { transform: rotateX(4deg) rotateY(-5deg); } }
     @media (hover: hover) and (pointer: fine) { .art { animation: gentle-float 25s ease-in-out infinite alternate; } }
 
-    /* --- NUEVO ADMIN UI --- */
-    .admin-dashboard {
-      display: grid;
-      grid-template-columns: minmax(320px, 1fr) 2fr;
-      gap: 16px;
-      align-items: start;
-    }
+    /* --- ESTILOS GENERALES Y ADMIN UI --- */
     .card { border: 1px solid var(--border); border-radius: 18px; padding: 24px; background: var(--panel); box-shadow: 0 20px 48px rgba(0,0,0,.45); }
     .card h2 { margin: 0; font-size: 20px; color: var(--text); }
     .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .form-label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--muted-bright); margin: 16px 0 8px 0; }
-    .btn { display: inline-flex; gap: 8px; align-items: center; padding: 10px 14px; color: var(--text); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; text-decoration: none; transition: all .2s ease; }
+    .btn { display: inline-flex; gap: 8px; align-items: center; justify-content: center; padding: 10px 14px; color: var(--text); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; text-decoration: none; transition: all .2s ease; background-color: var(--panel); }
     .btn:hover { filter: brightness(1.1); box-shadow: var(--glow); }
     .btn:active { transform: translateY(1px); filter: brightness(1); }
-    .btn.brand { background-color: rgba(0,229,255,.15); border-color: rgba(0,229,255,.6); }
-    .btn.accent { background-color: rgba(255,43,191,.15); border-color: rgba(255,43,191,.6); }
-    .btn.danger { background-color: rgba(255,79,79,.15); border-color: rgba(255,79,79,.55); }
+    .btn.brand { background-color: rgba(0,229,255,.15); border-color: rgba(0,229,255,.6); color: #c2f5ff; }
+    .btn.accent { background-color: rgba(255,43,191,.15); border-color: rgba(255,43,191,.6); color: #ffc2ee; }
+    .btn.danger { background-color: rgba(255,79,79,.15); border-color: rgba(255,79,79,.55); color: #ffc2c2; }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .secondary-actions { margin-top: 12px; }
     .field { position: relative; }
     .field .icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: .85; font-size: 14px; pointer-events: none; }
     .neo { width: 100%; padding: 12px 12px 12px 40px; border-radius: 14px; border: 1px solid var(--border); background: var(--ink); color: var(--text); outline: none; transition: all .2s ease; }
     .neo:focus { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); }
-    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-    .chip { padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border); background: #0d1222; font-size: 13px; cursor: pointer; transition: all .2s ease; }
-    .chip:hover { background-color: var(--ink); }
-    .chip.is-selected { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); background-color: rgba(0,229,255,.1); }
-    .list { display: grid; gap: 8px; max-height: calc(100vh - 280px); min-height: 300px; overflow: auto; padding-right: 4px; }
-    .item { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 12px; border-radius: 12px; border: 1px solid transparent; background-color: rgba(255,255,255,.03); cursor: pointer; transition: all .2s ease; }
-    .item:hover { background-color: rgba(255,255,255,.06); border-color: var(--border); }
-    .item.is-selected { color: var(--neon-cyan); background-color: rgba(0,229,255,.10); border-color: rgba(0,229,255,.6); }
-    .item.is-selected small { color: var(--neon-cyan); opacity: .8; }
-    .item small { color: var(--muted); }
-    #noUserSelected { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; color: var(--muted); font-size: 16px; text-align: center; }
-    #noUserSelected::before { content: '👆'; font-size: 48px; margin-bottom: 16px; }
     .adminLink { position: fixed; right: 14px; bottom: 10px; z-index: 60; opacity: .6; font-size: 12px; }
     .adminLink button { background: none; border: 0; color: #9feaff; text-decoration: underline; cursor: pointer; padding: 0; }
     .modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(7,9,15,.6); backdrop-filter: blur(4px); z-index: 80; opacity: 0; pointer-events: none; transition: opacity .2s ease; }
     .modal.is-open { opacity: 1; pointer-events: auto; }
     .modal .box { width: 100%; max-width: 420px; border-radius: 16px; border: 1px solid var(--border); background: var(--panel); padding: 24px; box-shadow: 0 20px 48px rgba(0,0,0,.5); }
 
+    /* --- ADMIN UI ESPECÍFICO --- */
+    .admin-dashboard { display: grid; grid-template-columns: minmax(320px, 1fr) 2fr; gap: 16px; align-items: start; }
+    .admin-reward-selector { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; }
+    .admin-reward-card { cursor: pointer; text-align: center; border-radius: 8px; border: 2px solid transparent; padding: 4px; transition: all .2s ease; }
+    .admin-reward-card img { border-radius: 6px; width: 100%; aspect-ratio: 4/6; object-fit: cover; }
+    .admin-reward-card span { font-size: 11px; color: var(--muted); }
+    .admin-reward-card.is-selected { border-color: var(--neon-cyan); background-color: rgba(0,229,255,.1); }
+    .admin-reward-card.is-selected span { color: var(--text); }
+    .admin-reward-card:not(.is-selected) { opacity: 0.7; }
+    .admin-reward-card:not(.is-selected):hover { opacity: 1; background-color: rgba(255,255,255,.05); }
+    .list { display: grid; gap: 8px; max-height: calc(100vh - 280px); min-height: 300px; overflow: auto; padding-right: 4px; }
+    .item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; border: 1px solid transparent; background-color: rgba(255,255,255,.03); cursor: pointer; transition: all .2s ease; }
+    .item:hover { background-color: rgba(255,255,255,.06); border-color: var(--border); }
+    .item.is-selected { color: var(--neon-cyan); background-color: rgba(0,229,255,.10); border-color: rgba(0,229,255,.6); }
+    .item.is-selected small { color: var(--neon-cyan); opacity: .8; }
+    .item small { color: var(--muted); }
+    #noUserSelected { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; color: var(--muted); font-size: 16px; text-align: center; }
+    #noUserSelected::before { content: '👆'; font-size: 48px; margin-bottom: 16px; }
+
+    /* --- MEMBER UI ESPECÍFICO --- */
+    .member-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; }
+    .member-virtual-card { position: relative; aspect-ratio: 4 / 6; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.4); transition: transform .3s ease, box-shadow .3s ease; }
+    .member-virtual-card:hover { transform: translateY(-8px) scale(1.03); box-shadow: 0 20px 40px rgba(0,0,0,.5); }
+    .member-virtual-card img { width: 100%; height: 100%; object-fit: cover; }
+    .member-virtual-card .label { position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 10px; font-size: 13px; font-weight: 700; color: #0b0b0b; background: linear-gradient(90deg, var(--neon-yellow), var(--neon-cyan)); text-shadow: 0 1px 1px rgba(0,0,0,.1); }
+    .member-virtual-card:not(.is-owned) { filter: grayscale(1) saturate(0.5) brightness(0.5); opacity: 0.7; }
+    .member-virtual-card.is-owned { filter: none; opacity: 1; }
+
+    /* Media Queries */
     @media (max-width: 980px) { .admin-dashboard { grid-template-columns: 1fr; } }
     @media (max-width: 500px) {
       .art { display: flex; align-items: center; justify-content: center; height: auto; min-height: 90vh; }
@@ -178,9 +128,7 @@
   <div class="wrap">
     <main>
       <section class="landing" id="authGrid">
-        <div class="art" aria-hidden="true">
-          <span class="shine"></span>
-        </div>
+        <div class="art" aria-hidden="true"><span class="shine"></span></div>
         <div class="floating-content">
           <img src="logo.svg" alt="Game Over Logo" class="floating-logo" />
           <div class="loginFloat" role="form" aria-labelledby="loginFormTitle">
@@ -201,11 +149,14 @@
       <div id="views-container" class="hidden">
         <section id="memberGrid">
           <div class="card">
-            <h2>Tus tarjetas</h2><div id="memberCards" class="gallery" style="margin-top: 1rem;"></div>
-            <hr style="border-color: var(--border); margin: 16px 0;">
-            <h2>Comentarios</h2><div id="memberComments" class="list"></div>
-            <hr style="border-color: var(--border); margin: 16px 0;">
-            <button class="btn" id="memberLogoutBtn">Salir</button>
+            <h2>Tus Recompensas</h2>
+            <div id="memberCards" class="member-cards-grid" style="margin-top: 1rem;"></div>
+            <hr style="border-color: var(--border); margin: 24px 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>Comentarios</h2>
+                <button class="btn" id="memberLogoutBtn">Salir</button>
+            </div>
+            <div id="memberComments" class="list" style="margin-top: 1rem;"></div>
           </div>
         </section>
 
@@ -216,7 +167,7 @@
                 <h2>Usuarios</h2>
                 <button class="btn accent" id="openAddUserModalBtn">+ Añadir</button>
               </div>
-              <div class="field"><span class="icon">🔎</span><input class="neo" id="search" type="text" placeholder="Buscar por nombre o teléfono..." /></div>
+              <div class="field"><span class="icon">🔎</span><input class="neo" id="search" type="text" placeholder="Buscar..." /></div>
               <div class="list" id="usersList"></div>
             </div>
             <div class="card">
@@ -227,8 +178,8 @@
                     <small id="editUserPhone" class="muted"></small>
                   </div>
                 </div>
-                <label class="form-label">Tarjetas</label>
-                <div id="editRewards" class="chips"></div>
+                <label class="form-label">Tarjetas del Usuario</label>
+                <div id="editRewards" class="admin-reward-selector"></div>
                 <label class="form-label">Añadir Comentario</label>
                 <div class="field"><span class="icon">💬</span><textarea class="neo" id="editComment" placeholder="Mensaje breve..."></textarea></div>
                 <div class="row" style="margin-top:16px;">
@@ -236,9 +187,9 @@
                   <button class="btn" id="addCommentBtn">Añadir Comentario</button>
                 </div>
                 <hr style="border-color: var(--border); margin: 20px 0;">
-                <div class="secondary-actions">
+                <div style="display: flex; justify-content: space-between;">
                     <button class="btn danger" id="deleteUserBtn">Eliminar Usuario</button>
-                    <button class="btn" id="clearPanelBtn" style="margin-left: auto;">Cerrar Panel</button>
+                    <button class="btn" id="clearPanelBtn">Deseleccionar</button>
                 </div>
               </div>
               <div id="noUserSelected">Selecciona un usuario de la lista<br>para ver sus detalles.</div>
@@ -270,7 +221,7 @@
           <label class="form-label" for="newUserPhone">Teléfono</label>
           <div class="field"><span class="icon">📱</span><input class="neo" id="newUserPhone" type="tel" placeholder="Ej: 50660048606" /></div>
           <label class="form-label">Tarjetas Iniciales</label>
-          <div id="newUserRewards" class="chips"></div>
+          <div id="newUserRewards" class="admin-reward-selector"></div>
           <div class="row" style="margin-top:16px;">
             <button class="btn accent" id="addUserBtn">Crear Usuario</button>
             <button class="btn" id="cancelAddUserBtn">Cancelar</button>
@@ -303,7 +254,7 @@
       { id: "r2", label: "Predator", img: "assets/card2.png", assignable: true },
       { id: "r3", label: "Alien",    img: "assets/card3.png", assignable: true },
       { id: "r4", label: "Jason",    img: "assets/card4.png", assignable: true },
-      { id: "r5", label: "Final Boss. Chucky", img: "assets/card5.png", assignable: false }
+      { id: "r5", label: "Final Boss", img: "assets/card5.png", assignable: false }
     ];
     
     const REWARD_ORDER = Object.fromEntries(REWARDS.map((r, i) => [r.id, i]));
@@ -321,10 +272,7 @@
     try {
       const app = initializeApp(firebaseConfig);
       db = getFirestore(app);
-    } catch (e) {
-      console.error("Error al inicializar Firebase.", e);
-      document.body.innerHTML = '<h1>Error de conexión con la base de datos.</h1>';
-    }
+    } catch (e) { console.error("Error al inicializar Firebase.", e); document.body.innerHTML = '<h1>Error de conexión.</h1>'; }
     
     const UI = {
         authGrid: document.getElementById('authGrid'),
@@ -370,25 +318,13 @@
     let currentCountry = COUNTRIES[0];
     let selectedUserId = null;
     
-    const el = (tag, attrs = {}, children = []) => {
-      const n = document.createElement(tag);
-      Object.entries(attrs).forEach(([k,v]) => {
-        if (k === 'class') n.className = v; else if (k === 'text') n.textContent = v;
-        else if (k === 'dataset') Object.assign(n.dataset, v); else n.setAttribute(k, v);
-      });
-      children.forEach(c => n.append(c)); return n;
-    };
+    const el = (tag, attrs = {}, children = []) => { const n = document.createElement(tag); Object.entries(attrs).forEach(([k,v]) => { if (k === 'class') n.className = v; else if (k === 'text') n.textContent = v; else if (k === 'dataset') Object.assign(n.dataset, v); else n.setAttribute(k, v); }); children.forEach(c => n.append(c)); return n; };
     const getDigits = s => (s || '').replace(/\D+/g, '');
     const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(()=>fn.apply(null,a), ms); }; };
     const sortRewards = (ids) => (ids || []).slice().sort((a,b) => (REWARD_ORDER[a] ?? 99) - (REWARD_ORDER[b] ?? 99));
     const isAssignable = rid => REWARDS.find(r => r.id === rid)?.assignable !== false;
     
-    function toast(msg) {
-      const item = el('div', { class: 'toast-item', text: msg });
-      UI.toast.appendChild(item);
-      setTimeout(() => { item.style.transition = 'opacity .4s ease'; item.style.opacity = '0'; }, 2000);
-      setTimeout(() => item.remove(), 2600);
-    }
+    function toast(msg) { const item = el('div', { class: 'toast-item', text: msg }); UI.toast.appendChild(item); setTimeout(() => { item.style.transition = 'opacity .4s ease'; item.style.opacity = '0'; }, 2000); setTimeout(() => item.remove(), 2600); }
     
     function switchView(viewName) {
         UI.authGrid.classList.add('hidden');
@@ -396,52 +332,49 @@
         if (unsubMember) { unsubMember(); unsubMember = null; }
         if (unsubUsers) { unsubUsers(); unsubUsers = null; }
         clearEditPanel();
-
         switch (viewName) {
-            case 'auth':
-                UI.authGrid.classList.remove('hidden');
-                UI.loginInput.focus(); localStorage.removeItem('memberId'); localStorage.removeItem('admin'); break;
-            case 'member':
-                UI.viewsContainer.classList.remove('hidden'); UI.memberGrid.classList.remove('hidden'); UI.adminGrid.classList.add('hidden');
-                startMemberListener(localStorage.getItem('memberId')); break;
-            case 'admin':
-                UI.viewsContainer.classList.remove('hidden'); UI.adminGrid.classList.remove('hidden'); UI.memberGrid.classList.add('hidden');
-                startUsersListener(); break;
+            case 'auth': UI.authGrid.classList.remove('hidden'); UI.loginInput.focus(); localStorage.removeItem('memberId'); localStorage.removeItem('admin'); break;
+            case 'member': UI.viewsContainer.classList.remove('hidden'); UI.memberGrid.classList.remove('hidden'); UI.adminGrid.classList.add('hidden'); startMemberListener(localStorage.getItem('memberId')); break;
+            case 'admin': UI.viewsContainer.classList.remove('hidden'); UI.adminGrid.classList.remove('hidden'); UI.memberGrid.classList.add('hidden'); startUsersListener(); break;
         }
     }
     
-    function renderRewardChips(container, selected, onToggle, { enforceAssignable = true } = {}) {
+    function renderAdminRewardSelector(container, selected, onToggle) {
       container.innerHTML = '';
-      REWARDS.forEach(r => {
-        const disabled = enforceAssignable && !r.assignable;
-        const chip = el('button', { class: 'chip' + (disabled ? ' lock' : ''), type: 'button' }, [r.label]);
-        if (selected.has(r.id)) chip.classList.add('is-selected');
-        if (!disabled) chip.addEventListener('click', () => onToggle(r.id)); container.appendChild(chip);
+      REWARDS.filter(r => r.assignable).forEach(r => {
+        const card = el('div', { class: 'admin-reward-card', dataset: { id: r.id } }, [ el('img', { src: r.img, alt: r.label }), el('span', { text: r.label }) ]);
+        if (selected.has(r.id)) card.classList.add('is-selected');
+        card.addEventListener('click', () => onToggle(r.id));
+        container.appendChild(card);
       });
     }
 
-    function makeChipToggle(container, selected, opts){
-      const toggle = (rid) => { if (selected.has(rid)) selected.delete(rid); else selected.add(rid); renderRewardChips(container, selected, toggle, opts); };
-      renderRewardChips(container, selected, toggle, opts); return toggle;
+    function makeAdminRewardToggle(container, selected){
+      const toggle = (rid) => { if (selected.has(rid)) selected.delete(rid); else selected.add(rid); renderAdminRewardSelector(container, selected, toggle); };
+      renderAdminRewardSelector(container, selected, toggle); return toggle;
     }
 
     function renderMemberPanels(member) {
-      const rewards = sortRewards(member.rewards || []);
+      const memberRewards = new Set(member.rewards || []);
       const comments = member.comments || [];
       UI.memberCards.innerHTML = '';
-      if (rewards.length === 0) UI.memberCards.appendChild(el('div', { class: 'muted', text: 'Sin tarjetas por ahora.' }));
-      rewards.forEach(rid => {
-        const r = REWARDS.find(x => x.id === rid);
-        const img = el('img', { src: r?.img || '', alt: r?.label || rid, loading: 'lazy', decoding: 'async' });
-        const wrap = el('div', { class: 'cardart' }, [img, el('div', { class: 'label', text: r?.label || rid })]);
-        UI.memberCards.appendChild(wrap);
+      
+      REWARDS.filter(r => r.assignable).forEach(reward => {
+        const isOwned = memberRewards.has(reward.id);
+        const cardEl = el('div', { class: 'member-virtual-card' }, [
+            el('img', { src: reward.img, alt: reward.label }),
+            el('div', { class: 'label', text: reward.label })
+        ]);
+        if (isOwned) cardEl.classList.add('is-owned');
+        UI.memberCards.appendChild(cardEl);
       });
+
       UI.memberComments.innerHTML = '';
       if (comments.length === 0) UI.memberComments.appendChild(el('div', { class: 'muted', text: 'Sin comentarios.' }));
       comments.slice().reverse().forEach(c => {
         const item = el('div', { class: 'item' }, [
           el('div', {}, [ el('div', { text: c.text || '' }), el('small', {}, [new Date(c.ts || Date.now()).toLocaleString()]) ]),
-          el('div', { class: 'chip is-selected' }, [c.author || 'admin'])
+          el('div', { class: 'chip is-selected', text: c.author || 'admin' })
         ]);
         UI.memberComments.appendChild(item);
       });
@@ -453,13 +386,9 @@
       cacheUsers
         .filter(u => !q || (u.name || '').toLowerCase().includes(q) || (u.phone || '').includes(getDigits(q)))
         .forEach(u => {
-          const phoneTxt = u.phone ? `📱 ${u.phone}` : u.id;
-          const copyElem = el('small', { class: 'copyable', dataset: { phone: (u.phone || '') }, role: 'button', tabindex: '0' }, [ phoneTxt, ` • ${u.rewards?.length || 0} tarjetas` ]);
-          const row = el('div', { class: 'item', 'data-id': u.id }, [ el('div', {}, [ el('div', { text: u.name || u.id }), copyElem ]) ]);
+          const row = el('div', { class: 'item', 'data-id': u.id }, [ el('div', {}, [ el('div', { text: u.name || u.id }), el('small', { text: u.phone || '' }) ]) ]);
           if (u.id === selectedUserId) row.classList.add('is-selected');
           row.addEventListener('click', () => selectUser(u.id));
-          const copyAction = async (e) => { e.stopPropagation(); const p = copyElem.dataset.phone || ''; if (!p || !navigator.clipboard) return; try { await navigator.clipboard.writeText(p); toast('Teléfono copiado'); } catch(_) { toast('Error al copiar'); } };
-          copyElem.addEventListener('click', copyAction); copyElem.addEventListener('keydown', (e) => { if(e.key === 'Enter') copyAction(e); });
           UI.usersList.appendChild(row);
         });
     }
@@ -485,7 +414,6 @@
       if (unsubEdit) unsubEdit();
       selectedUserId = id;
       renderUsersList();
-
       const user = cacheUsers.find(u => u.id === id);
       if (!user) { clearEditPanel(); return; }
 
@@ -493,16 +421,14 @@
       UI.editPanel.classList.remove('hidden');
       UI.editUserTitle.textContent = user.name || user.id;
       UI.editUserPhone.textContent = user.phone || '';
-      
       const userRef = doc(db, 'users', id);
       let selectedRewards = new Set();
-      makeChipToggle(UI.editRewards, selectedRewards, { enforceAssignable: true });
-
+      makeAdminRewardToggle(UI.editRewards, selectedRewards);
       unsubEdit = onSnapshot(userRef, (doc) => {
         if (!doc.exists()) { toast('Usuario eliminado remotamente.'); clearEditPanel(); return; }
         const data = doc.data();
         selectedRewards = new Set(sortRewards((data.rewards || []).filter(isAssignable)));
-        makeChipToggle(UI.editRewards, selectedRewards, { enforceAssignable: true });
+        makeAdminRewardToggle(UI.editRewards, selectedRewards);
       });
     }
 
@@ -518,7 +444,7 @@
         let selected = new Set();
         const openModal = () => {
           UI.newUserName.value = ''; UI.newUserPhone.value = ''; selected.clear();
-          makeChipToggle(UI.newUserRewards, selected, { enforceAssignable: true });
+          makeAdminRewardToggle(UI.newUserRewards, selected);
           UI.addUserModal.classList.add('is-open'); UI.newUserName.focus();
         };
         const closeModal = () => UI.addUserModal.classList.remove('is-open');
@@ -534,7 +460,7 @@
             try {
                 const docSnap = await getDoc(userRef);
                 if (docSnap.exists()) { toast('Ese teléfono ya está registrado'); return; }
-                await setDoc(userRef, { name, phone, rewards: sortRewards(Array.from(selected).filter(isAssignable)), comments: [], createdAt: Date.now() });
+                await setDoc(userRef, { name, phone, rewards: sortRewards(Array.from(selected)), comments: [], createdAt: Date.now() });
                 toast('Usuario creado con éxito'); closeModal();
             } catch (e) { console.error("Error creando usuario:", e); toast('Error al crear usuario'); }
         };
@@ -542,8 +468,8 @@
     
     function buildIdFromInput() { const d = getDigits(UI.loginInput.value); return !d ? '' : d.startsWith(currentCountry.cc) ? d : currentCountry.cc + d; }
     function setCountry(country) { currentCountry = country; UI.ccCode.textContent = country.code; UI.ccDial.textContent = `+${country.cc}`; UI.loginInput.placeholder = country.placeholder || '123 456 789'; localStorage.setItem('lastCountryCode', country.code); }
-    function buildCCMenu() { UI.ccMenu.innerHTML = ''; COUNTRIES.forEach(c => { const i = el('div', { class: 'ccItem', dataset: { code: c.code } }, [ el('span', { text: c.name }), el('span', { text: `+${c.cc}` }) ]); i.addEventListener('click', () => { setCountry(c); UI.ccMenu.classList.add('hidden'); UI.ccBtn.setAttribute('aria-expanded', 'false'); UI.loginInput.focus(); }); UI.ccMenu.appendChild(i); }); }
-    async function doLogin() { const id = buildIdFromInput(); if (!id) { UI.loginMsg.textContent = 'Ingresa tu teléfono.'; return; } UI.loginMsg.textContent = 'Verificando...'; try { const ref = doc(db, 'users', id); const snap = await getDoc(ref); if (snap.exists()) { localStorage.setItem('memberId', id); switchView('member'); } else { UI.loginMsg.textContent = 'No se encontró un usuario con ese teléfono.'; } } catch (e) { console.error("Error en login:", e); UI.loginMsg.textContent = 'Error de conexión.'; } }
+    function buildCCMenu() { UI.ccMenu.innerHTML = ''; COUNTRIES.forEach(c => { const i = el('div', { class: 'ccItem' }, [ el('span', { text: c.name }), el('span', { text: `+${c.cc}` }) ]); i.addEventListener('click', () => { setCountry(c); UI.ccMenu.classList.add('hidden'); UI.ccBtn.setAttribute('aria-expanded', 'false'); UI.loginInput.focus(); }); UI.ccMenu.appendChild(i); }); }
+    async function doLogin() { const id = buildIdFromInput(); if (!id) { UI.loginMsg.textContent = 'Ingresa tu teléfono.'; return; } UI.loginMsg.textContent = 'Verificando...'; try { const ref = doc(db, 'users', id); const snap = await getDoc(ref); if (snap.exists()) { localStorage.setItem('memberId', id); switchView('member'); } else { UI.loginMsg.textContent = 'No se encontró este usuario.'; } } catch (e) { console.error("Error en login:", e); UI.loginMsg.textContent = 'Error de conexión.'; } }
     function initGyroscope() { if (!('ontouchstart' in window) || !window.DeviceOrientationEvent) return; const h = (e) => { const { beta, gamma } = e; const y = (gamma || 0)/3.0; const x = ((beta || 0)-45)/-3.0; const m=8; const fx=Math.max(-m,Math.min(m,x)); const fy=Math.max(-m,Math.min(m,y)); requestAnimationFrame(()=>{ UI.art.style.transform=`rotateX(${fx}deg) rotateY(${fy}deg)`; UI.floatingLogo.style.transform=`translateX(-50%) rotateX(${-fx/2}deg) rotateY(${-fy/2}deg) translateZ(20px)`; }); }; if(typeof DeviceOrientationEvent.requestPermission==='function'){ const r=()=>{ DeviceOrientationEvent.requestPermission().then(p=>{ if(p==='granted') window.addEventListener('deviceorientation',h); }).catch(console.error); }; document.body.addEventListener('touchstart',r,{once:true}); } else { window.addEventListener('deviceorientation',h); } }
     
     function init() {
@@ -558,7 +484,7 @@
         UI.search.addEventListener('input', debounce(renderUsersList, 200));
         UI.clearPanelBtn.addEventListener('click', clearEditPanel);
         
-        UI.saveRewardsBtn.onclick = async () => { if(!selectedUserId)return; const ref=doc(db,'users',selectedUserId); let sR=new Set(); UI.editRewards.querySelectorAll('.is-selected').forEach(c=>{const r=REWARDS.find(r=>r.label===c.textContent); if(r&&isAssignable(r.id))sR.add(r.id);}); try{await updateDoc(ref,{rewards:sortRewards(Array.from(sR))});toast('Tarjetas guardadas');}catch(e){console.error(e);toast('Error al guardar');}};
+        UI.saveRewardsBtn.onclick = async () => { if(!selectedUserId)return; const ref=doc(db,'users',selectedUserId); let sR=new Set(); UI.editRewards.querySelectorAll('.is-selected').forEach(c => sR.add(c.dataset.id)); try{await updateDoc(ref,{rewards:sortRewards(Array.from(sR))});toast('Tarjetas guardadas');}catch(e){console.error(e);toast('Error al guardar');}};
         UI.addCommentBtn.onclick = async () => { if(!selectedUserId)return; const t=UI.editComment.value.trim(); if(!t){toast('Escribe un comentario');return;} const ref=doc(db,'users',selectedUserId); try{await updateDoc(ref,{comments:arrayUnion({text:t,ts:Date.now(),author:'admin'})});UI.editComment.value='';toast('Comentario agregado');}catch(e){console.error(e);toast('Error al comentar');}};
         UI.deleteUserBtn.onclick = async () => { if(!selectedUserId)return; const u=cacheUsers.find(u=>u.id===selectedUserId); if(!confirm(`¿Eliminar a ${u?.name || 'este usuario'}?`))return; const ref=doc(db,'users',selectedUserId); if(unsubEdit)unsubEdit(); try{await deleteDoc(ref);toast('Usuario eliminado');clearEditPanel();}catch(e){console.error(e);toast('Error al eliminar');}};
 
