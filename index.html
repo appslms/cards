@@ -42,6 +42,25 @@
 
     .art { perspective: 1000px; transform-style: preserve-3d; width: 100%; max-width: 760px; height: clamp(520px, 80vh, 700px); border-radius: 22px; overflow: hidden; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)); z-index: 1; transition: transform 0.1s ease-out; }
     .art::before { content:""; position:absolute; inset:0; background: radial-gradient(80% 40% at 20% 10%, rgba(0,229,255,.14), transparent 60%), radial-gradient(60% 40% at 70% 80%, rgba(255,43,191,.16), transparent 60%), url('assets/background.png') center / cover no-repeat; filter: brightness(.7) contrast(1); z-index: 0; pointer-events:none; }
+    
+    /* -- INICIO: ESTILOS PARA EL EFECTO GLITCH EN LA TARJETA -- */
+    .art::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: inherit;
+      filter: url(#glitch-filter);
+      opacity: 0;
+      animation: glitch-burst 8s steps(1) infinite;
+    }
+
+    @keyframes glitch-burst {
+      0%, 10% { opacity: 0; }
+      10.1%, 11.5% { opacity: 1; }
+      11.6%, 100% { opacity: 0; }
+    }
+    /* -- FIN: ESTILOS PARA EL EFECTO GLITCH EN LA TARJETA -- */
+    
     .shine { position: absolute; inset: -20%; background: radial-gradient(40% 12% at var(--gx,30%) var(--gy,10%), rgba(255,255,255,.10), transparent 60%), linear-gradient(115deg, transparent 40%, rgba(255,255,255,.06) 50%, transparent 60%); mix-blend-mode: screen; pointer-events: none; z-index: 2; opacity:.9; transition: opacity .2s ease; }
     .floating-content { position: relative; z-index: 10; width: 100%; height: 100%; max-width: 760px; max-height: clamp(520px, 80vh, 700px); pointer-events: none; }
     .floating-content > * { pointer-events: auto; }
@@ -160,6 +179,16 @@
   </style>
 </head>
 <body>
+  <!-- INICIO: FILTRO SVG PARA EL GLITCH -->
+  <svg style="position:absolute; width:0; height:0;">
+    <filter id="glitch-filter">
+      <feTurbulence type="fractalNoise" baseFrequency="0.005 0.005" numOctaves="1" result="warp" />
+      <feDisplacementMap xChannelSelector="R" yChannelSelector="G" scale="30" in="SourceGraphic" in2="warp" />
+      <animate attributeName="baseFrequency" from="0.005 0.005" to="0.01 0.015" dur="150ms" repeatCount="4" />
+    </filter>
+  </svg>
+  <!-- FIN: FILTRO SVG -->
+
   <div id="poison-overlay" class="hidden">
     <span>Has sido envenenado ☠️</span>
     <button id="acceptPoisonBtn" class="btn danger">Aceptar Destino</button>
@@ -523,7 +552,7 @@
       UI.editPanel.classList.remove('hidden');
       UI.editUserName.value = user.name || '';
       UI.editUserNumericId.value = user.numericId || '';
-      UI.editUserPhone.value = user.phone || '';
+      UI.editUserPhone.value = user.phone ? getDigits(user.phone).substring(3) : '';
 
       const userRef = doc(db, 'users', id);
       let selectedRewards = new Set();
@@ -565,7 +594,7 @@
             const phone = `506${getDigits(UI.newUserPhone.value)}`;
             const initialRewards = Array.from(UI.newUserRewards.querySelectorAll('.is-selected')).map(el => el.dataset.id);
 
-            if (!name || !numericId || !phone) { toast('Todos los campos son requeridos.', 'error'); return; }
+            if (!name || !numericId || phone.length <= 3) { toast('Todos los campos son requeridos.', 'error'); return; }
 
             const userRef = doc(db, 'users', phone);
             try {
@@ -599,7 +628,7 @@
         const newPhone = `506${getDigits(UI.editUserPhone.value)}`;
         const newRewards = sortRewards(Array.from(UI.editRewards.querySelectorAll('.is-selected')).map(el => el.dataset.id));
 
-        if (!newName || !newNumericId || !newPhone) { toast('Nombre, ID y teléfono no pueden estar vacíos.', 'error'); return; }
+        if (!newName || !newNumericId || newPhone.length <= 3) { toast('Nombre, ID y teléfono no pueden estar vacíos.', 'error'); return; }
         
         const updatedData = { ...originalUser, name: newName, numericId: newNumericId, phone: newPhone, rewards: newRewards };
         
