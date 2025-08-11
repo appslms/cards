@@ -400,9 +400,25 @@
         if (unsubUsers) { unsubUsers(); unsubUsers = null; }
         clearEditPanel();
         switch (viewName) {
-            case 'auth': UI.authGrid.classList.remove('hidden'); UI.loginInput.focus(); localStorage.removeItem('memberId'); localStorage.removeItem('admin'); break;
-            case 'member': UI.viewsContainer.classList.remove('hidden'); UI.memberGrid.classList.remove('hidden'); UI.adminGrid.classList.add('hidden'); startMemberListener(localStorage.getItem('memberId')); break;
-            case 'admin': UI.viewsContainer.classList.remove('hidden'); UI.adminGrid.classList.remove('hidden'); UI.memberGrid.classList.add('hidden'); startUsersListener(); break;
+            case 'auth':
+                UI.authGrid.classList.remove('hidden');
+                UI.loginInput.focus();
+                UI.loginMsg.textContent = '';
+                localStorage.removeItem('memberId');
+                localStorage.removeItem('admin');
+                break;
+            case 'member':
+                UI.viewsContainer.classList.remove('hidden');
+                UI.memberGrid.classList.remove('hidden');
+                UI.adminGrid.classList.add('hidden');
+                startMemberListener(localStorage.getItem('memberId'));
+                break;
+            case 'admin':
+                UI.viewsContainer.classList.remove('hidden');
+                UI.adminGrid.classList.remove('hidden');
+                UI.memberGrid.classList.add('hidden');
+                startUsersListener();
+                break;
         }
     }
     
