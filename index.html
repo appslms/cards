@@ -55,7 +55,7 @@
     .goBtn { border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; cursor: pointer; font-weight: 800; background: linear-gradient(180deg, rgba(0,229,255,.22), rgba(0,229,255,.08)); color: var(--text); font-size: 18px; line-height: 1; }
     .loginMeta { display:flex; gap:12px; align-items:center; color: var(--muted); font-size: 13px; min-height: 18px; }
     .hidden { display: none !important; }
-    .toast { position: fixed; right: 16px; top: 16px; display: grid; gap: 8px; z-index: 999; }
+    .toast { position: fixed; right: 16px; top: 16px; display: grid; gap: 8px; z-index: 9999; }
     .toast-item { background: #0b1120; border: 1px solid rgba(255,255,255,.14); padding: 10px 16px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,.35); animation: card-in .3s ease; display: flex; align-items: center; gap: 10px; }
     .toast-item::before { font-size: 20px; }
     .toast-item.is-success { background-color: rgba(30, 192, 120, .2); border-color: rgba(30, 192, 120, .5); }
@@ -70,8 +70,9 @@
 
     /* --- ESTILOS GENERALES Y ADMIN UI --- */
     .card { border: 1px solid var(--border); border-radius: 18px; padding: 24px; background: var(--panel); box-shadow: 0 20px 48px rgba(0,0,0,.45); }
-    .card h2 { margin: 0; font-size: 20px; color: var(--text); }
+    .card h2 { margin: 0 0 20px 0; font-size: 20px; color: var(--text); }
     .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .card-header h2 { margin-bottom: 0; }
     .form-label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--muted-bright); margin: 16px 0 8px 0; }
     .btn { display: inline-flex; gap: 8px; align-items: center; justify-content: center; padding: 10px 14px; color: var(--text); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; text-decoration: none; transition: all .2s ease; background-color: var(--panel); }
     .btn:hover { filter: brightness(1.1); box-shadow: var(--glow); }
@@ -125,20 +126,19 @@
     .member-virtual-card .label { position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 10px; font-size: 13px; font-weight: 700; color: #0b0b0b; background: linear-gradient(90deg, var(--neon-yellow), var(--neon-cyan)); text-shadow: 0 1px 1px rgba(0,0,0,.1); }
     .member-virtual-card:not(.is-owned) { filter: grayscale(1) saturate(0.5) brightness(0.5); opacity: 0.7; }
     .member-virtual-card.is-owned { filter: none; opacity: 1; }
+    .progress-tracker { display: flex; gap: 8px; margin-bottom: 24px; }
+    .progress-cell { flex: 1; height: 10px; border: 1px solid var(--border); border-radius: 4px; background-color: rgba(255,255,255,.05); transition: background-color .3s ease; }
+    .progress-cell.is-filled { background-color: var(--neon-cyan); box-shadow: 0 0 8px var(--neon-cyan); }
+
 
     /* --- EFECTO VENENO / GLITCH --- */
     body.is-poisoned .bg-tech {
         background: linear-gradient(rgba(40,7,15,.85), rgba(40,7,15,.9)), url('assets/background.png') center / cover no-repeat fixed;
         filter: saturate(1.5) brightness(.7) hue-rotate(330deg);
     }
+    #poison-overlay { position: fixed; inset: 0; z-index: 9998; background: rgba(100,0,0,.3); backdrop-filter: blur(2px); display: grid; place-items: center; color: #ffc2c2; text-align: center; font-size: clamp(24px, 8vw, 48px); font-weight: 800; text-shadow: 0 0 10px red; pointer-events: auto; }
     body.is-poisoned main { animation: glitch-anim .8s infinite steps(2, end) alternate; }
     @keyframes glitch-anim { 0%, 100% { transform: translate(0); } 20% { transform: translate(-5px, 5px); } 40% { transform: translate(-5px, -5px); } 60% { transform: translate(5px, 5px); } 80% { transform: translate(5px, -5px); } }
-    body.is-poisoned main::before, body.is-poisoned main::after { content: ''; position: fixed; inset: 0; background: inherit; z-index: 1000; opacity: .8; pointer-events: none; }
-    body.is-poisoned main::before { animation: glitch-top 1s linear infinite; clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%); }
-    body.is-poisoned main::after { animation: glitch-bottom 1.5s linear infinite; clip-path: polygon(0 67%, 100% 67%, 100% 100%, 0 100%); }
-    @keyframes glitch-top { 2%,64%{transform:translate(2px,-2px)} 4%,60%{transform:translate(-2px,2px)} 62%{transform:translate(13px,-1px) skew(-13deg)} }
-    @keyframes glitch-bottom { 2%,64%{transform:translate(-2px,0)} 4%,60%{transform:translate(-2px,0)} 62%{transform:translate(-22px,5px) skew(21deg)} }
-
 
     /* Media Queries */
     @media (max-width: 980px) { .admin-dashboard { grid-template-columns: 1fr; } }
@@ -152,6 +152,7 @@
   </style>
 </head>
 <body>
+  <div id="poison-overlay" class="hidden">Has sido envenenado ☠️</div>
   <div class="bg-tech" aria-hidden="true"></div>
 
   <div class="wrap">
@@ -178,7 +179,7 @@
         <section id="memberGrid">
           <div class="card">
             <h2 id="memberGridTitle">Tus Recompensas</h2>
-            <p id="memberProgressText" style="color: var(--muted); margin-top: -12px; margin-bottom: 20px;"></p>
+            <div id="memberProgressTracker" class="progress-tracker"></div>
             <div id="memberCards" class="member-cards-grid"></div>
             <hr style="border-color: var(--border); margin: 24px 0;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -202,28 +203,32 @@
             <div class="card">
               <div id="editPanel" class="hidden">
                 <div class="card-header">
-                  <div>
-                    <h2 id="editUserTitle"></h2>
-                    <small id="editUserPhone" class="muted"></small>
-                  </div>
+                  <h2>Editar Usuario</h2>
                 </div>
+                <label class="form-label" for="editUserName">Nombre</label>
+                <div class="field"><span class="icon">👤</span><input class="neo" id="editUserName" type="text" /></div>
+                <label class="form-label" for="editUserNumericId">ID Numérico</label>
+                <div class="field"><span class="icon">#️⃣</span><input class="neo" id="editUserNumericId" type="text" /></div>
+                <label class="form-label" for="editUserPhone">Teléfono</label>
+                <div class="field"><span class="icon">📱</span><input class="neo" id="editUserPhone" type="tel" /></div>
+                
                 <label class="form-label">Tarjetas del Usuario</label>
                 <div id="editRewards" class="admin-reward-selector"></div>
-                
-                <label class="form-label">Añadir Comentario</label>
-                <div class="field"><span class="icon">💬</span><textarea class="neo" id="editComment" placeholder="Mensaje breve..."></textarea></div>
-                <div class="row" style="margin-top:16px;">
-                  <button class="btn brand" id="saveRewardsBtn">Guardar Tarjetas</button>
-                  <button class="btn" id="addCommentBtn">Añadir Comentario</button>
+                <div style="margin-top: 16px;">
+                  <button class="btn brand" id="saveUserBtn" style="width: 100%;">Guardar Cambios</button>
                 </div>
                 
                 <hr style="border-color: var(--border); margin: 20px 0;">
-                <label class="form-label">Acciones de Usuario</label>
+                <label class="form-label">Acciones</label>
                 <div class="row">
+                    <button class="btn" id="addCommentBtn">Añadir Comentario</button>
                     <button class="btn danger" id="poisonBtn">☠️ Envenenar</button>
-                    <button class="btn danger" id="deleteUserBtn">Eliminar Usuario</button>
                 </div>
-                <div style="text-align: center; margin-top: 20px;">
+                 <div class="field" style="margin-top: 8px;"><span class="icon">💬</span><textarea class="neo" id="editComment" placeholder="Añadir comentario..."></textarea></div>
+
+                <hr style="border-color: var(--border); margin: 20px 0;">
+                <div class="row">
+                    <button class="btn danger" id="deleteUserBtn">Eliminar Usuario</button>
                     <button class="btn" id="clearPanelBtn">Cerrar Panel</button>
                 </div>
               </div>
@@ -268,8 +273,8 @@
        <div id="cardDetailModal" class="modal" role="dialog" aria-modal="true">
         <div class="box" style="text-align: center;">
             <img id="cardDetailImg" src="" alt="Detalle de la tarjeta" style="width: 200px; border-radius: 10px; margin-bottom: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.4);">
-            <h2 id="cardDetailTitle"></h2>
-            <p id="cardDetailDesc" style="color: var(--muted); margin-top: 8px; max-width: 320px; margin-left: auto; margin-right: auto;"></p>
+            <h2 id="cardDetailTitle" style="margin-bottom: 8px;"></h2>
+            <p id="cardDetailDesc" style="color: var(--muted); max-width: 320px; margin-left: auto; margin-right: auto;"></p>
             <button class="btn" id="closeCardDetailBtn" style="margin-top: 20px;">Cerrar</button>
         </div>
     </div>
@@ -329,35 +334,28 @@
         adminPwd: document.getElementById('adminPwd'), adminEnter: document.getElementById('adminEnter'),
         adminCancel: document.getElementById('adminCancel'), adminMsg: document.getElementById('adminMsg'),
         memberGrid: document.getElementById('memberGrid'), memberGridTitle: document.getElementById('memberGridTitle'),
-        memberProgressText: document.getElementById('memberProgressText'), memberCards: document.getElementById('memberCards'),
+        memberProgressTracker: document.getElementById('memberProgressTracker'), memberCards: document.getElementById('memberCards'),
         memberComments: document.getElementById('memberComments'), memberLogoutBtn: document.getElementById('memberLogoutBtn'),
         adminGrid: document.getElementById('adminGrid'),
         openAddUserModalBtn: document.getElementById('openAddUserModalBtn'),
         addUserModal: document.getElementById('addUserModal'),
-        newUserName: document.getElementById('newUserName'),
-        newUserNumericId: document.getElementById('newUserNumericId'),
-        newUserPhone: document.getElementById('newUserPhone'),
-        newUserRewards: document.getElementById('newUserRewards'),
-        addUserBtn: document.getElementById('addUserBtn'),
-        cancelAddUserBtn: document.getElementById('cancelAddUserBtn'),
-        search: document.getElementById('search'),
-        usersList: document.getElementById('usersList'),
+        newUserName: document.getElementById('newUserName'), newUserNumericId: document.getElementById('newUserNumericId'),
+        newUserPhone: document.getElementById('newUserPhone'), newUserRewards: document.getElementById('newUserRewards'),
+        addUserBtn: document.getElementById('addUserBtn'), cancelAddUserBtn: document.getElementById('cancelAddUserBtn'),
+        search: document.getElementById('search'), usersList: document.getElementById('usersList'),
         editPanel: document.getElementById('editPanel'),
-        editUserTitle: document.getElementById('editUserTitle'),
+        editUserName: document.getElementById('editUserName'), editUserNumericId: document.getElementById('editUserNumericId'),
         editUserPhone: document.getElementById('editUserPhone'),
-        editRewards: document.getElementById('editRewards'),
-        editComment: document.getElementById('editComment'),
-        saveRewardsBtn: document.getElementById('saveRewardsBtn'),
+        editRewards: document.getElementById('editRewards'), editComment: document.getElementById('editComment'),
+        saveUserBtn: document.getElementById('saveUserBtn'),
         addCommentBtn: document.getElementById('addCommentBtn'),
-        poisonBtn: document.getElementById('poisonBtn'),
-        deleteUserBtn: document.getElementById('deleteUserBtn'),
-        clearPanelBtn: document.getElementById('clearPanelBtn'),
-        noUserSelected: document.getElementById('noUserSelected'),
+        poisonBtn: document.getElementById('poisonBtn'), deleteUserBtn: document.getElementById('deleteUserBtn'),
+        clearPanelBtn: document.getElementById('clearPanelBtn'), noUserSelected: document.getElementById('noUserSelected'),
         adminLogoutBtn: document.getElementById('adminLogoutBtn'),
         cardDetailModal: document.getElementById('cardDetailModal'), cardDetailImg: document.getElementById('cardDetailImg'),
         cardDetailTitle: document.getElementById('cardDetailTitle'), cardDetailDesc: document.getElementById('cardDetailDesc'),
         closeCardDetailBtn: document.getElementById('closeCardDetailBtn'),
-        toast: document.getElementById('toast'),
+        poisonOverlay: document.getElementById('poison-overlay'), toast: document.getElementById('toast'),
     };
 
     let unsubMember = null, unsubUsers = null, unsubEdit = null;
@@ -374,6 +372,7 @@
     
     function switchView(viewName) {
         document.body.classList.remove('is-poisoned');
+        UI.poisonOverlay.classList.add('hidden');
         UI.authGrid.classList.add('hidden');
         UI.viewsContainer.classList.add('hidden');
         if (unsubMember) { unsubMember(); unsubMember = null; }
@@ -404,11 +403,16 @@
     function renderMemberPanels(member) {
       const memberRewards = new Set(member.rewards || []);
       const comments = member.comments || [];
-      const totalRewards = REWARDS.length;
-      const hasAllRewards = memberRewards.size === totalRewards;
+      const hasAllRewards = memberRewards.size === REWARDS.length;
 
       UI.memberGridTitle.textContent = hasAllRewards ? `🏆 ¡COLECCIÓN COMPLETA! 🏆` : `Recompensas de ${member.name}`;
-      UI.memberProgressText.textContent = `Has coleccionado ${memberRewards.size} de ${totalRewards} cartas.`;
+      
+      UI.memberProgressTracker.innerHTML = '';
+      REWARDS.forEach(reward => {
+        const cell = el('div', { class: 'progress-cell' });
+        if(memberRewards.has(reward.id)) cell.classList.add('is-filled');
+        UI.memberProgressTracker.appendChild(cell);
+      });
 
       UI.memberCards.innerHTML = '';
       REWARDS.forEach(reward => {
@@ -427,10 +431,7 @@
       } else {
         comments.slice().reverse().forEach(c => {
           const item = el('div', { class: 'comment-item' }, [
-              el('div', { class: 'comment-header' }, [
-                  el('span', { class: 'comment-author', text: c.author || 'Admin' }),
-                  el('span', { text: new Date(c.ts || Date.now()).toLocaleString() })
-              ]),
+              el('div', { class: 'comment-header' }, [ el('span', { class: 'comment-author', text: c.author || 'Admin' }), el('span', { text: new Date(c.ts || Date.now()).toLocaleString() }) ]),
               el('p', { class: 'comment-text', text: c.text || '' })
           ]);
           UI.memberComments.appendChild(item);
@@ -462,7 +463,13 @@
       unsubMember = onSnapshot(doc(db, 'users', memberId), (doc) => {
         if (!doc.exists()) { toast('Este usuario ya no existe.', 'error'); switchView('auth'); return; }
         const memberData = { id: doc.id, ...doc.data() };
-        if (memberData.isPoisoned) { document.body.classList.add('is-poisoned'); } else { document.body.classList.remove('is-poisoned'); }
+        if (memberData.isPoisoned) {
+          document.body.classList.add('is-poisoned');
+          UI.poisonOverlay.classList.remove('hidden');
+        } else {
+          document.body.classList.remove('is-poisoned');
+          UI.poisonOverlay.classList.add('hidden');
+        }
         renderMemberPanels(memberData);
       }, err => { console.error('member onSnapshot', err); toast('Error de conexión.', 'error'); });
     }
@@ -473,6 +480,9 @@
       unsubUsers = onSnapshot(usersQuery, (snap) => {
         cacheUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         renderUsersList();
+        if (selectedUserId && !cacheUsers.some(u => u.id === selectedUserId)) {
+          clearEditPanel();
+        }
       }, err => { console.error('users onSnapshot', err); toast('Error al cargar usuarios.', 'error'); });
     }
 
@@ -485,8 +495,10 @@
 
       UI.noUserSelected.classList.add('hidden');
       UI.editPanel.classList.remove('hidden');
-      UI.editUserTitle.textContent = `[${user.numericId || '???'}] ${user.name || user.id}`;
-      UI.editUserPhone.textContent = user.phone || '';
+      UI.editUserName.value = user.name || '';
+      UI.editUserNumericId.value = user.numericId || '';
+      UI.editUserPhone.value = user.phone || '';
+
       const userRef = doc(db, 'users', id);
       let selectedRewards = new Set();
       makeAdminRewardToggle(UI.editRewards, selectedRewards);
@@ -549,6 +561,55 @@
       UI.cardDetailModal.classList.add('is-open');
     }
 
+    async function handleSaveUser() {
+        if (!selectedUserId) return;
+
+        const originalUser = cacheUsers.find(u => u.id === selectedUserId);
+        if (!originalUser) { toast('No se encontró el usuario original.', 'error'); return; }
+
+        const newName = UI.editUserName.value.trim();
+        const newNumericId = UI.editUserNumericId.value.trim();
+        const newPhone = getDigits(UI.editUserPhone.value);
+        const newRewards = sortRewards(Array.from(UI.editRewards.querySelectorAll('.is-selected')).map(el => el.dataset.id));
+
+        if (!newName || !newNumericId || !newPhone) { toast('Nombre, ID y teléfono no pueden estar vacíos.', 'error'); return; }
+        
+        const updatedData = { ...originalUser, name: newName, numericId: newNumericId, phone: newPhone, rewards: newRewards };
+        
+        // Caso 1: El teléfono (ID) no cambió. Es una simple actualización.
+        if (newPhone === selectedUserId) {
+            try {
+                await updateDoc(doc(db, 'users', selectedUserId), { name: newName, numericId: newNumericId, rewards: newRewards });
+                toast('Usuario actualizado con éxito.', 'success');
+            } catch (e) { console.error(e); toast('Error al actualizar usuario.', 'error'); }
+            return;
+        }
+
+        // Caso 2: El teléfono (ID) cambió. Operación compleja: Crear nuevo, borrar viejo.
+        if (!confirm(`Estás a punto de cambiar el teléfono (ID) del usuario. Esta es una operación compleja y puede requerir que el usuario vuelva a iniciar sesión.\n\n¿Deseas continuar?`)) return;
+
+        try {
+            const newDocRef = doc(db, 'users', newPhone);
+            const newDocSnap = await getDoc(newDocRef);
+            if (newDocSnap.exists()) {
+                toast('El nuevo número de teléfono ya está registrado por otro usuario.', 'error');
+                return;
+            }
+            
+            // Crear el nuevo documento con todos los datos
+            await setDoc(newDocRef, updatedData);
+            
+            // Eliminar el documento antiguo
+            await deleteDoc(doc(db, 'users', selectedUserId));
+
+            toast('Usuario actualizado y migrado a nuevo ID con éxito.', 'success');
+            clearEditPanel(); // Limpia y deselecciona para forzar la actualización de la lista.
+        } catch (e) {
+            console.error(e);
+            toast('Error crítico durante la migración de usuario.', 'error');
+        }
+    }
+    
     function buildIdFromInput() { const d = getDigits(UI.loginInput.value); return !d ? '' : d.startsWith(currentCountry.cc) ? d : currentCountry.cc + d; }
     function setCountry(country) { currentCountry = country; UI.ccCode.textContent = country.code; UI.ccDial.textContent = `+${country.cc}`; UI.loginInput.placeholder = country.placeholder || '123 456 789'; localStorage.setItem('lastCountryCode', country.code); }
     function buildCCMenu() { UI.ccMenu.innerHTML = ''; COUNTRIES.forEach(c => { const i = el('div', { class: 'ccItem' }, [ el('span', { text: c.name }), el('span', { text: `+${c.cc}` }) ]); i.addEventListener('click', () => { setCountry(c); UI.ccMenu.classList.add('hidden'); UI.ccBtn.setAttribute('aria-expanded', 'false'); UI.loginInput.focus(); }); UI.ccMenu.appendChild(i); }); }
@@ -567,7 +628,7 @@
         UI.clearPanelBtn.addEventListener('click', clearEditPanel);
         UI.closeCardDetailBtn.addEventListener('click', () => UI.cardDetailModal.classList.remove('is-open'));
         
-        UI.saveRewardsBtn.onclick = async () => { if(!selectedUserId)return; const ref=doc(db,'users',selectedUserId); let sR=new Set(); UI.editRewards.querySelectorAll('.is-selected').forEach(c => sR.add(c.dataset.id)); try{await updateDoc(ref,{rewards:sortRewards(Array.from(sR))});toast('Tarjetas guardadas', 'success');}catch(e){console.error(e);toast('Error al guardar', 'error');}};
+        UI.saveUserBtn.addEventListener('click', handleSaveUser);
         UI.addCommentBtn.onclick = async () => { if(!selectedUserId)return; const t=UI.editComment.value.trim(); if(!t){toast('Escribe un comentario', 'error');return;} const ref=doc(db,'users',selectedUserId); try{await updateDoc(ref,{comments:arrayUnion({text:t,ts:Date.now(),author:'admin'})});UI.editComment.value='';toast('Comentario agregado', 'success');}catch(e){console.error(e);toast('Error al comentar', 'error');}};
         UI.deleteUserBtn.onclick = async () => { if(!selectedUserId)return; const u=cacheUsers.find(u=>u.id===selectedUserId); if(!confirm(`¿Eliminar a ${u?.name || 'este usuario'}? Esta acción no se puede deshacer.`))return; const ref=doc(db,'users',selectedUserId); if(unsubEdit)unsubEdit(); try{await deleteDoc(ref);toast('Usuario eliminado', 'success');clearEditPanel();}catch(e){console.error(e);toast('Error al eliminar', 'error');}};
         UI.poisonBtn.onclick = async () => { if(!selectedUserId) return; const user = cacheUsers.find(u => u.id === selectedUserId); if(!user) return; const ref = doc(db, 'users', selectedUserId); const currentStatus = user.isPoisoned || false; try { await updateDoc(ref, {isPoisoned: !currentStatus}); toast(`Usuario ${!currentStatus ? 'envenenado' : 'curado'}.`, 'success'); } catch(e) { toast('Error al cambiar estado.', 'error'); }};
