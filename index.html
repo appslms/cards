@@ -48,11 +48,9 @@
     .floating-logo { position: absolute; top: 10%; left: 50%; transform: translateX(-50%); width: clamp(280px, 50vw, 420px); height: auto; z-index: 11; transition: transform 0.1s ease-out; }
     .loginFloat { position: absolute; bottom: 15%; left: 50%; transform: translateX(-50%); display: grid; gap: 12px; width: 90%; max-width: 480px; background: rgba(11,17,32,.85); backdrop-filter: blur(12px) saturate(1.1); -webkit-backdrop-filter: blur(12px) saturate(1.1); border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: 0 12px 32px rgba(0,0,0,.5); z-index: 10; }
     .loginTitle { font-size: 14px; letter-spacing: 1.5px; text-transform: uppercase; opacity:.9; margin-bottom: 10px; }
-    .phoneInput { position: relative; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; border: 1px solid var(--border); border-radius: 16px; padding: 12px 12px 12px 14px; background: #0b1120cc; }
-    .ccBtn { display:inline-flex; align-items:center; gap:6px; padding:8px 10px; border-radius:10px; border:1px solid var(--border); background: linear-gradient(180deg, rgba(0,229,255,.16), rgba(0,229,255,.06)); color: var(--text); font-weight:800; cursor:pointer; }
-    .ccMenu { position:absolute; top: calc(100% + 8px); left: 0; width: 280px; max-height: 260px; overflow:auto; background:#0b1120; border:1px solid var(--border); border-radius:12px; box-shadow: 0 16px 40px rgba(0,0,0,.55); z-index: 15; }
-    .ccItem { padding:8px 10px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
-    #loginInput { width: 100%; border: 0; outline: 0; background: transparent; color: var(--text); font-size: 16px; /* CORRECCIÓN: Evita zoom en iOS */ letter-spacing: .6px; }
+    .phoneInput { position: relative; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; border: 1px solid var(--border); border-radius: 16px; padding: 12px 14px; background: #0b1120cc; }
+    .phone-prefix { color: var(--muted); font-size: 16px; pointer-events: none; }
+    #loginInput { width: 100%; border: 0; outline: 0; background: transparent; color: var(--text); font-size: 16px; letter-spacing: .6px; }
     .goBtn { border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; cursor: pointer; font-weight: 800; background: linear-gradient(180deg, rgba(0,229,255,.22), rgba(0,229,255,.08)); color: var(--text); font-size: 18px; line-height: 1; }
     .loginMeta { display:flex; gap:12px; align-items:center; color: var(--muted); font-size: 13px; min-height: 18px; }
     .hidden { display: none !important; }
@@ -84,7 +82,7 @@
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .field { position: relative; }
     .field .icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: .85; font-size: 14px; pointer-events: none; }
-    .neo { width: 100%; padding: 12px 12px 12px 40px; border-radius: 14px; border: 1px solid var(--border); background: var(--ink); color: var(--text); outline: none; transition: all .2s ease; font-size: 16px; /* CORRECCIÓN: Evita zoom en iOS */ }
+    .neo { width: 100%; padding: 12px 12px 12px 40px; border-radius: 14px; border: 1px solid var(--border); background: var(--ink); color: var(--text); outline: none; transition: all .2s ease; font-size: 16px; }
     .neo:focus { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); }
     .adminLink { position: absolute; right: 1rem; bottom: 1rem; z-index: 60; opacity: .6; font-size: 12px; transition: opacity .2s ease; }
     .adminLink:hover { opacity: 1; }
@@ -177,10 +175,9 @@
           <div class="loginFloat" role="form" aria-labelledby="loginFormTitle">
             <div class="loginTitle" id="loginFormTitle">iniciar sesión</div>
             <div class="phoneInput" id="loginBox">
-              <button class="ccBtn" id="ccBtn" type="button" aria-haspopup="listbox" aria-expanded="false"><span id="ccCode">CR</span>&nbsp;<span id="ccDial">+506</span>&nbsp;▾</button>
+              <span class="phone-prefix">+506</span>
               <input id="loginInput" type="tel" inputmode="numeric" placeholder="8888 6666" autocomplete="one-time-code" aria-label="Teléfono" />
               <button id="loginGo" class="goBtn" aria-label="Entrar">&gt;</button>
-              <div id="ccMenu" class="ccMenu hidden" role="listbox" aria-label="Seleccionar país"></div>
             </div>
             <div class="loginMeta" id="loginMsg" aria-live="polite"></div>
           </div>
@@ -280,7 +277,7 @@
           <label class="form-label" for="newUserNumericId">ID Numérico</label>
           <div class="field"><span class="icon">#️⃣</span><input class="neo" id="newUserNumericId" type="text" placeholder="Ej: 001, 042" /></div>
           <label class="form-label" for="newUserPhone">Teléfono</label>
-          <div class="field"><span class="icon">📱</span><input class="neo" id="newUserPhone" type="tel" placeholder="Ej: 50688886666" /></div>
+          <div class="field"><span class="icon">📱</span><input class="neo" id="newUserPhone" type="tel" placeholder="Ej: 8888 6666" /></div>
           <label class="form-label">Tarjetas Iniciales</label>
           <div id="newUserRewards" class="admin-reward-selector"></div>
           <div class="row" style="margin-top:16px;">
@@ -328,14 +325,6 @@
     const REWARD_ORDER = Object.fromEntries(REWARDS.map((r, i) => [r.id, i]));
     const ADMIN_KEY_B64 = 'RmluYWxCb3Nz';
 
-    const COUNTRIES = [
-      { code:'CR', cc:'506', name:'Costa Rica', placeholder: '8888 6666' },
-      { code:'US', cc:'1', name:'United States', placeholder: '202 555 0125' },
-      { code:'MX', cc:'52', name:'México', placeholder: '55 1234 5678' },
-      { code:'ES', cc:'34', name:'España', placeholder: '612 345 678' },
-      { code:'CO', cc:'57', name:'Colombia', placeholder: '300 1234567' },
-    ];
-
     let db;
     try {
       const app = initializeApp(firebaseConfig);
@@ -347,8 +336,6 @@
         viewsContainer: document.getElementById('views-container'),
         loginBox: document.getElementById('loginBox'), loginInput: document.getElementById('loginInput'),
         loginGo: document.getElementById('loginGo'), loginMsg: document.getElementById('loginMsg'),
-        ccBtn: document.getElementById('ccBtn'), ccCode: document.getElementById('ccCode'),
-        ccDial: document.getElementById('ccDial'), ccMenu: document.getElementById('ccMenu'),
         adminOpen: document.getElementById('adminOpen'), adminModal: document.getElementById('adminModal'),
         adminPwd: document.getElementById('adminPwd'), adminEnter: document.getElementById('adminEnter'),
         adminCancel: document.getElementById('adminCancel'), adminMsg: document.getElementById('adminMsg'),
@@ -381,7 +368,6 @@
 
     let unsubMember = null, unsubUsers = null, unsubEdit = null;
     let cacheUsers = [];
-    let currentCountry = COUNTRIES[0];
     let selectedUserId = null;
     
     const el = (tag, attrs = {}, children = []) => { const n = document.createElement(tag); Object.entries(attrs).forEach(([k,v]) => { if (k === 'class') n.className = v; else if (k === 'text') n.textContent = v; else if (k === 'dataset') Object.assign(n.dataset, v); else n.setAttribute(k, v); }); children.forEach(c => n.append(c)); return n; };
@@ -576,7 +562,7 @@
         UI.addUserBtn.onclick = async () => {
             const name = UI.newUserName.value.trim();
             const numericId = UI.newUserNumericId.value.trim();
-            const phone = getDigits(UI.newUserPhone.value);
+            const phone = `506${getDigits(UI.newUserPhone.value)}`;
             const initialRewards = Array.from(UI.newUserRewards.querySelectorAll('.is-selected')).map(el => el.dataset.id);
 
             if (!name || !numericId || !phone) { toast('Todos los campos son requeridos.', 'error'); return; }
@@ -610,7 +596,7 @@
 
         const newName = UI.editUserName.value.trim();
         const newNumericId = UI.editUserNumericId.value.trim();
-        const newPhone = getDigits(UI.editUserPhone.value);
+        const newPhone = `506${getDigits(UI.editUserPhone.value)}`;
         const newRewards = sortRewards(Array.from(UI.editRewards.querySelectorAll('.is-selected')).map(el => el.dataset.id));
 
         if (!newName || !newNumericId || !newPhone) { toast('Nombre, ID y teléfono no pueden estar vacíos.', 'error'); return; }
@@ -642,16 +628,37 @@
         } catch (e) { console.error(e); toast('Error crítico durante la migración.', 'error'); }
     }
     
-    function buildIdFromInput() { const d = getDigits(UI.loginInput.value); return !d ? '' : d.startsWith(currentCountry.cc) ? d : currentCountry.cc + d; }
-    function setCountry(country) { currentCountry = country; UI.ccCode.textContent = country.code; UI.ccDial.textContent = `+${country.cc}`; UI.loginInput.placeholder = country.placeholder || '123 456 789'; localStorage.setItem('lastCountryCode', country.code); }
-    function buildCCMenu() { UI.ccMenu.innerHTML = ''; COUNTRIES.forEach(c => { const i = el('div', { class: 'ccItem' }, [ el('span', { text: c.name }), el('span', { text: `+${c.cc}` }) ]); i.addEventListener('click', () => { setCountry(c); UI.ccMenu.classList.add('hidden'); UI.ccBtn.setAttribute('aria-expanded', 'false'); UI.loginInput.focus(); }); UI.ccMenu.appendChild(i); }); }
-    async function doLogin() { const id = buildIdFromInput(); if (!id) { UI.loginMsg.textContent = 'Ingresa tu teléfono.'; return; } UI.loginMsg.textContent = 'Verificando...'; try { const ref = doc(db, 'users', id); const snap = await getDoc(ref); if (snap.exists()) { localStorage.setItem('memberId', id); switchView('member'); } else { UI.loginMsg.textContent = 'No se encontró este usuario.'; } } catch (e) { console.error("Error en login:", e); UI.loginMsg.textContent = 'Error de conexión.'; } }
+    function buildIdFromInput() {
+        const d = getDigits(UI.loginInput.value);
+        return d ? `506${d}` : '';
+    }
+
+    async function doLogin() {
+        const id = buildIdFromInput();
+        if (!id) {
+            UI.loginMsg.textContent = 'Ingresa tu número de teléfono.';
+            return;
+        }
+        UI.loginMsg.textContent = 'Verificando...';
+        try {
+            const ref = doc(db, 'users', id);
+            const snap = await getDoc(ref);
+            if (snap.exists()) {
+                localStorage.setItem('memberId', id);
+                switchView('member');
+            } else {
+                UI.loginMsg.textContent = 'No se encontró este usuario.';
+            }
+        } catch (e) {
+            console.error("Error en login:", e);
+            UI.loginMsg.textContent = 'Error de conexión.';
+        }
+    }
     
     function init() {
         UI.loginGo.addEventListener('click', doLogin);
         UI.loginInput.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-        UI.ccBtn.addEventListener('click', () => { const i=UI.ccMenu.classList.toggle('hidden'); UI.ccBtn.setAttribute('aria-expanded', String(!i)); });
-        document.addEventListener('click', e => { if (!e.target.closest('#ccBtn') && !e.target.closest('#ccMenu')) { UI.ccMenu.classList.add('hidden'); UI.ccBtn.setAttribute('aria-expanded', 'false'); } });
+        
         const cM=()=>UI.adminModal.classList.remove('is-open'); const oM=()=>{ UI.adminMsg.textContent=''; UI.adminPwd.value=''; UI.adminModal.classList.add('is-open'); setTimeout(()=>UI.adminPwd.focus(), 50); }; const tA=()=>{ if(UI.adminPwd.value.trim()===atob(ADMIN_KEY_B64)){localStorage.setItem('admin','1'); cM(); switchView('admin');}else{UI.adminMsg.textContent='Contraseña incorrecta';}};
         UI.adminOpen.addEventListener('click', oM); UI.adminCancel.addEventListener('click', cM); UI.adminEnter.addEventListener('click', tA); UI.adminPwd.addEventListener('keydown', (e)=>{if(e.key==='Enter')tA();if(e.key==='Escape')cM();});
         UI.memberLogoutBtn.addEventListener('click', ()=>switchView('auth'));
@@ -675,8 +682,7 @@
         UI.deleteUserBtn.onclick = async () => { if(!selectedUserId)return; const u=cacheUsers.find(u=>u.id===selectedUserId); if(!confirm(`¿Eliminar a ${u?.name || 'este usuario'}? Esta acción no se puede deshacer.`))return; const ref=doc(db,'users',selectedUserId); if(unsubEdit)unsubEdit(); try{await deleteDoc(ref);toast('Usuario eliminado', 'success');clearEditPanel();}catch(e){console.error(e);toast('Error al eliminar', 'error');}};
         UI.poisonBtn.onclick = async () => { if(!selectedUserId) return; const user = cacheUsers.find(u => u.id === selectedUserId); if(!user) return; const ref = doc(db, 'users', selectedUserId); const currentStatus = user.poisonState || 'none'; const newStatus = currentStatus !== 'none' ? 'none' : 'active'; try { await updateDoc(ref, {poisonState: newStatus}); toast(`Usuario ${newStatus === 'none' ? 'curado' : 'envenenado'}.`, 'success'); } catch(e) { toast('Error al cambiar estado.', 'error'); }};
 
-        setupAddUserModal(); buildCCMenu();
-        const lastCountry=COUNTRIES.find(c=>c.code===localStorage.getItem('lastCountryCode'))||COUNTRIES[0]; setCountry(lastCountry);
+        setupAddUserModal();
         const memberId=localStorage.getItem('memberId'); const isAdmin=localStorage.getItem('admin')==='1';
         if(isAdmin){switchView('admin');}else if(memberId){switchView('member');}else{switchView('auth');}
     }
