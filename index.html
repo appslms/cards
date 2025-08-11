@@ -99,12 +99,23 @@
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 16px;
-      box-shadow: 0 12px 32px rgba(0,0,0,.5), var(--glow);
+      box-shadow: 0 12px 32px rgba(0,0,0,.5);
       z-index: 10;
     }
     
     .loginTitle { font-size: 14px; letter-spacing: 1.5px; text-transform: uppercase; opacity:.9; margin-bottom: 10px; }
-    .phoneInput { position: relative; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; border: 1px solid var(--border); border-radius: 16px; padding: 12px 12px 12px 14px; background: #0b1120cc; box-shadow: var(--glow); }
+    .phoneInput {
+      position: relative;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px 12px 12px 14px;
+      background: #0b1120cc;
+      /* CORRECCIÓN: Se eliminó el box-shadow de aquí */
+    }
     .ccBtn { display:inline-flex; align-items:center; gap:6px; padding:8px 10px; border-radius:10px; border:1px solid var(--border); background: linear-gradient(180deg, rgba(0,229,255,.16), rgba(0,229,255,.06)); color: var(--text); font-weight:800; cursor:pointer; }
     .ccMenu { position:absolute; top: calc(100% + 8px); left: 0; width: 280px; max-height: 260px; overflow:auto; background:#0b1120; border:1px solid var(--border); border-radius:12px; box-shadow: 0 16px 40px rgba(0,0,0,.55); z-index: 15; }
     .ccItem { padding:8px 10px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
@@ -115,11 +126,11 @@
       outline: 0;
       background: transparent;
       color: var(--text);
-      font-size: clamp(10px, 3vw, 16px);
+      font-size: clamp(16px, 4vw, 20px);
       letter-spacing: .6px;
     }
     #loginInput::placeholder { color: #93a0b3; opacity:.9; }
-    .goBtn { border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; cursor: pointer; font-weight: 800; background: linear-gradient(180deg, rgba(0,229,255,.22), rgba(0,229,255,.08)); color: var(--text); }
+    .goBtn { border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; cursor: pointer; font-weight: 800; background: linear-gradient(180deg, rgba(0,229,255,.22), rgba(0,229,255,.08)); color: var(--text); font-size: 18px; line-height: 1; }
     .loginMeta { display:flex; gap:12px; align-items:center; color: var(--muted); font-size: 13px; min-height: 18px; }
     
     .hidden { display: none !important; }
@@ -200,7 +211,7 @@
         position: static;
         transform: none;
         width: clamp(240px, 70vw, 320px);
-        margin-bottom: 24px; /* CORRECCIÓN: Margen positivo para separar */
+        margin-bottom: 24px;
       }
       .loginFloat {
         position: static;
@@ -227,11 +238,11 @@
         <div class="floating-content">
           <img src="logo.svg" alt="Game Over Logo" class="floating-logo" />
           <div class="loginFloat" role="form" aria-labelledby="loginFormTitle">
-            <div class="loginTitle" id="loginFormTitle"> </div>
+            <div class="loginTitle" id="loginFormTitle">Login</div>
             <div class="phoneInput" id="loginBox">
               <button class="ccBtn" id="ccBtn" type="button" aria-haspopup="listbox" aria-expanded="false"><span id="ccCode">CR</span>&nbsp;<span id="ccDial">+506</span>&nbsp;▾</button>
-              <input id="loginInput" type="tel" inputmode="numeric" placeholder="6666 8888" autocomplete="one-time-code" aria-label="Teléfono" />
-              <button id="loginGo" class="goBtn" aria-label="Entrar">ENTER</button>
+              <input id="loginInput" type="tel" inputmode="numeric" placeholder="6004 8606" autocomplete="one-time-code" aria-label="Teléfono" />
+              <button id="loginGo" class="goBtn" aria-label="Entrar">&gt;</button>
               <div id="ccMenu" class="ccMenu hidden" role="listbox" aria-label="Seleccionar país"></div>
             </div>
             <div class="loginMeta" id="loginMsg" aria-live="polite"></div>
@@ -269,7 +280,7 @@
             <label for="newUserName">Nombre</label>
             <div class="field"><span class="icon">👤</span><input class="neo" id="newUserName" type="text" placeholder="Nuevo miembro" /></div>
             <label for="newUserPhone">Teléfono</label>
-            <div class="field"><span class="icon">📱</span><input class="neo" id="newUserPhone" type="text" placeholder="Ej: +506 6666 8888" /></div>
+            <div class="field"><span class="icon">📱</span><input class="neo" id="newUserPhone" type="text" placeholder="Ej: +506 6004 8606" /></div>
             <label>Tarjetas</label>
             <div id="newUserRewards" class="chips"></div>
             <button class="btn accent" id="addUserBtn" style="margin-top:12px">Crear usuario</button>
@@ -338,7 +349,7 @@
     const ADMIN_KEY_B64 = 'RmluYWxCb3Nz';
 
     const COUNTRIES = [
-      { code:'CR', cc:'506', name:'Costa Rica', placeholder: '6666 8888' },
+      { code:'CR', cc:'506', name:'Costa Rica', placeholder: '6004 8606' },
       { code:'US', cc:'1', name:'United States', placeholder: '202 555 0125' },
       { code:'MX', cc:'52', name:'México', placeholder: '55 1234 5678' },
       { code:'ES', cc:'34', name:'España', placeholder: '612 345 678' },
