@@ -369,10 +369,11 @@
       appId: "1:522023719283:web:3e5ce88c28a52b56a27506"
     };
 
-    // --- ¡IMPORTANTE! ---
-    // Pega tu clave de API de YouTube aquí.
-    // RECUERDA: Esto no es seguro para un sitio en producción.
-    const YOUTUBE_API_KEY = "AIzaSyAOaDT6lzJhHEEitUqiRInfjMixAibX754";
+    // --- ¡ACCIÓN REQUERIDA! ---
+    // 1. ELIMINA la clave de API que compartiste en la consola de Google Cloud.
+    // 2. CREA una nueva clave de API.
+    // 3. PEGA tu NUEVA clave aquí, dentro de las comillas.
+    const YOUTUBE_API_KEY = "AIzaSyDk00P7VYxr4ePc69R1JVK0w2J6zc-q1bQ"; // <-- !!! REEMPLAZA ESTA LÍNEA CON TU NUEVA CLAVE !!!
 
 
     const REWARDS = [
@@ -747,7 +748,7 @@
     }
 
     async function fetchYoutubeParticipants() {
-      if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === "AIzaSyAOaDT6lzJhHEEitUqiRInfjMixAibX754") {
+      if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === "AIzaSyDk00P7VYxr4ePc69R1JVK0w2J6zc-q1bQ") {
         toast('Error: Falta la clave de API de YouTube.', 'error');
         return;
       }
@@ -760,7 +761,6 @@
       setRaffleLoading(true);
 
       try {
-        // 1. Obtener el liveChatId del video
         const videoResponse = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${videoId}&key=${YOUTUBE_API_KEY}`);
         const videoData = await videoResponse.json();
         const liveChatId = videoData.items?.[0]?.liveStreamingDetails?.activeLiveChatId;
@@ -768,7 +768,6 @@
           throw new Error('No se pudo encontrar un chat en vivo activo para este video.');
         }
 
-        // 2. Obtener todos los mensajes del chat
         let allMessages = [];
         let nextPageToken = '';
         do {
@@ -778,7 +777,6 @@
           nextPageToken = chatData.nextPageToken;
         } while (nextPageToken);
 
-        // 3. Filtrar y obtener participantes únicos
         const participantsSet = new Set();
         allMessages.forEach(item => {
           const message = item.snippet?.displayMessage?.toLowerCase();
