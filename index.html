@@ -773,9 +773,14 @@
         let nextPageToken = '';
         do {
           const chatResponse = await fetch(`https://www.googleapis.com/youtube/v3/liveChat/messages?liveChatId=${liveChatId}&part=snippet,authorDetails&key=${YOUTUBE_API_KEY}${nextPageToken ? `&pageToken=${nextPageToken}` : ''}`);
-          const chatData = await chatResponse.json();
-          allMessages.push(...chatData.items);
-          nextPageToken = chatData.nextPageToken;
+         const chatData = await chatResponse.json();
+
+// AÑADIMOS ESTA COMPROBACIÓN
+if (Array.isArray(chatData.items)) {
+    allMessages.push(...chatData.items);
+}
+
+nextPageToken = chatData.nextPageToken;
         } while (nextPageToken);
 
         const participantsSet = new Set();
