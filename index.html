@@ -765,7 +765,7 @@
     }
 
     async function fetchYoutubeParticipants() {
-      if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === "AIzaSyDk00P7VYxr4ePc69R1JVK0w2J6zc-q1bQ") { toast('Error: Falta la clave de API de YouTube.', 'error'); return; }
+      if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === "TU_NUEVA_CLAVE_DE_API_VA_AQUI") { toast('Error: Falta la clave de API de YouTube.', 'error'); return; }
       const videoId = UI.youtubeVideoId.value.trim();
       const hashtag = UI.raffleHashtag.value.trim().toLowerCase();
       if (!videoId || !hashtag) { toast('Por favor, introduce el ID del video y el hashtag.', 'error'); return; }
