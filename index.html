@@ -748,10 +748,11 @@
     }
 
     async function fetchYoutubeParticipants() {
-      if (!YOUTUBE_API_KEY) {
-        toast('Error: Falta la clave de API de YouTube.', 'error');
-        return;
-      }
+  // Esta es la única comprobación que necesitas ahora.
+  if (!YOUTUBE_API_KEY) {
+    toast('Error: La variable YOUTUBE_API_KEY está vacía.', 'error');
+    return;
+  }
       const videoId = UI.youtubeVideoId.value.trim();
       const hashtag = UI.raffleHashtag.value.trim().toLowerCase();
       if (!videoId || !hashtag) {
