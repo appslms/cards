@@ -74,6 +74,7 @@
     .btn { display: inline-flex; gap: 8px; align-items: center; justify-content: center; padding: 10px 14px; color: var(--text); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; text-decoration: none; transition: all .2s ease; background-color: var(--panel); }
     .btn:hover { filter: brightness(1.1); box-shadow: var(--glow); }
     .btn:active { transform: translateY(1px); filter: brightness(1); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; filter: none; box-shadow: none; }
     .btn.brand { background-color: rgba(0,229,255,.15); border-color: rgba(0,229,255,.6); color: #c2f5ff; }
     .btn.accent { background-color: rgba(255,43,191,.15); border-color: rgba(255,43,191,.6); color: #ffc2ee; }
     .btn.danger { background-color: rgba(255,79,79,.15); border-color: rgba(255,79,79,.55); color: #ffc2c2; }
@@ -82,6 +83,7 @@
     .field .icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: .85; font-size: 14px; pointer-events: none; }
     .neo { width: 100%; padding: 12px 12px 12px 40px; border-radius: 14px; border: 1px solid var(--border); background: var(--ink); color: var(--text); outline: none; transition: all .2s ease; font-size: 16px; }
     .neo:focus { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); }
+    .neo:disabled { opacity: 0.5; cursor: not-allowed; }
     .adminLink { position: absolute; right: 1rem; bottom: 1rem; z-index: 60; opacity: .6; font-size: 12px; transition: opacity .2s ease; }
     .adminLink:hover { opacity: 1; }
     .adminLink button { background: none; border: 0; color: #9feaff; text-decoration: underline; cursor: pointer; padding: 0; }
@@ -146,8 +148,18 @@
     body.is-poisoned-accepted #memberGrid .card * { pointer-events: none; }
     body.is-poisoned-accepted #memberLogoutBtn { pointer-events: auto !important; }
 
+    /* --- ESTILOS PARA LA RIFA --- */
+    .raffle-container { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+    #raffleParticipantsList { max-height: 400px; overflow-y: auto; background: var(--ink); border-radius: 12px; padding: 8px; border: 1px solid var(--border); }
+    #raffleParticipantsList .item { padding: 8px 12px; font-size: 14px; }
+    #raffleCountdown { font-size: 120px; font-weight: 800; text-align: center; color: var(--neon-yellow); text-shadow: 0 0 20px var(--neon-yellow); min-height: 150px; display: grid; place-items: center; }
+    #raffleWinnersList .winner-item { font-size: 24px; font-weight: 700; text-align: center; padding: 16px; border-radius: 12px; background: linear-gradient(45deg, var(--neon-cyan), var(--neon-pink)); color: var(--ink); animation: winner-in 0.5s ease-out forwards; opacity: 0; transform: scale(0.8); }
+    #raffleWinnersList .winner-item:not(:last-child) { margin-bottom: 12px; }
+    @keyframes winner-in { to { opacity: 1; transform: scale(1); } }
+
+
     /* Media Queries */
-    @media (max-width: 980px) { .admin-dashboard { grid-template-columns: 1fr; } }
+    @media (max-width: 980px) { .admin-dashboard, .raffle-container { grid-template-columns: 1fr; } }
     @media (max-width: 500px) {
       .art { display: flex; align-items: center; justify-content: center; height: auto; min-height: 90vh; }
       .floating-content { position: static; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; max-width: 400px; height: auto; padding: 2rem 1rem; pointer-events: auto; }
@@ -251,8 +263,50 @@
               <div id="noUserSelected">Selecciona un usuario de la lista<br>para ver o editar sus detalles.</div>
             </div>
           </div>
-          <div class="card" style="margin-top: 16px;">
+          <div class="card" style="margin-top: 16px; display:flex; gap: 1rem;">
+            <button class="btn" id="goToRaffleBtn">🎟️ Organizar Rifa</button>
             <button class="btn" id="adminLogoutBtn">Cerrar Sesión de Administrador</button>
+          </div>
+        </section>
+
+        <section id="raffleGrid" class="hidden">
+          <div class="card">
+            <div class="card-header">
+                <h2>Rifa de YouTube Live</h2>
+                <button class="btn" id="backToUsersBtn">← Volver a Usuarios</button>
+            </div>
+            <div class="raffle-container">
+                <div>
+                    <label class="form-label" for="youtubeVideoId">ID del Video de YouTube</label>
+                    <div class="field"><span class="icon">▶️</span><input class="neo" id="youtubeVideoId" type="text" placeholder="Ej: dQw4w9WgXcQ" /></div>
+                    
+                    <label class="form-label" for="raffleHashtag">Hashtag (#)</label>
+                    <div class="field"><span class="icon">#️⃣</span><input class="neo" id="raffleHashtag" type="text" value="#gameover" /></div>
+                    
+                    <label class="form-label" for="raffleWinnerCount">Número de Ganadores</label>
+                    <div class="field"><span class="icon">🏆</span><input class="neo" id="raffleWinnerCount" type="number" value="1" min="1" /></div>
+
+                    <button class="btn brand" id="fetchParticipantsBtn" style="width: 100%; margin-top: 20px;">Obtener Participantes</button>
+                </div>
+                <div>
+                    <div class="card-header" style="margin-bottom: 8px;">
+                        <h3 style="margin:0; font-size: 16px;">Participantes (<span id="participantCount">0</span>)</h3>
+                        <button class="btn accent" id="startRaffleBtn" disabled>Iniciar Rifa</button>
+                    </div>
+                    <div id="raffleParticipantsList" class="list">
+                        <div style="text-align:center; padding: 2rem; color: var(--muted);">Esperando participantes...</div>
+                    </div>
+                </div>
+            </div>
+            <hr style="border-color: var(--border); margin: 24px 0;">
+            <div>
+                <h3 style="text-align:center; font-size: 20px; margin-bottom: 20px;">Resultados</h3>
+                <div id="raffleCountdown"></div>
+                <div id="raffleWinnersList" class="list"></div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button id="resetRaffleBtn" class="btn hidden">Reiniciar Rifa</button>
+                </div>
+            </div>
           </div>
         </section>
       </div>
@@ -315,6 +369,12 @@
       appId: "1:522023719283:web:3e5ce88c28a52b56a27506"
     };
 
+    // --- ¡IMPORTANTE! ---
+    // Pega tu clave de API de YouTube aquí.
+    // RECUERDA: Esto no es seguro para un sitio en producción.
+    const YOUTUBE_API_KEY = "PEGA_TU_CLAVE_DE_API_DE_YOUTUBE_AQUI";
+
+
     const REWARDS = [
       { id: "r1", label: "Joker",    img: "assets/card1.png", description: "Un agente del caos con una mente brillante y una risa inolvidable. Su único objetivo es demostrar que cualquiera puede caer en la locura." },
       { id: "r2", label: "Predator", img: "assets/card2.png", description: "Un cazador intergaláctico que viaja por el universo en busca de las presas más peligrosas. Se rige por un estricto código de honor." },
@@ -364,12 +424,26 @@
         closeCardDetailBtn: document.getElementById('closeCardDetailBtn'),
         poisonOverlay: document.getElementById('poison-overlay'), acceptPoisonBtn: document.getElementById('acceptPoisonBtn'),
         toast: document.getElementById('toast'),
+        raffleGrid: document.getElementById('raffleGrid'),
+        goToRaffleBtn: document.getElementById('goToRaffleBtn'),
+        backToUsersBtn: document.getElementById('backToUsersBtn'),
+        youtubeVideoId: document.getElementById('youtubeVideoId'),
+        raffleHashtag: document.getElementById('raffleHashtag'),
+        raffleWinnerCount: document.getElementById('raffleWinnerCount'),
+        fetchParticipantsBtn: document.getElementById('fetchParticipantsBtn'),
+        participantCount: document.getElementById('participantCount'),
+        raffleParticipantsList: document.getElementById('raffleParticipantsList'),
+        startRaffleBtn: document.getElementById('startRaffleBtn'),
+        raffleCountdown: document.getElementById('raffleCountdown'),
+        raffleWinnersList: document.getElementById('raffleWinnersList'),
+        resetRaffleBtn: document.getElementById('resetRaffleBtn'),
     };
 
     let unsubMember = null, unsubUsers = null, unsubEdit = null;
     let cacheUsers = [];
     let selectedUserId = null;
-    
+    let raffleParticipants = [];
+
     const el = (tag, attrs = {}, children = []) => { const n = document.createElement(tag); Object.entries(attrs).forEach(([k,v]) => { if (k === 'class') n.className = v; else if (k === 'text') n.textContent = v; else if (k === 'dataset') Object.assign(n.dataset, v); else n.setAttribute(k, v); }); children.forEach(c => n.append(c)); return n; };
     const getDigits = s => (s || '').replace(/\D+/g, '');
     const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(()=>fn.apply(null,a), ms); }; };
@@ -385,6 +459,11 @@
         if (unsubMember) { unsubMember(); unsubMember = null; }
         if (unsubUsers) { unsubUsers(); unsubUsers = null; }
         clearEditPanel();
+        
+        UI.memberGrid.classList.add('hidden');
+        UI.adminGrid.classList.add('hidden');
+        UI.raffleGrid.classList.add('hidden');
+
         switch (viewName) {
             case 'auth':
                 UI.authGrid.classList.remove('hidden');
@@ -396,14 +475,17 @@
             case 'member':
                 UI.viewsContainer.classList.remove('hidden');
                 UI.memberGrid.classList.remove('hidden');
-                UI.adminGrid.classList.add('hidden');
                 startMemberListener(localStorage.getItem('memberId'));
                 break;
             case 'admin':
                 UI.viewsContainer.classList.remove('hidden');
                 UI.adminGrid.classList.remove('hidden');
-                UI.memberGrid.classList.add('hidden');
                 startUsersListener();
+                break;
+            case 'raffle':
+                UI.viewsContainer.classList.remove('hidden');
+                UI.raffleGrid.classList.remove('hidden');
+                resetRaffle();
                 break;
         }
     }
@@ -419,7 +501,7 @@
     }
 
     function makeAdminRewardToggle(container, selected){
-      const toggle = (rid) => { if (selected.has(rid)) selected.delete(rid); else selected.add(rid); renderAdminRewardSelector(container, selected, toggle); };
+      const toggle = (rid) => { if (selected.has(rid)) selected.delete(rid); else selected.add(rid); renderAdminRewardToggle(container, selected, toggle); };
       renderAdminRewardSelector(container, selected, toggle); return toggle;
     }
 
@@ -654,6 +736,145 @@
             UI.loginMsg.textContent = 'Error de conexión.';
         }
     }
+
+    // --- LÓGICA DE LA RIFA ---
+    function setRaffleLoading(isLoading) {
+      UI.fetchParticipantsBtn.disabled = isLoading;
+      UI.youtubeVideoId.disabled = isLoading;
+      UI.raffleHashtag.disabled = isLoading;
+      UI.raffleWinnerCount.disabled = isLoading;
+      UI.fetchParticipantsBtn.textContent = isLoading ? 'Cargando Chat...' : 'Obtener Participantes';
+    }
+
+    async function fetchYoutubeParticipants() {
+      if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === "PEGA_TU_CLAVE_DE_API_DE_YOUTUBE_AQUI") {
+        toast('Error: Falta la clave de API de YouTube.', 'error');
+        return;
+      }
+      const videoId = UI.youtubeVideoId.value.trim();
+      const hashtag = UI.raffleHashtag.value.trim().toLowerCase();
+      if (!videoId || !hashtag) {
+        toast('Por favor, introduce el ID del video y el hashtag.', 'error');
+        return;
+      }
+      setRaffleLoading(true);
+
+      try {
+        // 1. Obtener el liveChatId del video
+        const videoResponse = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${videoId}&key=${YOUTUBE_API_KEY}`);
+        const videoData = await videoResponse.json();
+        const liveChatId = videoData.items?.[0]?.liveStreamingDetails?.activeLiveChatId;
+        if (!liveChatId) {
+          throw new Error('No se pudo encontrar un chat en vivo activo para este video.');
+        }
+
+        // 2. Obtener todos los mensajes del chat
+        let allMessages = [];
+        let nextPageToken = '';
+        do {
+          const chatResponse = await fetch(`https://www.googleapis.com/youtube/v3/liveChat/messages?liveChatId=${liveChatId}&part=snippet,authorDetails&key=${YOUTUBE_API_KEY}${nextPageToken ? `&pageToken=${nextPageToken}` : ''}`);
+          const chatData = await chatResponse.json();
+          allMessages.push(...chatData.items);
+          nextPageToken = chatData.nextPageToken;
+        } while (nextPageToken);
+
+        // 3. Filtrar y obtener participantes únicos
+        const participantsSet = new Set();
+        allMessages.forEach(item => {
+          const message = item.snippet?.displayMessage?.toLowerCase();
+          if (message && message.includes(hashtag)) {
+            participantsSet.add(item.authorDetails.displayName);
+          }
+        });
+        
+        raffleParticipants = Array.from(participantsSet);
+        renderParticipants();
+
+      } catch (error) {
+        console.error("Error al obtener datos de YouTube:", error);
+        toast(error.message || 'Ocurrió un error con la API de YouTube.', 'error');
+      } finally {
+        setRaffleLoading(false);
+      }
+    }
+
+    function renderParticipants() {
+        UI.raffleParticipantsList.innerHTML = '';
+        UI.participantCount.textContent = raffleParticipants.length;
+        if (raffleParticipants.length === 0) {
+            UI.raffleParticipantsList.innerHTML = `<div style="text-align:center; padding: 2rem; color: var(--muted);">No se encontraron participantes.</div>`;
+            UI.startRaffleBtn.disabled = true;
+            return;
+        }
+        raffleParticipants.forEach(name => {
+            const item = el('div', { class: 'item' }, [ el('span', { text: name }) ]);
+            UI.raffleParticipantsList.appendChild(item);
+        });
+        UI.startRaffleBtn.disabled = false;
+    }
+
+    function startRaffle() {
+        const numWinners = parseInt(UI.raffleWinnerCount.value, 10);
+        if (isNaN(numWinners) || numWinners < 1) {
+            toast('Número de ganadores inválido.', 'error');
+            return;
+        }
+        if (raffleParticipants.length < numWinners) {
+            toast('No hay suficientes participantes para la cantidad de ganadores.', 'error');
+            return;
+        }
+        
+        UI.startRaffleBtn.disabled = true;
+        UI.fetchParticipantsBtn.disabled = true;
+        UI.resetRaffleBtn.classList.add('hidden');
+        UI.raffleWinnersList.innerHTML = '';
+
+        let countdown = 5;
+        UI.raffleCountdown.textContent = countdown;
+        const interval = setInterval(() => {
+            countdown--;
+            if (countdown > 0) {
+                UI.raffleCountdown.textContent = countdown;
+            } else {
+                clearInterval(interval);
+                UI.raffleCountdown.textContent = '🏆';
+                
+                const shuffled = [...raffleParticipants];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+
+                const winners = shuffled.slice(0, numWinners);
+                displayWinners(winners);
+            }
+        }, 1000);
+    }
+
+    function displayWinners(winners) {
+        UI.raffleWinnersList.innerHTML = '';
+        winners.forEach((winner, index) => {
+            setTimeout(() => {
+                const item = el('div', { class: 'winner-item', text: winner });
+                UI.raffleWinnersList.appendChild(item);
+            }, index * 600);
+        });
+        UI.resetRaffleBtn.classList.remove('hidden');
+    }
+
+    function resetRaffle() {
+        raffleParticipants = [];
+        UI.participantCount.textContent = '0';
+        UI.raffleParticipantsList.innerHTML = `<div style="text-align:center; padding: 2rem; color: var(--muted);">Esperando participantes...</div>`;
+        UI.raffleCountdown.innerHTML = '';
+        UI.raffleWinnersList.innerHTML = '';
+        UI.startRaffleBtn.disabled = true;
+        UI.resetRaffleBtn.classList.add('hidden');
+        UI.fetchParticipantsBtn.disabled = false;
+        UI.youtubeVideoId.disabled = false;
+        UI.raffleHashtag.disabled = false;
+        UI.raffleWinnerCount.disabled = false;
+    }
     
     function init() {
         UI.loginGo.addEventListener('click', doLogin);
@@ -681,6 +902,13 @@
         UI.addCommentBtn.onclick = async () => { if(!selectedUserId)return; const t=UI.editComment.value.trim(); if(!t){toast('Escribe un comentario', 'error');return;} const ref=doc(db,'users',selectedUserId); try{await updateDoc(ref,{comments:arrayUnion({text:t,ts:Date.now(),author:'admin'})});UI.editComment.value='';toast('Comentario agregado', 'success');}catch(e){console.error(e);toast('Error al comentar', 'error');}};
         UI.deleteUserBtn.onclick = async () => { if(!selectedUserId)return; const u=cacheUsers.find(u=>u.id===selectedUserId); if(!confirm(`¿Eliminar a ${u?.name || 'este usuario'}? Esta acción no se puede deshacer.`))return; const ref=doc(db,'users',selectedUserId); if(unsubEdit)unsubEdit(); try{await deleteDoc(ref);toast('Usuario eliminado', 'success');clearEditPanel();}catch(e){console.error(e);toast('Error al eliminar', 'error');}};
         UI.poisonBtn.onclick = async () => { if(!selectedUserId) return; const user = cacheUsers.find(u => u.id === selectedUserId); if(!user) return; const ref = doc(db, 'users', selectedUserId); const currentStatus = user.poisonState || 'none'; const newStatus = currentStatus !== 'none' ? 'none' : 'active'; try { await updateDoc(ref, {poisonState: newStatus}); toast(`Usuario ${newStatus === 'none' ? 'curado' : 'envenenado'}.`, 'success'); } catch(e) { toast('Error al cambiar estado.', 'error'); }};
+
+        UI.goToRaffleBtn.addEventListener('click', () => switchView('raffle'));
+        UI.backToUsersBtn.addEventListener('click', () => switchView('admin'));
+        UI.fetchParticipantsBtn.addEventListener('click', fetchYoutubeParticipants);
+        UI.startRaffleBtn.addEventListener('click', startRaffle);
+        UI.resetRaffleBtn.addEventListener('click', resetRaffle);
+
 
         setupAddUserModal();
         const memberId=localStorage.getItem('memberId'); const isAdmin=localStorage.getItem('admin')==='1';
