@@ -748,7 +748,7 @@
     }
 
     async function fetchYoutubeParticipants() {
-      if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === "AIzaSyDk00P7VYxr4ePc69R1JVK0w2J6zc-q1bQ") {
+      if (!YOUTUBE_API_KEY) {
         toast('Error: Falta la clave de API de YouTube.', 'error');
         return;
       }
