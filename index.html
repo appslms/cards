@@ -1,955 +1,513 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#b42121" />
-  <title>GAME OVER · Rewards CRM</title>
-  
-  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="dns-prefetch" href="https://www.gstatic.com">
-  
-  <link rel="preload" as="image" href="assets/background.png"/>
-  <link rel="preload" as="image" href="logo.svg"/>
-  
-  <style>
-    :root {
-      --ink: #07090f;
-      --panel: #0f1424;
-      --neon-yellow: #f6f200;
-      --neon-cyan: #00e5ff;
-      --neon-pink: #ff2bbf;
-      --danger-glow: #ff2b2b;
-      --muted: #a7b0c0;
-      --muted-bright: #b8c1d1;
-      --text: #f2f6ff;
-      --border: rgba(255,255,255,.12);
-      --glow: 0 0 0 2px rgba(0,229,255,.25), 0 0 0 6px rgba(0,229,255,.12);
-    }
-    * { box-sizing: border-box; font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; }
-    body { margin: 0; color: var(--text); background: var(--ink); transition: background .4s ease; }
-    img { max-width: 100%; display: block; }
-
-    .bg-tech { position: fixed; inset: 0; z-index: -1; overflow: hidden; background:
-      linear-gradient(rgba(7,9,15,.80), rgba(7,9,15,.86)),
-      url('assets/background.png') center / cover no-repeat fixed;
-      filter: saturate(.9) brightness(.9); transition: all .4s ease;
-    }
-    .wrap { max-width: 1300px; margin: 0 auto; padding: clamp(16px, 4vw, 24px); }
-    
-    .landing { min-height: calc(100vh - 32px); display: grid; place-items: center; position: relative; }
-    .landing > * { grid-area: 1 / 1; }
-
-    .art { position: relative; perspective: 1000px; transform-style: preserve-3d; width: 100%; max-width: 760px; height: clamp(520px, 80vh, 700px); border-radius: 22px; overflow: hidden; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)); z-index: 1; transition: transform 0.1s ease-out; }
-    .art::before { content:""; position:absolute; inset:0; background: radial-gradient(80% 40% at 20% 10%, rgba(0,229,255,.14), transparent 60%), radial-gradient(60% 40% at 70% 80%, rgba(255,43,191,.16), transparent 60%), url('assets/background.png') center / cover no-repeat; filter: brightness(.7) contrast(1); z-index: 0; pointer-events:none; }
-    
-    .shine { position: absolute; inset: -20%; background: radial-gradient(40% 12% at var(--gx,30%) var(--gy,10%), rgba(255,255,255,.10), transparent 60%), linear-gradient(115deg, transparent 40%, rgba(255,255,255,.06) 50%, transparent 60%); mix-blend-mode: screen; pointer-events: none; z-index: 2; opacity:.9; transition: opacity .2s ease; }
-    .floating-content { position: relative; z-index: 10; width: 100%; height: 100%; max-width: 760px; max-height: clamp(520px, 80vh, 700px); pointer-events: none; }
-    .floating-content > * { pointer-events: auto; }
-    .floating-logo { position: absolute; top: 10%; left: 50%; transform: translateX(-50%); width: clamp(280px, 50vw, 420px); height: auto; z-index: 11; transition: transform 0.1s ease-out; }
-    .loginFloat { position: absolute; bottom: 15%; left: 50%; transform: translateX(-50%); display: grid; gap: 12px; width: 90%; max-width: 480px; background: rgba(11,17,32,.85); backdrop-filter: blur(12px) saturate(1.1); -webkit-backdrop-filter: blur(12px) saturate(1.1); border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: 0 12px 32px rgba(0,0,0,.5); z-index: 10; }
-    .loginTitle { font-size: 14px; letter-spacing: 1.5px; text-transform: uppercase; opacity:.9; margin-bottom: 10px; }
-    .phoneInput { position: relative; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; border: 1px solid var(--border); border-radius: 16px; padding: 12px 14px; background: #0b1120cc; }
-    .phone-prefix { color: var(--muted); font-size: 16px; pointer-events: none; }
-    #loginInput { width: 100%; border: 0; outline: 0; background: transparent; color: var(--text); font-size: 16px; letter-spacing: .6px; }
-    .goBtn { border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; cursor: pointer; font-weight: 800; background: linear-gradient(180deg, rgba(0,229,255,.22), rgba(0,229,255,.08)); color: var(--text); font-size: 18px; line-height: 1; }
-    .loginMeta { display:flex; gap:12px; align-items:center; color: var(--muted); font-size: 13px; min-height: 18px; }
-    .hidden { display: none !important; }
-    .toast { position: fixed; right: 16px; top: 16px; display: grid; gap: 8px; z-index: 9999; }
-    .toast-item { background: #0b1120; border: 1px solid rgba(255,255,255,.14); padding: 10px 16px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,.35); animation: card-in .3s ease; display: flex; align-items: center; gap: 10px; }
-    .toast-item::before { font-size: 20px; }
-    .toast-item.is-success { background-color: rgba(30, 192, 120, .2); border-color: rgba(30, 192, 120, .5); }
-    .toast-item.is-success::before { content: '✅'; }
-    .toast-item.is-error { background-color: rgba(255, 79, 79, .2); border-color: rgba(255, 79, 79, .5); }
-    .toast-item.is-error::before { content: '❌'; }
-    .toast-item.is-info::before { content: 'ℹ️'; }
-    @keyframes card-in { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: none; } }
-
-    /* --- ESTILOS GENERALES Y ADMIN UI --- */
-    .card { border: 1px solid var(--border); border-radius: 18px; padding: 24px; background: var(--panel); box-shadow: 0 20px 48px rgba(0,0,0,.45); }
-    .card h2 { margin: 0 0 20px 0; font-size: 20px; color: var(--text); }
-    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .card-header h2 { margin-bottom: 0; }
-    .form-label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--muted-bright); margin: 16px 0 8px 0; }
-    .btn { display: inline-flex; gap: 8px; align-items: center; justify-content: center; padding: 10px 14px; color: var(--text); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; text-decoration: none; transition: all .2s ease; background-color: var(--panel); }
-    .btn:hover { filter: brightness(1.1); box-shadow: var(--glow); }
-    .btn:active { transform: translateY(1px); filter: brightness(1); }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; filter: none; box-shadow: none; }
-    .btn.brand { background-color: rgba(0,229,255,.15); border-color: rgba(0,229,255,.6); color: #c2f5ff; }
-    .btn.accent { background-color: rgba(255,43,191,.15); border-color: rgba(255,43,191,.6); color: #ffc2ee; }
-    .btn.danger { background-color: rgba(255,79,79,.15); border-color: rgba(255,79,79,.55); color: #ffc2c2; }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .field { position: relative; }
-    .field .icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: .85; font-size: 14px; pointer-events: none; }
-    .neo { width: 100%; padding: 12px 12px 12px 40px; border-radius: 14px; border: 1px solid var(--border); background: var(--ink); color: var(--text); outline: none; transition: all .2s ease; font-size: 16px; }
-    .neo:focus { box-shadow: var(--glow); border-color: rgba(0,229,255,.6); }
-    .neo:disabled { opacity: 0.5; cursor: not-allowed; }
-    .adminLink { position: absolute; right: 1rem; bottom: 1rem; z-index: 60; opacity: .6; font-size: 12px; transition: opacity .2s ease; }
-    .adminLink:hover { opacity: 1; }
-    .adminLink button { background: none; border: 0; color: #9feaff; text-decoration: underline; cursor: pointer; padding: 0; }
-    .modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(7,9,15,.6); backdrop-filter: blur(4px); z-index: 80; opacity: 0; pointer-events: none; transition: opacity .2s ease; }
-    .modal.is-open { opacity: 1; pointer-events: auto; }
-    .modal .box { width: 100%; max-width: 420px; border-radius: 16px; border: 1px solid var(--border); background: var(--panel); padding: 24px; box-shadow: 0 20px 48px rgba(0,0,0,.5); }
-
-    /* --- ADMIN UI ESPECÍFICO --- */
-    .admin-dashboard { display: grid; grid-template-columns: minmax(320px, 1fr) 2fr; gap: 16px; align-items: start; }
-    .admin-reward-selector { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; margin-bottom: 20px; }
-    .admin-reward-card { cursor: pointer; text-align: center; border-radius: 8px; border: 2px solid transparent; padding: 4px; transition: all .2s ease; }
-    .admin-reward-card img { border-radius: 6px; width: 100%; aspect-ratio: 4/6; object-fit: cover; }
-    .admin-reward-card span { font-size: 11px; color: var(--muted); }
-    .admin-reward-card.is-selected { border-color: var(--neon-cyan); background-color: rgba(0,229,255,.1); }
-    .admin-reward-card.is-selected span { color: var(--text); }
-    .admin-reward-card:not(.is-selected) { opacity: 0.7; }
-    .admin-reward-card:not(.is-selected):hover { opacity: 1; background-color: rgba(255,255,255,.05); }
-    .list { display: grid; gap: 8px; overflow: auto; padding-right: 4px; }
-    #usersList { max-height: calc(100vh - 280px); min-height: 300px; }
-    .item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; border: 1px solid transparent; background-color: rgba(255,255,255,.03); cursor: pointer; transition: all .2s ease; }
-    .item:hover { background-color: rgba(255,255,255,.06); border-color: var(--border); }
-    .item.is-selected { color: var(--neon-cyan); background-color: rgba(0,229,255,.10); border-color: rgba(0,229,255,.6); }
-    .item.is-selected small { color: var(--neon-cyan); opacity: .8; }
-    .item-main { flex-grow: 1; }
-    .item-meta { font-size: 12px; color: var(--muted); }
-    .item small { color: var(--muted); }
-    #noUserSelected { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; color: var(--muted); font-size: 16px; text-align: center; }
-    #noUserSelected::before { content: '👆'; font-size: 48px; margin-bottom: 16px; }
-    
-    .comment-item { background-color: rgba(255, 255, 255, .04); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
-    .comment-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--muted); }
-    .comment-author { font-weight: 700; color: var(--neon-pink); }
-    .comment-text { font-size: 14px; line-height: 1.5; color: var(--text); margin: 0; }
-    #memberCommentsContainer { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-in-out; }
-    #memberCommentsContainer.is-open { max-height: 500px; }
-
-
-    /* --- MEMBER UI ESPECÍFICO --- */
-    .member-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; }
-    .member-virtual-card { position: relative; aspect-ratio: 4 / 6; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.4); transition: transform .3s ease, box-shadow .3s ease; cursor: pointer; }
-    .member-virtual-card:hover { transform: translateY(-8px) scale(1.03); box-shadow: 0 20px 40px rgba(0,0,0,.5); }
-    .member-virtual-card img { width: 100%; height: 100%; object-fit: cover; }
-    .member-virtual-card .label { position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 10px; font-size: 13px; font-weight: 700; color: #0b0b0b; background: linear-gradient(90deg, var(--neon-yellow), var(--neon-cyan)); text-shadow: 0 1px 1px rgba(0,0,0,.1); }
-    .member-virtual-card:not(.is-owned) { filter: grayscale(1) saturate(0.5) brightness(0.5); opacity: 0.7; }
-    .member-virtual-card.is-owned { filter: none; opacity: 1; }
-    .comments-header { display: flex; justify-content: space-between; align-items: center; }
-
-    /* --- EFECTO VENENO / GLITCH --- */
-    #poison-overlay { position: fixed; inset: 0; z-index: 9998; background: rgba(100,0,0,.3); backdrop-filter: blur(2px); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 24px; color: #ffc2c2; text-align: center; font-size: clamp(24px, 8vw, 48px); font-weight: 800; text-shadow: 0 0 10px red; pointer-events: auto; }
-    
-    body.is-poisoned-active main { animation: glitch-anim .8s infinite steps(2, end) alternate; }
-    @keyframes glitch-anim { 0%, 100% { transform: translate(0); } 20% { transform: translate(-5px, 5px); } 40% { transform: translate(-5px, -5px); } 60% { transform: translate(5px, 5px); } 80% { transform: translate(5px, -5px); } }
-
-    body.is-poisoned-accepted .bg-tech, body.is-poisoned-active .bg-tech {
-        background: linear-gradient(rgba(40,7,15,.85), rgba(40,7,15,.9)), url('assets/background.png') center / cover no-repeat fixed;
-        filter: saturate(1.5) brightness(.7) hue-rotate(330deg);
-    }
-    body.is-poisoned-accepted .card { background: #280f14; border-color: rgba(255, 79, 79, .55); }
-    body.is-poisoned-accepted .card h2 { color: #ffc2c2; }
-    body.is-poisoned-accepted .member-virtual-card:not(.is-owned) { opacity: 0.5; }
-    body.is-poisoned-accepted #memberGrid .card { pointer-events: none; }
-    body.is-poisoned-accepted #memberGrid .card * { pointer-events: none; }
-    body.is-poisoned-accepted #memberLogoutBtn { pointer-events: auto !important; }
-
-    /* --- ESTILOS DE LA RIFA MEJORADOS --- */
-    .raffle-grid { display: grid; grid-template-columns: 320px 1fr; gap: 16px; }
-    #raffleParticipantsList { max-height: 400px; overflow-y: auto; background: var(--ink); border-radius: 12px; padding: 8px; border: 1px solid var(--border); }
-    #raffleParticipantsList .item { padding: 8px 12px; font-size: 14px; }
-    
-    #raffleCountdown { font-size: 120px; font-weight: 800; text-align: center; color: var(--neon-yellow); text-shadow: 0 0 20px var(--neon-yellow); min-height: 150px; display: grid; place-items: center; }
-    
-    #raffleWinnersList .winner-item { font-size: 24px; font-weight: 700; text-align: center; padding: 16px; border-radius: 12px; background: linear-gradient(45deg, var(--neon-cyan), var(--neon-pink)); color: var(--ink); animation: winner-in 0.5s ease-out forwards; opacity: 0; transform: scale(0.8); }
-    #raffleWinnersList .winner-item:not(:last-child) { margin-bottom: 12px; }
-    @keyframes winner-in { to { opacity: 1; transform: scale(1); } }
-
-    /* --- ESTILOS RULETA --- */
-    #rouletteContainer { position: relative; padding: 1rem 0; }
-    #rouletteContainer::before { content: '▶'; position: absolute; left: -24px; top: 50%; transform: translateY(-50%); font-size: 24px; color: var(--neon-yellow); }
-    .roulette-list { max-height: 300px; overflow: hidden; list-style: none; padding: 0; margin: 0; border: 1px solid var(--border); border-radius: 12px; background: var(--ink); }
-    .roulette-item { padding: 10px 16px; font-size: 16px; transition: all 0.1s ease; }
-    .roulette-item.is-active { background-color: var(--neon-yellow); color: var(--ink); font-weight: 700; transform: scale(1.05); }
-
-    /* --- ESTILOS CARRERA DE EMOJIS --- */
-    #emojiRaceContainer { padding: 1rem 0; }
-    .emoji-race-track { display: flex; flex-direction: column; gap: 8px; background: rgba(0,0,0,.2); padding: 1rem; border-radius: 12px; position: relative; overflow: hidden; }
-    .emoji-race-track::after { content: ''; position: absolute; right: 20px; top: 0; bottom: 0; width: 4px; background: repeating-linear-gradient(0deg, #fff, #fff 10px, #000 10px, #000 20px); }
-    .emoji-lane { display: flex; align-items: center; background: rgba(255,255,255,.05); padding: 4px; border-radius: 8px; }
-    .emoji-racer { font-size: 24px; transition: transform 0.2s linear; }
-    .emoji-racer-name { font-size: 12px; margin-left: 10px; color: var(--muted); }
-    .emoji-lane.is-winner { background-color: var(--neon-yellow); }
-    .emoji-lane.is-winner .emoji-racer-name { color: var(--ink); font-weight: bold; }
-
-    /* Media Queries */
-    @media (max-width: 980px) { .admin-dashboard, .raffle-grid { grid-template-columns: 1fr; } }
-    @media (max-width: 500px) {
-      .art { display: flex; align-items: center; justify-content: center; height: auto; min-height: 90vh; }
-      .floating-content { position: static; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; max-width: 400px; height: auto; padding: 2rem 1rem; pointer-events: auto; }
-      .floating-logo { position: static; transform: none; width: clamp(340px, 90vw, 420px); margin-bottom: 24px; }
-      .loginFloat { position: static; transform: none; width: 100%; }
-    }
-    @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Finanzas Personales • Single-File App</title>
+<style>
+:root{
+  --bg:#0f172a; --panel:#111827; --muted:#94a3b8; --text:#e5e7eb; --accent:#22c55e; --danger:#ef4444; --warn:#f59e0b; --line:#1f2937;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,Sego UI,Roboto,Inter,Arial}
+header{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+h1{margin:0;font-size:18px}
+.container{max-width:1200px;margin:18px auto;padding:0 16px;display:grid;grid-template-columns:1.2fr 2fr;gap:16px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+.panel h2{margin:0 0 10px 0;font-size:14px;color:var(--muted);letter-spacing:.3px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+label{font-size:12px;color:var(--muted)}
+input,select,button,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid var(--line);background:#0b1220;color:var(--text)}
+button{cursor:pointer;border:1px solid #243045;background:#111b2e}
+button.primary{background:var(--accent);border-color:#16a34a;color:#051a0e;font-weight:600}
+button.warn{background:var(--warn);border-color:#b45309;color:#1a1405}
+button.danger{background:var(--danger);border-color:#b91c1c}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.card{padding:12px;border-radius:10px;background:#0b1220;border:1px solid var(--line)}
+.card .big{font-size:20px;font-weight:700}
+.badge{font-size:11px;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{font-size:12px;color:var(--muted);font-weight:600}
+td.amount{text-align:right;font-variant-numeric:tabular-nums}
+.tag{font-size:11px;padding:2px 8px;border-radius:999px;background:#0f1a2e;border:1px solid #1c2a44;color:#a8c7ff}
+footer{max-width:1200px;margin:14px auto 60px;padding:0 16px;color:var(--muted)}
+.progress{height:8px;background:#0b1220;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.progress>i{display:block;height:100%;background:linear-gradient(90deg,#22c55e,#16a34a)}
+.progress.over>i{background:linear-gradient(90deg,#ef4444,#b91c1c)}
+hr.sep{border:0;border-top:1px dashed var(--line);margin:10px 0}
+canvas{width:100%;height:220px;background:#0b1220;border:1px solid var(--line);border-radius:8px}
+.small{font-size:12px;color:var(--muted)}
+.iconbtn{padding:8px 10px}
+.hidden{display:none}
+@media (max-width:900px){.container{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
-  <div id="poison-overlay" class="hidden">
-    <span>Has sido envenenado ☠️</span>
-    <button id="acceptPoisonBtn" class="btn danger">Aceptar Destino</button>
+<header>
+  <h1>Finanzas Personales</h1>
+  <div class="row">
+    <select id="currency"></select>
+    <button id="exportBtn" class="iconbtn">Exportar JSON</button>
+    <label class="iconbtn" for="importFile" style="cursor:pointer">Importar JSON</label>
+    <input id="importFile" type="file" accept="application/json" class="hidden">
+    <button id="resetBtn" class="danger iconbtn">Reset</button>
   </div>
-  <div class="bg-tech" aria-hidden="true"></div>
+</header>
 
-  <div class="wrap">
-    <main>
-      <section class="landing" id="authGrid">
-        <div class="art" aria-hidden="true">
-          <span class="shine"></span>
-        </div>
-        <div class="floating-content">
-          <img src="logo.svg" alt="Game Over Logo" class="floating-logo" />
-          <div class="loginFloat" role="form" aria-labelledby="loginFormTitle">
-            <div class="loginTitle" id="loginFormTitle">iniciar sesión</div>
-            <div class="phoneInput" id="loginBox">
-              <span class="phone-prefix">+506</span>
-              <input id="loginInput" type="tel" inputmode="numeric" placeholder="8888 6666" autocomplete="one-time-code" aria-label="Teléfono" />
-              <button id="loginGo" class="goBtn" aria-label="Entrar">&gt;</button>
-            </div>
-            <div class="loginMeta" id="loginMsg" aria-live="polite"></div>
-          </div>
-        </div>
-        <div class="adminLink"><button id="adminOpen" type="button">[admin]</button></div>
-      </section>
-
-      <div id="views-container" class="hidden">
-        <section id="memberGrid">
-          <div class="card">
-            <h2 id="memberGridTitle">Tus Recompensas</h2>
-            <div id="memberCards" class="member-cards-grid"></div>
-            <hr style="border-color: var(--border); margin: 24px 0;">
-            <div class="comments-header">
-                <h2>Comentarios</h2>
-                <div>
-                  <button class="btn" id="toggleCommentsBtn">Ver Comentarios</button>
-                  <button class="btn" id="memberLogoutBtn" style="margin-left: 8px;">Salir</button>
-                </div>
-            </div>
-            <div id="memberCommentsContainer">
-              <div id="memberComments" class="list" style="margin-top: 1rem;"></div>
-            </div>
-          </div>
-        </section>
-
-        <section id="adminGrid">
-          <div class="admin-dashboard">
-            <div class="card">
-              <div class="card-header">
-                <h2>Usuarios</h2>
-                <button class="btn accent" id="openAddUserModalBtn">+ Añadir</button>
-              </div>
-              <div class="field"><span class="icon">🔎</span><input class="neo" id="search" type="text" placeholder="Buscar..." /></div>
-              <div id="usersList" class="list"></div>
-            </div>
-            <div class="card">
-              <div id="editPanel" class="hidden">
-                <div class="card-header">
-                  <h2>Editar Usuario</h2>
-                </div>
-                
-                <form id="editUserForm">
-                    <label class="form-label" for="editUserName">Nombre</label>
-                    <div class="field"><span class="icon">👤</span><input class="neo" id="editUserName" type="text" /></div>
-                    <label class="form-label" for="editUserNumericId">ID Numérico</label>
-                    <div class="field"><span class="icon">#️⃣</span><input class="neo" id="editUserNumericId" type="text" /></div>
-                    <label class="form-label" for="editUserPhone">Teléfono (ID de Login)</label>
-                    <div class="field"><span class="icon">📱</span><input class="neo" id="editUserPhone" type="tel" /></div>
-                    
-                    <label class="form-label">Tarjetas del Usuario</label>
-                    <div id="editRewards" class="admin-reward-selector"></div>
-
-                    <button class="btn brand" id="saveUserBtn" type="submit" style="width: 100%;">Guardar Cambios</button>
-                </form>
-
-                <hr style="border-color: var(--border); margin: 20px 0;">
-                
-                <label class="form-label">Comentarios</label>
-                <div class="field"><span class="icon">💬</span><textarea class="neo" id="editComment" placeholder="Añadir comentario..." style="height: 60px;"></textarea></div>
-                <button class="btn" id="addCommentBtn" style="width: 100%; margin-top: 8px;">Añadir Comentario</button>
-
-                <hr style="border-color: var(--border); margin: 20px 0;">
-
-                <label class="form-label">Acciones Peligrosas</label>
-                <div class="row">
-                    <button class="btn danger" id="poisonBtn">☠️ Envenenar</button>
-                    <button class="btn danger" id="deleteUserBtn">Eliminar Usuario</button>
-                </div>
-              </div>
-              <div id="noUserSelected">Selecciona un usuario de la lista<br>para ver o editar sus detalles.</div>
-            </div>
-          </div>
-          <div class="card" style="margin-top: 16px; display:flex; gap: 1rem;">
-            <button class="btn" id="goToRaffleBtn">🎟️ Organizar Rifa</button>
-            <button class="btn" id="adminLogoutBtn">Cerrar Sesión de Administrador</button>
-          </div>
-        </section>
-        
-        <!-- SECCIÓN DE LA RIFA (MEJORADA) -->
-        <section id="raffleGrid" class="hidden">
-          <div class="card">
-            <div class="card-header">
-                <h2>Rifa de YouTube Live</h2>
-                <button class="btn" id="backToUsersBtn">← Volver a Usuarios</button>
-            </div>
-            
-            <!-- Panel de Configuración -->
-            <div id="raffleSetupPanel">
-                <div class="raffle-grid">
-                    <div>
-                        <label class="form-label" for="youtubeVideoId">ID del Video de YouTube</label>
-                        <div class="field"><span class="icon">▶️</span><input class="neo" id="youtubeVideoId" type="text" placeholder="Ej: dQw4w9WgXcQ" /></div>
-                        
-                        <label class="form-label" for="raffleHashtag">Hashtag (#)</label>
-                        <div class="field"><span class="icon">#️⃣</span><input class="neo" id="raffleHashtag" type="text" value="#gameover" /></div>
-                        
-                        <label class="form-label" for="raffleWinnerCount">Número de Ganadores</label>
-                        <div class="field"><span class="icon">🏆</span><input class="neo" id="raffleWinnerCount" type="number" value="1" min="1" /></div>
-
-                        <label class="form-label" for="raffleType">Tipo de Rifa</label>
-                        <div class="field"><span class="icon">🎰</span>
-                            <select id="raffleType" class="neo" style="padding-left: 40px; -webkit-appearance: none;">
-                                <option value="countdown">Conteo Regresivo</option>
-                                <option value="roulette">Ruleta</option>
-                                <option value="emoji_race">Carrera de Emojis</option>
-                            </select>
-                        </div>
-                        <button class="btn brand" id="fetchParticipantsBtn" style="width: 100%; margin-top: 20px;">Obtener Participantes</button>
-                    </div>
-                    <div>
-                        <div class="card-header" style="margin-bottom: 8px;">
-                            <h3 style="margin:0; font-size: 16px;">Participantes (<span id="participantCount">0</span>)</h3>
-                            <button class="btn accent" id="startRaffleBtn" disabled>Iniciar Rifa</button>
-                        </div>
-                        <div id="raffleParticipantsList" class="list">
-                            <div style="text-align:center; padding: 2rem; color: var(--muted);">Esperando participantes...</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Panel de Resultados -->
-            <div id="raffleResultsPanel" class="hidden">
-                <hr style="border-color: var(--border); margin: 24px 0;">
-                <div>
-                    <h3 style="text-align:center; font-size: 20px; margin-bottom: 20px;">Resultados</h3>
-                    
-                    <div id="countdownContainer" class="hidden"><div id="raffleCountdown"></div></div>
-                    <div id="rouletteContainer" class="hidden"></div>
-                    <div id="emojiRaceContainer" class="hidden"></div>
-                    
-                    <h3 style="text-align:center; font-size: 16px; margin: 20px 0 10px;">Ganador(es):</h3>
-                    <div id="raffleWinnersList" class="list"></div>
-                    
-                    <div style="text-align: center; margin-top: 20px;">
-                        <button id="resetRaffleBtn" class="btn">Reiniciar Rifa</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        </section>
-
+<div class="container">
+  <!-- Izquierda: captura y filtros -->
+  <section class="panel">
+    <h2>Nueva transacción</h2>
+    <div class="grid2">
+      <div>
+        <label>Fecha</label>
+        <input id="date" type="date">
       </div>
-
-      <div id="adminModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="adminModalTitle">
-        <div class="box">
-          <h2 id="adminModalTitle" class="loginTitle">Acceso de Administrador</h2>
-          <label class="form-label" for="adminPwd">Contraseña</label>
-          <input id="adminPwd" type="password" class="neo" aria-label="Contraseña de administrador" />
-          <div class="row" style="margin-top:16px;">
-            <button class="btn brand" id="adminEnter">Entrar</button>
-            <button class="btn" id="adminCancel">Cancelar</button>
-          </div>
-          <div class="loginMeta" id="adminMsg" style="margin-top: 8px;"></div>
+      <div>
+        <label>Tipo</label>
+        <select id="type">
+          <option value="gasto">Gasto</option>
+          <option value="ingreso">Ingreso</option>
+        </select>
+      </div>
+      <div>
+        <label>Categoría</label>
+        <div class="row">
+          <select id="category" style="flex:1"></select>
+          <button id="addCatBtn" title="Añadir categoría" class="iconbtn">+</button>
         </div>
       </div>
-      <div id="addUserModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="addUserModalTitle">
-        <div class="box">
-          <h2 id="addUserModalTitle" class="loginTitle">Añadir Nuevo Usuario</h2>
-          <label class="form-label" for="newUserName">Nombre</label>
-          <div class="field"><span class="icon">👤</span><input class="neo" id="newUserName" type="text" placeholder="Nombre completo" /></div>
-          <label class="form-label" for="newUserNumericId">ID Numérico</label>
-          <div class="field"><span class="icon">#️⃣</span><input class="neo" id="newUserNumericId" type="text" placeholder="Ej: 001, 042" /></div>
-          <label class="form-label" for="newUserPhone">Teléfono</label>
-          <div class="field"><span class="icon">📱</span><input class="neo" id="newUserPhone" type="tel" placeholder="Ej: 8888 6666" /></div>
-          <label class="form-label">Tarjetas Iniciales</label>
-          <div id="newUserRewards" class="admin-reward-selector"></div>
-          <div class="row" style="margin-top:16px;">
-            <button class="btn accent" id="addUserBtn">Crear Usuario</button>
-            <button class="btn" id="cancelAddUserBtn">Cancelar</button>
-          </div>
+      <div>
+        <label>Monto</label>
+        <input id="amount" type="number" step="0.01" inputmode="decimal" placeholder="0.00">
+      </div>
+      <div class="grid2" style="grid-column:1/-1;gap:10px">
+        <div>
+          <label>Descripción</label>
+          <input id="desc" type="text" placeholder="Detalle breve">
+        </div>
+        <div>
+          <label>Etiqueta</label>
+          <input id="tag" type="text" placeholder="p.ej. tarjeta, efectivo">
         </div>
       </div>
-       <div id="cardDetailModal" class="modal" role="dialog" aria-modal="true">
-        <div class="box" style="text-align: center;">
-            <img id="cardDetailImg" src="" alt="Detalle de la tarjeta" style="width: 200px; border-radius: 10px; margin-bottom: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.4);">
-            <h2 id="cardDetailTitle" style="margin-bottom: 8px;"></h2>
-            <p id="cardDetailDesc" style="color: var(--muted); max-width: 320px; margin-left: auto; margin-right: auto;"></p>
-            <button class="btn" id="closeCardDetailBtn" style="margin-top: 20px;">Cerrar</button>
-        </div>
+      <div style="grid-column:1/-1">
+        <button id="addBtn" class="primary">Guardar</button>
+      </div>
     </div>
-    </main>
-  </div>
 
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <hr class="sep">
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { 
-        getFirestore, collection, doc, getDoc, setDoc, updateDoc, onSnapshot, 
-        query, orderBy, arrayUnion, deleteDoc 
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    <h2>Presupuestos por categoría</h2>
+    <div id="budgets"></div>
+    <div class="row" style="margin-top:8px">
+      <select id="budgetCat"></select>
+      <input id="budgetVal" type="number" step="0.01" placeholder="0.00" style="max-width:160px">
+      <button id="setBudget" class="warn">Definir/Actualizar</button>
+      <button id="delBudget" class="iconbtn">Eliminar</button>
+    </div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBlevLcY3TKVYQpr4Hur1f7XeZoHLbXCC0",
-      authDomain: "gameover-b6eb7.firebaseapp.com",
-      projectId: "gameover-b6eb7",
-      storageBucket: "gameover-b6eb7.appspot.com",
-      messagingSenderId: "522023719283",
-      appId: "1:522023719283:web:3e5ce88c28a52b56a27506"
-    };
+    <hr class="sep">
 
-    // --- ¡ACCIÓN REQUERIDA! ---
-    // 1. ELIMINA cualquier clave de API antigua que hayas compartido.
-    // 2. CREA una nueva clave de API en la consola de Google Cloud.
-    // 3. PEGA tu NUEVA clave aquí, dentro de las comillas.
-    const YOUTUBE_API_KEY = "XXX AQUI VA LA CLAVE"; // <-- !!! REEMPLAZA ESTO CON TU NUEVA CLAVE !!!
+    <h2>Filtros</h2>
+    <div class="grid3">
+      <div>
+        <label>Mes</label>
+        <select id="filterMonth"></select>
+      </div>
+      <div>
+        <label>Categoría</label>
+        <select id="filterCategory"></select>
+      </div>
+      <div>
+        <label>Búsqueda</label>
+        <input id="filterSearch" type="text" placeholder="texto libre">
+      </div>
+    </div>
+  </section>
 
+  <!-- Derecha: KPIs, gráfico y tabla -->
+  <section class="panel">
+    <h2>Resumen</h2>
+    <div class="kpi">
+      <div class="card">
+        <div class="badge">Ingresos</div>
+        <div id="kpiIncome" class="big">—</div>
+      </div>
+      <div class="card">
+        <div class="badge">Gastos</div>
+        <div id="kpiExpense" class="big">—</div>
+      </div>
+      <div class="card">
+        <div class="badge">Balance</div>
+        <div id="kpiBalance" class="big">—</div>
+      </div>
+    </div>
 
-    const REWARDS = [
-      { id: "r1", label: "Joker",    img: "assets/card1.png", description: "Un agente del caos con una mente brillante y una risa inolvidable. Su único objetivo es demostrar que cualquiera puede caer en la locura." },
-      { id: "r2", label: "Predator", img: "assets/card2.png", description: "Un cazador intergaláctico que viaja por el universo en busca de las presas más peligrosas. Se rige por un estricto código de honor." },
-      { id: "r3", label: "Alien",    img: "assets/card3.png", description: "El xenomorfo, un organismo perfecto cuya supervivencia es su única ley. Una máquina de matar biológica, rápida, silenciosa y letal." },
-      { id: "r4", label: "Jason",    img: "assets/card4.png", description: "Una fuerza de la naturaleza imparable, renacida de una tragedia en Crystal Lake. Silencioso, brutal e inmortal, persigue a sus víctimas sin descanso." }
-    ];
-    
-    const REWARD_ORDER = Object.fromEntries(REWARDS.map((r, i) => [r.id, i]));
-    const ADMIN_KEY_B64 = 'RmluYWxCb3Nz';
+    <div style="margin-top:12px">
+      <canvas id="chart" width="900" height="220" aria-label="Gastos por categoría"></canvas>
+      <div class="small">Gráfico de gastos por categoría del mes filtrado.</div>
+    </div>
 
-    let db;
-    try {
-      const app = initializeApp(firebaseConfig);
-      db = getFirestore(app);
-    } catch (e) { console.error("Error al inicializar Firebase.", e); document.body.innerHTML = '<h1>Error de conexión.</h1>'; }
-    
-    const UI = {
-        authGrid: document.getElementById('authGrid'),
-        viewsContainer: document.getElementById('views-container'),
-        loginBox: document.getElementById('loginBox'), loginInput: document.getElementById('loginInput'),
-        loginGo: document.getElementById('loginGo'), loginMsg: document.getElementById('loginMsg'),
-        adminOpen: document.getElementById('adminOpen'), adminModal: document.getElementById('adminModal'),
-        adminPwd: document.getElementById('adminPwd'), adminEnter: document.getElementById('adminEnter'),
-        adminCancel: document.getElementById('adminCancel'), adminMsg: document.getElementById('adminMsg'),
-        memberGrid: document.getElementById('memberGrid'), memberGridTitle: document.getElementById('memberGridTitle'),
-        memberCards: document.getElementById('memberCards'), toggleCommentsBtn: document.getElementById('toggleCommentsBtn'),
-        memberCommentsContainer: document.getElementById('memberCommentsContainer'), memberComments: document.getElementById('memberComments'), 
-        memberLogoutBtn: document.getElementById('memberLogoutBtn'),
-        adminGrid: document.getElementById('adminGrid'),
-        openAddUserModalBtn: document.getElementById('openAddUserModalBtn'),
-        addUserModal: document.getElementById('addUserModal'),
-        newUserName: document.getElementById('newUserName'), newUserNumericId: document.getElementById('newUserNumericId'),
-        newUserPhone: document.getElementById('newUserPhone'), newUserRewards: document.getElementById('newUserRewards'),
-        addUserBtn: document.getElementById('addUserBtn'), cancelAddUserBtn: document.getElementById('cancelAddUserBtn'),
-        search: document.getElementById('search'), usersList: document.getElementById('usersList'),
-        editPanel: document.getElementById('editPanel'), editUserForm: document.getElementById('editUserForm'),
-        editUserName: document.getElementById('editUserName'), editUserNumericId: document.getElementById('editUserNumericId'),
-        editUserPhone: document.getElementById('editUserPhone'),
-        editRewards: document.getElementById('editRewards'), editComment: document.getElementById('editComment'),
-        saveUserBtn: document.getElementById('saveUserBtn'),
-        addCommentBtn: document.getElementById('addCommentBtn'),
-        poisonBtn: document.getElementById('poisonBtn'), deleteUserBtn: document.getElementById('deleteUserBtn'),
-        noUserSelected: document.getElementById('noUserSelected'),
-        adminLogoutBtn: document.getElementById('adminLogoutBtn'),
-        cardDetailModal: document.getElementById('cardDetailModal'), cardDetailImg: document.getElementById('cardDetailImg'),
-        cardDetailTitle: document.getElementById('cardDetailTitle'), cardDetailDesc: document.getElementById('cardDetailDesc'),
-        closeCardDetailBtn: document.getElementById('closeCardDetailBtn'),
-        poisonOverlay: document.getElementById('poison-overlay'), acceptPoisonBtn: document.getElementById('acceptPoisonBtn'),
-        toast: document.getElementById('toast'),
-        raffleGrid: document.getElementById('raffleGrid'),
-        backToUsersBtn: document.getElementById('backToUsersBtn'),
-        raffleSetupPanel: document.getElementById('raffleSetupPanel'),
-        raffleResultsPanel: document.getElementById('raffleResultsPanel'),
-        youtubeVideoId: document.getElementById('youtubeVideoId'),
-        raffleHashtag: document.getElementById('raffleHashtag'),
-        raffleWinnerCount: document.getElementById('raffleWinnerCount'),
-        raffleType: document.getElementById('raffleType'),
-        fetchParticipantsBtn: document.getElementById('fetchParticipantsBtn'),
-        participantCount: document.getElementById('participantCount'),
-        raffleParticipantsList: document.getElementById('raffleParticipantsList'),
-        startRaffleBtn: document.getElementById('startRaffleBtn'),
-        countdownContainer: document.getElementById('countdownContainer'),
-        raffleCountdown: document.getElementById('raffleCountdown'),
-        rouletteContainer: document.getElementById('rouletteContainer'),
-        emojiRaceContainer: document.getElementById('emojiRaceContainer'),
-        raffleWinnersList: document.getElementById('raffleWinnersList'),
-        resetRaffleBtn: document.getElementById('resetRaffleBtn'),
-        goToRaffleBtn: document.getElementById('goToRaffleBtn'),
-    };
+    <hr class="sep">
 
-    let unsubMember = null, unsubUsers = null, unsubEdit = null;
-    let cacheUsers = [];
-    let selectedUserId = null;
-    let raffleParticipants = [];
-    let raffleWinners = [];
+    <div class="row" style="justify-content:space-between">
+      <h2 style="margin:0">Transacciones</h2>
+      <div class="small" id="countInfo">0 elementos</div>
+    </div>
+    <table id="table">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Tipo</th>
+          <th>Descripción</th>
+          <th>Categoría</th>
+          <th>Etiqueta</th>
+          <th class="amount">Monto</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</div>
 
-    const el = (tag, attrs = {}, children = []) => { const n = document.createElement(tag); Object.entries(attrs).forEach(([k,v]) => { if (k === 'class') n.className = v; else if (k === 'text') n.textContent = v; else if (k === 'dataset') Object.assign(n.dataset, v); else n.setAttribute(k, v); }); children.forEach(c => n.append(c)); return n; };
-    const getDigits = s => (s || '').replace(/\D+/g, '');
-    const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(()=>fn.apply(null,a), ms); }; };
-    const sortRewards = (ids) => (ids || []).slice().sort((a,b) => (REWARD_ORDER[a] ?? 99) - (REWARD_ORDER[b] ?? 99));
-    
-    function toast(msg, type = 'info') { const item = el('div', { class: `toast-item is-${type}`, text: msg }); UI.toast.appendChild(item); setTimeout(() => { item.style.transition = 'opacity .4s ease, transform .4s ease'; item.style.opacity = '0'; item.style.transform = 'translateX(20px)'; }, 2500); setTimeout(() => item.remove(), 3000); }
-    
-    function switchView(viewName) {
-        document.body.classList.remove('is-poisoned-active', 'is-poisoned-accepted');
-        UI.poisonOverlay.classList.add('hidden');
-        UI.authGrid.classList.add('hidden');
-        UI.viewsContainer.classList.add('hidden');
-        if (unsubMember) { unsubMember(); unsubMember = null; }
-        if (unsubUsers) { unsubUsers(); unsubUsers = null; }
-        clearEditPanel();
-        
-        UI.memberGrid.classList.add('hidden');
-        UI.adminGrid.classList.add('hidden');
-        UI.raffleGrid.classList.add('hidden');
+<footer class="small">
+  Datos guardados en LocalStorage del navegador. Exporta el JSON para copia de seguridad o para migrar.
+</footer>
 
-        switch (viewName) {
-            case 'auth':
-                UI.authGrid.classList.remove('hidden');
-                UI.loginInput.focus();
-                UI.loginMsg.textContent = '';
-                localStorage.removeItem('memberId');
-                localStorage.removeItem('admin');
-                break;
-            case 'member':
-                UI.viewsContainer.classList.remove('hidden');
-                UI.memberGrid.classList.remove('hidden');
-                startMemberListener(localStorage.getItem('memberId'));
-                break;
-            case 'admin':
-                UI.viewsContainer.classList.remove('hidden');
-                UI.adminGrid.classList.remove('hidden');
-                startUsersListener();
-                break;
-            case 'raffle':
-                UI.viewsContainer.classList.remove('hidden');
-                UI.raffleGrid.classList.remove('hidden');
-                resetRaffle();
-                break;
-        }
-    }
-    
-    function renderAdminRewardSelector(container, selected, onToggle) {
-      container.innerHTML = '';
-      REWARDS.forEach(r => {
-        const card = el('div', { class: 'admin-reward-card', dataset: { id: r.id } }, [ el('img', { src: r.img, alt: r.label }), el('span', { text: r.label }) ]);
-        if (selected.has(r.id)) card.classList.add('is-selected');
-        card.addEventListener('click', () => onToggle(r.id));
-        container.appendChild(card);
-      });
-    }
+<script>
+/* ====== Estado y utilidades ====== */
+const $ = s=>document.querySelector(s);
+const $$ = s=>Array.from(document.querySelectorAll(s));
+const storeKey='pf_state_v2';
 
-    function makeAdminRewardToggle(container, selected){
-      const toggle = (rid) => { if (selected.has(rid)) selected.delete(rid); else selected.add(rid); makeAdminRewardToggle(container, selected); };
-      renderAdminRewardSelector(container, selected, toggle);
-    }
+const defaultState={
+  currency:'USD',
+  categories:['Vivienda','Alimentación','Transporte','Salud','Ocio','Educación','Impuestos','Ahorro','Otros'],
+  tx:[], // {id, date, type, category, amount, desc, tag}
+  budgets:{} // {category: number}
+};
 
-    function renderMemberPanels(member) {
-      const memberRewards = new Set(member.rewards || []);
-      const comments = member.comments || [];
-      const hasAllRewards = memberRewards.size === REWARDS.length;
-      UI.memberGridTitle.textContent = hasAllRewards ? `🏆 ¡COLECCIÓN COMPLETA! 🏆` : `Recompensas de ${member.name}`;
-      UI.memberCards.innerHTML = '';
-      REWARDS.forEach(reward => {
-        const isOwned = memberRewards.has(reward.id);
-        const cardEl = el('div', { class: 'member-virtual-card', 'data-reward-id': reward.id }, [
-            el('img', { src: reward.img, alt: reward.label }),
-            el('div', { class: 'label', text: reward.label })
-        ]);
-        if (isOwned) cardEl.classList.add('is-owned');
-        cardEl.addEventListener('click', () => showCardDetails(reward.id));
-        UI.memberCards.appendChild(cardEl);
-      });
-      UI.memberComments.innerHTML = '';
-      if (comments.length === 0) { UI.memberComments.appendChild(el('div', { class: 'muted', style: 'text-align: center; padding: 1rem;', text: 'Sin comentarios.' }));
-      } else {
-        comments.slice().reverse().forEach(c => {
-          const item = el('div', { class: 'comment-item' }, [
-              el('div', { class: 'comment-header' }, [ el('span', { class: 'comment-author', text: c.author || 'Admin' }), el('span', { text: new Date(c.ts || Date.now()).toLocaleString() }) ]),
-              el('p', { class: 'comment-text', text: c.text || '' })
-          ]);
-          UI.memberComments.appendChild(item);
-        });
+let S = load();
+function load(){
+  try{
+    const raw = localStorage.getItem(storeKey);
+    if(!raw){ return structuredClone(defaultState); }
+    const parsed = JSON.parse(raw);
+    // Migraciones simples
+    parsed.categories = parsed.categories || structuredClone(defaultState.categories);
+    parsed.budgets = parsed.budgets || {};
+    parsed.tx = parsed.tx || [];
+    parsed.currency = parsed.currency || 'USD';
+    return parsed;
+  }catch(_){ return structuredClone(defaultState); }
+}
+function save(){ localStorage.setItem(storeKey, JSON.stringify(S)); }
+function uid(){ return Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4); }
+function fmt(n){
+  try{
+    return new Intl.NumberFormat(navigator.language,{style:'currency',currency:S.currency,maximumFractionDigits:2}).format(n);
+  }catch(_){
+    return `${S.currency} ${n.toFixed(2)}`;
+  }
+}
+function yyyymm(d){ const dt=new Date(d); return isFinite(dt)? `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}` : ''; }
+
+/* ====== Inicialización UI ====== */
+const currencyEl = $('#currency');
+const currencies = ['USD','EUR','MXN','ARS','COP','CLP','PEN','BRL','GBP','JPY','CNY','CAD','AUD','CHF'];
+currencyEl.innerHTML = currencies.map(c=>`<option ${S.currency===c?'selected':''}>${c}</option>`).join('');
+
+const catEl = $('#category');
+const budgetCatEl = $('#budgetCat');
+const filterCatEl = $('#filterCategory');
+function refreshCategorySelects(){
+  const opts = S.categories.map(c=>`<option>${c}</option>`).join('');
+  catEl.innerHTML = opts;
+  budgetCatEl.innerHTML = opts;
+  filterCatEl.innerHTML = `<option value="">Todas</option>` + opts;
+}
+refreshCategorySelects();
+
+function refreshMonthFilter(){
+  const months = Array.from(new Set(S.tx.map(t=>yyyymm(t.date)))).filter(Boolean).sort().reverse();
+  const now = yyyymm(new Date());
+  const all = months.includes(now)? months : [now,...months];
+  $('#filterMonth').innerHTML = `<option value="">Todos</option>` + all.map(m=>`<option>${m}</option>`).join('');
+}
+refreshMonthFilter();
+
+/* ====== Eventos ====== */
+$('#addCatBtn').onclick=()=>{
+  const name = prompt('Nombre de categoría:')?.trim();
+  if(!name) return;
+  if(!S.categories.includes(name)){ S.categories.push(name); save(); refreshCategorySelects(); render(); }
+};
+
+$('#setBudget').onclick=()=>{
+  const c = budgetCatEl.value;
+  const v = parseFloat($('#budgetVal').value);
+  if(!c || isNaN(v)) return;
+  S.budgets[c]=v;
+  save(); render();
+};
+$('#delBudget').onclick=()=>{
+  const c = budgetCatEl.value;
+  if(!c) return;
+  delete S.budgets[c];
+  save(); render();
+};
+
+currencyEl.onchange=()=>{ S.currency = currencyEl.value; save(); render(); };
+
+$('#addBtn').onclick=()=>{
+  const date = $('#date').value || new Date().toISOString().slice(0,10);
+  const type = $('#type').value;
+  const category = $('#category').value;
+  const amount = parseFloat($('#amount').value);
+  const desc = $('#desc').value.trim();
+  const tag = $('#tag').value.trim();
+  if(!category || !isFinite(amount)) return;
+  S.tx.push({id:uid(), date, type, category, amount, desc, tag});
+  save();
+  // limpiar mínimos
+  $('#amount').value=''; $('#desc').value=''; $('#tag').value='';
+  refreshMonthFilter();
+  render();
+};
+
+$('#exportBtn').onclick=()=>{
+  const blob = new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'finanzas.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+
+$('#importFile').onchange=(e)=>{
+  const f = e.target.files?.[0]; if(!f) return;
+  const reader = new FileReader();
+  reader.onload=()=>{
+    try{
+      const data = JSON.parse(reader.result);
+      if(!data || !data.tx) throw new Error('formato inválido');
+      S = Object.assign(structuredClone(defaultState), data);
+      save(); refreshCategorySelects(); refreshMonthFilter(); render();
+    }catch(err){ alert('No se pudo importar: '+err.message); }
+  };
+  reader.readAsText(f);
+  e.target.value='';
+};
+
+$('#resetBtn').onclick=()=>{
+  if(confirm('Esto borrará todos los datos locales. ¿Continuar?')){
+    localStorage.removeItem(storeKey);
+    S = structuredClone(defaultState);
+    save(); refreshCategorySelects(); refreshMonthFilter(); render();
+  }
+};
+
+$('#filterMonth').onchange=render;
+$('#filterCategory').onchange=render;
+$('#filterSearch').oninput=()=>{ render(); };
+
+/* ====== Render ====== */
+function getFilters(){
+  return {
+    month: $('#filterMonth').value,
+    cat: $('#filterCategory').value,
+    q: ($('#filterSearch').value||'').toLowerCase()
+  };
+}
+function applyFilters(list){
+  const f = getFilters();
+  return list.filter(t=>{
+    const m = f.month? yyyymm(t.date)===f.month : true;
+    const c = f.cat? t.category===f.cat : true;
+    const q = f.q? [t.desc,t.tag,t.category].join(' ').toLowerCase().includes(f.q) : true;
+    return m && c && q;
+  });
+}
+
+function stats(list){
+  let inc=0, exp=0;
+  for(const t of list){
+    if(t.type==='ingreso') inc += t.amount;
+    else exp += t.amount;
+  }
+  return {inc, exp, bal: inc-exp};
+}
+
+function byCategoryExpenses(list){
+  const map={};
+  for(const t of list){ if(t.type==='gasto'){ map[t.category]=(map[t.category]||0)+t.amount; } }
+  return map;
+}
+
+function renderKPIs(){
+  const filtered = applyFilters(S.tx);
+  const s = stats(filtered);
+  $('#kpiIncome').textContent = fmt(s.inc);
+  $('#kpiExpense').textContent = fmt(s.exp);
+  const el = $('#kpiBalance');
+  el.textContent = fmt(s.bal);
+  el.style.color = s.bal>=0? 'var(--accent)' : 'var(--danger)';
+  $('#countInfo').textContent = `${filtered.length} elementos`;
+}
+
+function renderBudgets(){
+  const fMonth = $('#filterMonth').value || yyyymm(new Date());
+  const monthList = S.tx.filter(t=> yyyymm(t.date)===fMonth);
+  const spent = byCategoryExpenses(monthList);
+  const wrap = $('#budgets');
+  wrap.innerHTML = '';
+  const cats = Object.keys(S.budgets);
+  if(cats.length===0){
+    wrap.innerHTML = `<div class="small">Sin presupuestos definidos.</div>`;
+    return;
+  }
+  for(const c of cats){
+    const b = S.budgets[c];
+    const s = spent[c]||0;
+    const p = Math.min(100, b>0? (s/b)*100 : 0);
+    const over = s>b;
+    const row = document.createElement('div');
+    row.className='card';
+    row.innerHTML = `
+      <div class="row" style="justify-content:space-between;margin-bottom:6px">
+        <div><strong>${c}</strong> <span class="tag">${yyyymmToLabel(fMonth)}</span></div>
+        <div class="small">${fmt(s)} / ${fmt(b)} ${over?'<span style="color:var(--danger)">sobrepasado</span>':''}</div>
+      </div>
+      <div class="progress ${over?'over':''}"><i style="width:${p}%"></i></div>
+    `;
+    wrap.appendChild(row);
+  }
+}
+function yyyymmToLabel(s){
+  if(!s) return '';
+  const [y,m]=s.split('-').map(Number);
+  return new Date(y,m-1,1).toLocaleDateString(navigator.language,{month:'long',year:'numeric'});
+}
+
+function renderTable(){
+  const tbody = $('#table tbody');
+  const list = applyFilters(S.tx).sort((a,b)=> a.date<b.date?1:-1);
+  tbody.innerHTML='';
+  for(const t of list){
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${t.date}</td>
+      <td><span class="tag" style="color:${t.type==='ingreso'?'#86efac':'#fecaca'}">${t.type}</span></td>
+      <td>${esc(t.desc||'')}</td>
+      <td>${esc(t.category)}</td>
+      <td>${esc(t.tag||'')}</td>
+      <td class="amount">${fmt(t.amount*(t.type==='gasto'?-1:1))}</td>
+      <td class="amount">
+        <button class="iconbtn" data-act="edit" data-id="${t.id}">✎</button>
+        <button class="iconbtn" data-act="del" data-id="${t.id}">🗑</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  }
+  tbody.onclick=(e)=>{
+    const btn = e.target.closest('button'); if(!btn) return;
+    const id = btn.dataset.id;
+    const tx = S.tx.find(x=>x.id===id); if(!tx) return;
+    if(btn.dataset.act==='del'){
+      if(confirm('Eliminar transacción?')){
+        S.tx = S.tx.filter(x=>x.id!==id); save(); refreshMonthFilter(); render();
       }
+    }else{
+      // editar
+      const date = prompt('Fecha (YYYY-MM-DD):', tx.date) || tx.date;
+      const type = prompt('Tipo (gasto/ingreso):', tx.type) || tx.type;
+      const category = prompt('Categoría:', tx.category) || tx.category;
+      const amount = parseFloat(prompt('Monto:', tx.amount)) || tx.amount;
+      const desc = prompt('Descripción:', tx.desc||'') ?? tx.desc;
+      const tag = prompt('Etiqueta:', tx.tag||'') ?? tx.tag;
+      Object.assign(tx,{date,type,category,amount,desc,tag});
+      save(); refreshMonthFilter(); render();
     }
+  };
+}
 
-    function renderUsersList() {
-      UI.usersList.innerHTML = '';
-      const q = UI.search.value.toLowerCase().trim();
-      cacheUsers
-        .filter(u => !q || (u.name || '').toLowerCase().includes(q) || (u.phone || '').includes(getDigits(q)) || (u.numericId || '').includes(q))
-        .forEach(u => {
-          const rewardsCount = (u.rewards || []).length;
-          const isComplete = rewardsCount === REWARDS.length;
-          const displayName = isComplete ? `👑 [${u.numericId || '???'}] ${u.name}` : `[${u.numericId || '???'}] ${u.name}`;
-          const row = el('div', { class: 'item', 'data-id': u.id }, [
-              el('div', {class: 'item-main'}, [ el('div', { text: displayName }), el('small', { text: u.phone || '' }) ]),
-              el('div', {class: 'item-meta'}, [ el('span', {text: `${rewardsCount}/${REWARDS.length} 🃏`}) ])
-          ]);
-          if (u.id === selectedUserId) row.classList.add('is-selected');
-          row.addEventListener('click', () => {
-              if (u.id === selectedUserId) { clearEditPanel(); } else { selectUser(u.id); }
-          });
-          UI.usersList.appendChild(row);
-        });
-    }
+function esc(s){ return String(s).replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
 
-    function startMemberListener(memberId) {
-      if (!memberId || !db) return;
-      unsubMember = onSnapshot(doc(db, 'users', memberId), (doc) => {
-        if (!doc.exists()) { toast('Este usuario ya no existe.', 'error'); switchView('auth'); return; }
-        const memberData = { id: doc.id, ...doc.data() };
-        const poisonState = memberData.poisonState || 'none';
-        document.body.classList.remove('is-poisoned-active', 'is-poisoned-accepted');
-        UI.poisonOverlay.classList.add('hidden');
-        switch(poisonState) {
-          case 'active':
-            document.body.classList.add('is-poisoned-active');
-            UI.poisonOverlay.classList.remove('hidden');
-            break;
-          case 'accepted':
-            document.body.classList.add('is-poisoned-accepted');
-            break;
-        }
-        renderMemberPanels(memberData);
-      }, err => { console.error('member onSnapshot', err); toast('Error de conexión.', 'error'); });
-    }
+/* ====== Gráfico simple en canvas (sin librerías) ====== */
+function drawChart(){
+  const cvs = $('#chart'); const ctx = cvs.getContext('2d');
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  // Datos: gastos por categoría del mes filtrado
+  const month = $('#filterMonth').value || yyyymm(new Date());
+  const list = S.tx.filter(t=> yyyymm(t.date)===month && t.type==='gasto');
+  const map = byCategoryExpenses(list);
+  const entries = Object.entries(map).sort((a,b)=>b[1]-a[1]);
+  const pad=36, w=cvs.width, h=cvs.height;
+  // Ejes
+  ctx.strokeStyle='#1f2937'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(pad,10); ctx.lineTo(pad,h-30); ctx.lineTo(w-10,h-30); ctx.stroke();
+  // Barras
+  if(entries.length===0){
+    ctx.fillStyle='#94a3b8'; ctx.fillText('Sin datos de gastos en el mes seleccionado', pad+10, h/2);
+    return;
+  }
+  const max = Math.max(...entries.map(e=>e[1]));
+  const barAreaW = w - pad - 20, barH = 18, gap = 10;
+  const totalHeight = entries.length*(barH+gap);
+  const startY = Math.max(20,(h-40-totalHeight)/2 + 10);
+  entries.forEach((e,idx)=>{
+    const y = startY + idx*(barH+gap);
+    const val = e[1];
+    const len = (val/max) * (barAreaW-80);
+    // label
+    ctx.fillStyle='#94a3b8';
+    ctx.fillText(e[0], 10, y+barH-4);
+    // bar
+    ctx.fillStyle='#22c55e';
+    ctx.fillRect(pad+2, y, Math.max(2,len), barH);
+    // value
+    ctx.fillStyle='#e5e7eb';
+    ctx.textAlign='right';
+    ctx.fillText(fmt(val), w-14, y+barH-4);
+    ctx.textAlign='start';
+  });
+}
 
-    function startUsersListener() {
-      if (!db) return;
-      const usersQuery = query(collection(db, 'users'), orderBy('name'));
-      unsubUsers = onSnapshot(usersQuery, (snap) => {
-        cacheUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        renderUsersList();
-        if (selectedUserId && !cacheUsers.some(u => u.id === selectedUserId)) {
-          clearEditPanel();
-        }
-      }, err => { console.error('users onSnapshot', err); toast('Error al cargar usuarios.', 'error'); });
-    }
+/* ====== Render maestro ====== */
+function render(){
+  renderKPIs();
+  renderBudgets();
+  renderTable();
+  drawChart();
+}
+render();
 
-    function selectUser(id) {
-      if (unsubEdit) unsubEdit();
-      selectedUserId = id;
-      renderUsersList();
-      const user = cacheUsers.find(u => u.id === id);
-      if (!user) { clearEditPanel(); return; }
-      UI.noUserSelected.classList.add('hidden');
-      UI.editPanel.classList.remove('hidden');
-      UI.editUserName.value = user.name || '';
-      UI.editUserNumericId.value = user.numericId || '';
-      UI.editUserPhone.value = user.phone ? getDigits(user.phone).substring(3) : '';
-      const userRef = doc(db, 'users', id);
-      let selectedRewards = new Set();
-      makeAdminRewardToggle(UI.editRewards, selectedRewards);
-      unsubEdit = onSnapshot(userRef, (doc) => {
-        if (!doc.exists()) { toast('Usuario eliminado remotamente.', 'info'); clearEditPanel(); return; }
-        const data = doc.data();
-        selectedRewards = new Set(sortRewards(data.rewards || []));
-        makeAdminRewardToggle(UI.editRewards, selectedRewards);
-        const poisonState = data.poisonState || 'none';
-        UI.poisonBtn.textContent = poisonState !== 'none' ? '✅ Curar Usuario' : '☠️ Envenenar';
-        if (poisonState !== 'none') UI.poisonBtn.classList.remove('danger'); else UI.poisonBtn.classList.add('danger');
-      });
-    }
+/* Prefills útiles */
+(function prime(){
+  if(S.tx.length>0) return;
+  const today = new Date();
+  const d = (off)=> new Date(today.getFullYear(), today.getMonth(), today.getDate()-off).toISOString().slice(0,10);
+  const seed = [
+    {date:d(2), type:'ingreso', category:'Ahorro', amount:1200, desc:'Nómina', tag:'transferencia'},
+    {date:d(1), type:'gasto', category:'Alimentación', amount:42.8, desc:'Supermercado', tag:'tarjeta'},
+    {date:d(1), type:'gasto', category:'Transporte', amount:9.5, desc:'Taxi', tag:'efectivo'},
+    {date:d(0), type:'gasto', category:'Ocio', amount:18, desc:'Cine', tag:'tarjeta'}
+  ];
+  S.tx.push(...seed.map(x=>({...x,id:uid()})));
+  S.budgets['Alimentación']=250;
+  S.budgets['Transporte']=120;
+  save(); refreshMonthFilter(); render();
+})();
 
-    function clearEditPanel() {
-        if (unsubEdit) { unsubEdit(); unsubEdit = null; }
-        selectedUserId = null;
-        if (cacheUsers.length > 0) renderUsersList();
-        UI.editPanel.classList.add('hidden');
-        UI.noUserSelected.classList.remove('hidden');
-    }
-    
-    function setupAddUserModal() {
-        let selected = new Set();
-        const openModal = () => {
-          UI.newUserName.value = ''; UI.newUserNumericId.value = ''; UI.newUserPhone.value = ''; selected.clear();
-          makeAdminRewardToggle(UI.newUserRewards, selected);
-          UI.addUserModal.classList.add('is-open'); UI.newUserName.focus();
-        };
-        const closeModal = () => UI.addUserModal.classList.remove('is-open');
-        UI.openAddUserModalBtn.addEventListener('click', openModal);
-        UI.cancelAddUserBtn.addEventListener('click', closeModal);
-        UI.addUserBtn.onclick = async () => {
-            const name = UI.newUserName.value.trim();
-            const numericId = UI.newUserNumericId.value.trim();
-            const phone = `506${getDigits(UI.newUserPhone.value)}`;
-            const initialRewards = Array.from(UI.newUserRewards.querySelectorAll('.is-selected')).map(el => el.dataset.id);
-            if (!name || !numericId || phone.length <= 3) { toast('Todos los campos son requeridos.', 'error'); return; }
-            const userRef = doc(db, 'users', phone);
-            try {
-                const docSnap = await getDoc(userRef);
-                if (docSnap.exists()) { toast('Ese teléfono ya está registrado', 'error'); return; }
-                await setDoc(userRef, { name, numericId, phone, rewards: sortRewards(initialRewards), comments: [], poisonState: 'none', createdAt: Date.now() });
-                toast(`Usuario #${numericId} creado con éxito`, 'success'); closeModal();
-            } catch (e) { console.error("Error creando usuario:", e); toast('Error al crear usuario', 'error'); }
-        };
-    }
-    
-    function showCardDetails(rewardId) {
-      const reward = REWARDS.find(r => r.id === rewardId);
-      if (!reward) return;
-      UI.cardDetailImg.src = reward.img;
-      UI.cardDetailImg.alt = reward.label;
-      UI.cardDetailTitle.textContent = reward.label;
-      UI.cardDetailDesc.textContent = reward.description;
-      UI.cardDetailModal.classList.add('is-open');
-    }
-
-    async function handleSaveUser(event) {
-        event.preventDefault();
-        if (!selectedUserId) return;
-        const originalUser = cacheUsers.find(u => u.id === selectedUserId);
-        if (!originalUser) { toast('No se encontró el usuario original.', 'error'); return; }
-        const newName = UI.editUserName.value.trim();
-        const newNumericId = UI.editUserNumericId.value.trim();
-        const newPhone = `506${getDigits(UI.editUserPhone.value)}`;
-        const newRewards = sortRewards(Array.from(UI.editRewards.querySelectorAll('.is-selected')).map(el => el.dataset.id));
-        if (!newName || !newNumericId || newPhone.length <= 3) { toast('Nombre, ID y teléfono no pueden estar vacíos.', 'error'); return; }
-        const updatedData = { ...originalUser, name: newName, numericId: newNumericId, phone: newPhone, rewards: newRewards };
-        if (newPhone === selectedUserId) {
-            try {
-                const { id, ...dataToUpdate } = updatedData;
-                await updateDoc(doc(db, 'users', selectedUserId), dataToUpdate);
-                toast('Usuario actualizado con éxito.', 'success');
-            } catch (e) { console.error(e); toast('Error al actualizar usuario.', 'error'); }
-            return;
-        }
-        if (!confirm(`Estás a punto de cambiar el teléfono (ID) del usuario. ¿Continuar?`)) return;
-        try {
-            const newDocRef = doc(db, 'users', newPhone);
-            const newDocSnap = await getDoc(newDocRef);
-            if (newDocSnap.exists()) { toast('El nuevo número de teléfono ya está registrado.', 'error'); return; }
-            delete updatedData.id;
-            await setDoc(newDocRef, updatedData);
-            await deleteDoc(doc(db, 'users', selectedUserId));
-            toast('Usuario migrado a nuevo ID con éxito.', 'success');
-            clearEditPanel();
-        } catch (e) { console.error(e); toast('Error crítico durante la migración.', 'error'); }
-    }
-    
-    async function doLogin() {
-        const id = `506${getDigits(UI.loginInput.value)}`;
-        if (!id) { UI.loginMsg.textContent = 'Ingresa tu número de teléfono.'; return; }
-        UI.loginMsg.textContent = 'Verificando...';
-        try {
-            const snap = await getDoc(doc(db, 'users', id));
-            if (snap.exists()) {
-                localStorage.setItem('memberId', id);
-                switchView('member');
-            } else {
-                UI.loginMsg.textContent = 'No se encontró este usuario.';
-            }
-        } catch (e) { console.error("Error en login:", e); UI.loginMsg.textContent = 'Error de conexión.'; }
-    }
-
-    // --- LÓGICA DE LA RIFA (MEJORADA) ---
-    function setRaffleLoading(isLoading) {
-      UI.fetchParticipantsBtn.disabled = isLoading;
-      UI.youtubeVideoId.disabled = isLoading;
-      UI.raffleHashtag.disabled = isLoading;
-      UI.raffleWinnerCount.disabled = isLoading;
-      UI.raffleType.disabled = isLoading;
-      UI.fetchParticipantsBtn.textContent = isLoading ? 'Cargando Chat...' : 'Obtener Participantes';
-    }
-
-    async function fetchYoutubeParticipants() {
-      if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === "TU_NUEVA_CLAVE_DE_API_VA_AQUI") { toast('Error: Falta la clave de API de YouTube.', 'error'); return; }
-      const videoId = UI.youtubeVideoId.value.trim();
-      const hashtag = UI.raffleHashtag.value.trim().toLowerCase();
-      if (!videoId || !hashtag) { toast('Por favor, introduce el ID del video y el hashtag.', 'error'); return; }
-      setRaffleLoading(true);
-      try {
-        const videoResponse = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${videoId}&key=${YOUTUBE_API_KEY}`);
-        const videoData = await videoResponse.json();
-        const liveChatId = videoData.items?.[0]?.liveStreamingDetails?.activeLiveChatId;
-        if (!liveChatId) throw new Error('No se pudo encontrar un chat en vivo activo para este video.');
-        let allMessages = [], nextPageToken = '';
-        do {
-          const chatResponse = await fetch(`https://www.googleapis.com/youtube/v3/liveChat/messages?liveChatId=${liveChatId}&part=snippet,authorDetails&key=${YOUTUBE_API_KEY}${nextPageToken ? `&pageToken=${nextPageToken}` : ''}`);
-          const chatData = await chatResponse.json();
-          if (Array.isArray(chatData.items)) { allMessages.push(...chatData.items); }
-          nextPageToken = chatData.nextPageToken;
-        } while (nextPageToken);
-        const participantsSet = new Set();
-        allMessages.forEach(item => {
-          const message = item.snippet?.displayMessage?.toLowerCase();
-          if (message && message.includes(hashtag)) { participantsSet.add(item.authorDetails.displayName); }
-        });
-        raffleParticipants = Array.from(participantsSet);
-        renderParticipants();
-      } catch (error) { console.error("Error al obtener datos de YouTube:", error); toast(error.message || 'Ocurrió un error con la API de YouTube.', 'error');
-      } finally { setRaffleLoading(false); }
-    }
-
-    function renderParticipants() {
-        UI.raffleParticipantsList.innerHTML = '';
-        UI.participantCount.textContent = raffleParticipants.length;
-        if (raffleParticipants.length === 0) {
-            UI.raffleParticipantsList.innerHTML = `<div style="text-align:center; padding: 2rem; color: var(--muted);">No se encontraron participantes.</div>`;
-            UI.startRaffleBtn.disabled = true;
-            return;
-        }
-        raffleParticipants.forEach(name => {
-            const item = el('div', { class: 'item' }, [ el('span', { text: name }) ]);
-            UI.raffleParticipantsList.appendChild(item);
-        });
-        UI.startRaffleBtn.disabled = false;
-    }
-
-    function startRaffle() {
-      const numWinners = parseInt(UI.raffleWinnerCount.value, 10);
-      if (isNaN(numWinners) || numWinners < 1) { toast('Número de ganadores inválido.', 'error'); return; }
-      if (raffleParticipants.length < numWinners) { toast('No hay suficientes participantes para la cantidad de ganadores.', 'error'); return; }
-      UI.raffleSetupPanel.classList.add('hidden');
-      UI.raffleResultsPanel.classList.remove('hidden');
-      UI.startRaffleBtn.disabled = true;
-      const type = UI.raffleType.value;
-      UI.countdownContainer.classList.add('hidden');
-      UI.rouletteContainer.classList.add('hidden');
-      UI.emojiRaceContainer.classList.add('hidden');
-      raffleWinners = [];
-      switch(type) {
-        case 'countdown': UI.countdownContainer.classList.remove('hidden'); startCountdown(numWinners); break;
-        case 'roulette': UI.rouletteContainer.classList.remove('hidden'); startRoulette([...raffleParticipants], numWinners); break;
-        case 'emoji_race': UI.emojiRaceContainer.classList.remove('hidden'); startEmojiRace(numWinners); break;
-      }
-    }
-
-    function startCountdown(numWinners) {
-      let countdown = 5;
-      UI.raffleCountdown.textContent = countdown;
-      const interval = setInterval(() => {
-        countdown--;
-        if (countdown > 0) { UI.raffleCountdown.textContent = countdown; } 
-        else {
-          clearInterval(interval);
-          UI.raffleCountdown.textContent = '🏆';
-          const shuffled = [...raffleParticipants].sort(() => 0.5 - Math.random());
-          raffleWinners = shuffled.slice(0, numWinners);
-          displayWinners();
-        }
-      }, 1000);
-    }
-
-    function startRoulette(participantsPool, winnersNeeded) {
-        if (winnersNeeded === 0) { displayWinners(); return; }
-        const list = el('div', { class: 'roulette-list' });
-        participantsPool.forEach(name => list.appendChild(el('div', { class: 'roulette-item', text: name })));
-        UI.rouletteContainer.innerHTML = '';
-        UI.rouletteContainer.appendChild(list);
-        let activeIndex = 0, spinTime = 50, spinCycles = 0;
-        const totalSpins = participantsPool.length * 2 + Math.floor(Math.random() * participantsPool.length);
-        const spin = () => {
-            list.children[activeIndex]?.classList.remove('is-active');
-            activeIndex = (activeIndex + 1) % participantsPool.length;
-            list.children[activeIndex]?.classList.add('is-active');
-            if (spinCycles > totalSpins * 0.7) { spinTime *= 1.1; }
-            if (spinCycles < totalSpins) { spinCycles++; setTimeout(spin, spinTime); } 
-            else {
-                const winner = participantsPool[activeIndex];
-                raffleWinners.push(winner);
-                const nextPool = participantsPool.filter(p => p !== winner);
-                setTimeout(() => startRoulette(nextPool, winnersNeeded - 1), 1500);
-            }
-        };
-        spin();
-    }
-    
-    function startEmojiRace(numWinners) {
-        const emojis = ['🚀', '🏎️', '🐎', '🐢', '🐌', '🏃', '🏍️', '🚲', '🛸', '🚁'];
-        const track = el('div', { class: 'emoji-race-track' });
-        UI.emojiRaceContainer.innerHTML = '';
-        UI.emojiRaceContainer.appendChild(track);
-        const racers = raffleParticipants.map(name => {
-            const emoji = emojis[Math.floor(Math.random() * emojis.length)];
-            const racerEl = el('div', { class: 'emoji-racer', text: emoji });
-            const laneEl = el('div', { class: 'emoji-lane' }, [ racerEl, el('span', { class: 'emoji-racer-name', text: name }) ]);
-            track.appendChild(laneEl);
-            return { name, el: racerEl, lane: laneEl, position: 0 };
-        });
-        const raceInterval = setInterval(() => {
-            if (raffleWinners.length >= numWinners) { clearInterval(raceInterval); displayWinners(); return; }
-            racers.forEach(racer => {
-                if (raffleWinners.includes(racer.name)) return;
-                racer.position += Math.random() * 10;
-                racer.el.style.transform = `translateX(${racer.position}px)`;
-                const trackWidth = track.clientWidth, racerWidth = racer.el.clientWidth;
-                if (racer.position > trackWidth - racerWidth - 30) {
-                    racer.position = trackWidth;
-                    racer.lane.classList.add('is-winner');
-                    if (raffleWinners.length < numWinners) { raffleWinners.push(racer.name); }
-                }
-            });
-        }, 50);
-    }
-
-    function displayWinners() {
-      UI.raffleWinnersList.innerHTML = '';
-      raffleWinners.forEach((winner, index) => {
-        setTimeout(() => {
-          const item = el('div', { class: 'winner-item', text: winner });
-          UI.raffleWinnersList.appendChild(item);
-        }, index * 600);
-      });
-    }
-
-    function resetRaffle() {
-      raffleParticipants = []; raffleWinners = [];
-      UI.raffleSetupPanel.classList.remove('hidden');
-      UI.raffleResultsPanel.classList.add('hidden');
-      UI.participantCount.textContent = '0';
-      UI.raffleParticipantsList.innerHTML = `<div style="text-align:center; padding: 2rem; color: var(--muted);">Esperando participantes...</div>`;
-      UI.raffleCountdown.innerHTML = '';
-      UI.rouletteContainer.innerHTML = '';
-      UI.emojiRaceContainer.innerHTML = '';
-      UI.raffleWinnersList.innerHTML = '';
-      UI.startRaffleBtn.disabled = true;
-      setRaffleLoading(false);
-    }
-    
-    function init() {
-        UI.loginGo.addEventListener('click', doLogin);
-        UI.loginInput.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-        const cM=()=>UI.adminModal.classList.remove('is-open'); const oM=()=>{ UI.adminMsg.textContent=''; UI.adminPwd.value=''; UI.adminModal.classList.add('is-open'); setTimeout(()=>UI.adminPwd.focus(), 50); }; const tA=()=>{ if(UI.adminPwd.value.trim()===atob(ADMIN_KEY_B64)){localStorage.setItem('admin','1'); cM(); switchView('admin');}else{UI.adminMsg.textContent='Contraseña incorrecta';}};
-        UI.adminOpen.addEventListener('click', oM); UI.adminCancel.addEventListener('click', cM); UI.adminEnter.addEventListener('click', tA); UI.adminPwd.addEventListener('keydown', (e)=>{if(e.key==='Enter')tA();if(e.key==='Escape')cM();});
-        UI.memberLogoutBtn.addEventListener('click', ()=>switchView('auth'));
-        UI.adminLogoutBtn.addEventListener('click', ()=>switchView('auth'));
-        UI.search.addEventListener('input', debounce(renderUsersList, 200));
-        UI.cardDetailModal.addEventListener('click', (e) => { if(e.target === UI.cardDetailModal) UI.cardDetailModal.classList.remove('is-open'); });
-        UI.closeCardDetailBtn.addEventListener('click', () => UI.cardDetailModal.classList.remove('is-open'));
-        UI.toggleCommentsBtn.addEventListener('click', () => { UI.memberCommentsContainer.classList.toggle('is-open'); UI.toggleCommentsBtn.textContent = UI.memberCommentsContainer.classList.contains('is-open') ? 'Ocultar Comentarios' : 'Ver Comentarios'; });
-        UI.acceptPoisonBtn.addEventListener('click', async () => {
-          const memberId = localStorage.getItem('memberId'); if (!memberId) return;
-          try { await updateDoc(doc(db, 'users', memberId), { poisonState: 'accepted' }); } catch(e) { toast('Error al aceptar.', 'error'); }
-        });
-        UI.editUserForm.addEventListener('submit', handleSaveUser);
-        UI.addCommentBtn.onclick = async () => { if(!selectedUserId)return; const t=UI.editComment.value.trim(); if(!t){toast('Escribe un comentario', 'error');return;} const ref=doc(db,'users',selectedUserId); try{await updateDoc(ref,{comments:arrayUnion({text:t,ts:Date.now(),author:'admin'})});UI.editComment.value='';toast('Comentario agregado', 'success');}catch(e){console.error(e);toast('Error al comentar', 'error');}};
-        UI.deleteUserBtn.onclick = async () => { if(!selectedUserId)return; const u=cacheUsers.find(u=>u.id===selectedUserId); if(!confirm(`¿Eliminar a ${u?.name || 'este usuario'}?`))return; const ref=doc(db,'users',selectedUserId); if(unsubEdit)unsubEdit(); try{await deleteDoc(ref);toast('Usuario eliminado', 'success');clearEditPanel();}catch(e){console.error(e);toast('Error al eliminar', 'error');}};
-        UI.poisonBtn.onclick = async () => { if(!selectedUserId) return; const user = cacheUsers.find(u => u.id === selectedUserId); if(!user) return; const ref = doc(db, 'users', selectedUserId); const currentStatus = user.poisonState || 'none'; const newStatus = currentStatus !== 'none' ? 'none' : 'active'; try { await updateDoc(ref, {poisonState: newStatus}); toast(`Usuario ${newStatus === 'none' ? 'curado' : 'envenenado'}.`, 'success'); } catch(e) { toast('Error al cambiar estado.', 'error'); }};
-        UI.goToRaffleBtn.addEventListener('click', () => switchView('raffle'));
-        UI.backToUsersBtn.addEventListener('click', () => switchView('admin'));
-        UI.fetchParticipantsBtn.addEventListener('click', fetchYoutubeParticipants);
-        UI.startRaffleBtn.addEventListener('click', startRaffle);
-        UI.resetRaffleBtn.addEventListener('click', resetRaffle);
-
-        setupAddUserModal();
-        const memberId=localStorage.getItem('memberId'); const isAdmin=localStorage.getItem('admin')==='1';
-        if(isAdmin){switchView('admin');}else if(memberId){switchView('member');}else{switchView('auth');}
-    }
-    
-    document.addEventListener('DOMContentLoaded', init);
-  </script>
+/* Accesibilidad mínima */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter' && (document.activeElement===$('#amount') || document.activeElement===$('#desc'))) $('#addBtn').click();
+});
+</script>
 </body>
 </html>
