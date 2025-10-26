@@ -1,513 +1,203 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Finanzas Personales • Single-File App</title>
-<style>
-:root{
-  --bg:#0f172a; --panel:#111827; --muted:#94a3b8; --text:#e5e7eb; --accent:#22c55e; --danger:#ef4444; --warn:#f59e0b; --line:#1f2937;
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,Sego UI,Roboto,Inter,Arial}
-header{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-h1{margin:0;font-size:18px}
-.container{max-width:1200px;margin:18px auto;padding:0 16px;display:grid;grid-template-columns:1.2fr 2fr;gap:16px}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
-.panel h2{margin:0 0 10px 0;font-size:14px;color:var(--muted);letter-spacing:.3px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-label{font-size:12px;color:var(--muted)}
-input,select,button,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid var(--line);background:#0b1220;color:var(--text)}
-button{cursor:pointer;border:1px solid #243045;background:#111b2e}
-button.primary{background:var(--accent);border-color:#16a34a;color:#051a0e;font-weight:600}
-button.warn{background:var(--warn);border-color:#b45309;color:#1a1405}
-button.danger{background:var(--danger);border-color:#b91c1c}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.card{padding:12px;border-radius:10px;background:#0b1220;border:1px solid var(--line)}
-.card .big{font-size:20px;font-weight:700}
-.badge{font-size:11px;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
-table{width:100%;border-collapse:collapse}
-th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
-th{font-size:12px;color:var(--muted);font-weight:600}
-td.amount{text-align:right;font-variant-numeric:tabular-nums}
-.tag{font-size:11px;padding:2px 8px;border-radius:999px;background:#0f1a2e;border:1px solid #1c2a44;color:#a8c7ff}
-footer{max-width:1200px;margin:14px auto 60px;padding:0 16px;color:var(--muted)}
-.progress{height:8px;background:#0b1220;border:1px solid var(--line);border-radius:999px;overflow:hidden}
-.progress>i{display:block;height:100%;background:linear-gradient(90deg,#22c55e,#16a34a)}
-.progress.over>i{background:linear-gradient(90deg,#ef4444,#b91c1c)}
-hr.sep{border:0;border-top:1px dashed var(--line);margin:10px 0}
-canvas{width:100%;height:220px;background:#0b1220;border:1px solid var(--line);border-radius:8px}
-.small{font-size:12px;color:var(--muted)}
-.iconbtn{padding:8px 10px}
-.hidden{display:none}
-@media (max-width:900px){.container{grid-template-columns:1fr}}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SR Monitor — HTML único</title>
+  <style>
+    :root { --fg:#111; --bg:#fff; --muted:#666; --card:#f4f4f4; }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#eee; --bg:#0b0b0b; --muted:#9aa0a6; --card:#151515; }
+    }
+    html,body { margin:0; padding:0; background:var(--bg); color:var(--fg); font:14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji","Segoe UI Emoji"; }
+    header, footer { padding:12px 16px; }
+    header { border-bottom:1px solid #0002; position:sticky; top:0; backdrop-filter:saturate(1.2) blur(6px); background:color-mix(in oklab, var(--bg) 88%, transparent); }
+    h1 { font-size:16px; margin:0 0 8px 0; }
+    .row { display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; }
+    label { font-size:12px; color:var(--muted); }
+    input, select, button { font:inherit; color:inherit; background:var(--card); border:1px solid #0003; border-radius:6px; padding:8px 10px; }
+    input[type="number"] { width:8em; }
+    button { cursor:pointer; }
+    main { padding:16px; display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); }
+    .card { background:var(--card); border:1px solid #0003; border-radius:10px; overflow:hidden; display:flex; flex-direction:column; }
+    .card header { display:flex; justify-content:space-between; align-items:center; border:0; padding:10px 12px; background:transparent; position:static; }
+    .meta { font-size:12px; color:var(--muted); }
+    .imgwrap { aspect-ratio: 4 / 3; display:grid; place-items:center; background:#000; }
+    img { width:100%; height:100%; object-fit:contain; background:#000; }
+    .err { color:#c33; font-size:12px; padding:10px 12px; display:none; }
+    footer { border-top:1px solid #0002; font-size:12px; color:var(--muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+    .time { font-variant-numeric: tabular-nums; }
+    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; padding:2px 6px; border:1px solid #0003; border-radius:4px; background:var(--card); }
+  </style>
 </head>
 <body>
-<header>
-  <h1>Finanzas Personales</h1>
-  <div class="row">
-    <select id="currency"></select>
-    <button id="exportBtn" class="iconbtn">Exportar JSON</button>
-    <label class="iconbtn" for="importFile" style="cursor:pointer">Importar JSON</label>
-    <input id="importFile" type="file" accept="application/json" class="hidden">
-    <button id="resetBtn" class="danger iconbtn">Reset</button>
-  </div>
-</header>
-
-<div class="container">
-  <!-- Izquierda: captura y filtros -->
-  <section class="panel">
-    <h2>Nueva transacción</h2>
-    <div class="grid2">
-      <div>
-        <label>Fecha</label>
-        <input id="date" type="date">
-      </div>
-      <div>
-        <label>Tipo</label>
-        <select id="type">
-          <option value="gasto">Gasto</option>
-          <option value="ingreso">Ingreso</option>
+  <header>
+    <h1>Monitoreo en vivo de Schumann Resonances</h1>
+    <div class="row">
+      <label>Origen:
+        <select id="base">
+          <!-- Tomsk SOS RFF, rutas públicas de imágenes en “/new/” -->
+          <option value="https://sosrff.tsu.ru/new" selected>Tomsk SOS RFF /new</option>
+          <!-- Espejo alterno visto en algunas integraciones -->
+          <option value="https://sosrff.tsu.ru/srimage1">Tomsk espejo /srimage1</option>
         </select>
-      </div>
-      <div>
-        <label>Categoría</label>
-        <div class="row">
-          <select id="category" style="flex:1"></select>
-          <button id="addCatBtn" title="Añadir categoría" class="iconbtn">+</button>
-        </div>
-      </div>
-      <div>
-        <label>Monto</label>
-        <input id="amount" type="number" step="0.01" inputmode="decimal" placeholder="0.00">
-      </div>
-      <div class="grid2" style="grid-column:1/-1;gap:10px">
-        <div>
-          <label>Descripción</label>
-          <input id="desc" type="text" placeholder="Detalle breve">
-        </div>
-        <div>
-          <label>Etiqueta</label>
-          <input id="tag" type="text" placeholder="p.ej. tarjeta, efectivo">
-        </div>
-      </div>
-      <div style="grid-column:1/-1">
-        <button id="addBtn" class="primary">Guardar</button>
-      </div>
+      </label>
+      <label>Auto-refresh s:
+        <input id="secs" type="number" min="5" step="5" value="60" />
+      </label>
+      <label>
+        <input id="auto" type="checkbox" checked /> activar
+      </label>
+      <button id="refresh">Actualizar ahora</button>
+      <span class="meta">UTC <span id="utc" class="time"></span> · Local <span id="loc" class="time"></span> · Tomsk UTC+7 <span id="t7" class="time"></span></span>
     </div>
+  </header>
 
-    <hr class="sep">
+  <main id="grid">
+    <!-- Tarjetas para cada producto SR conocido de Tomsk -->
+  </main>
 
-    <h2>Presupuestos por categoría</h2>
-    <div id="budgets"></div>
-    <div class="row" style="margin-top:8px">
-      <select id="budgetCat"></select>
-      <input id="budgetVal" type="number" step="0.01" placeholder="0.00" style="max-width:160px">
-      <button id="setBudget" class="warn">Definir/Actualizar</button>
-      <button id="delBudget" class="iconbtn">Eliminar</button>
-    </div>
+  <footer>
+    <div>Fuente: imágenes públicas del sistema de observación espacial de Tomsk. Los endpoints carecen de API JSON documentada.</div>
+    <div>Atajos: <span class="kbd">r</span> recargar, <span class="kbd">a</span> alternar auto, <span class="kbd">+</span>/<span class="kbd">−</span> ajustar intervalo.</div>
+  </footer>
 
-    <hr class="sep">
+  <script>
+    // Definición de productos SR habituales en Tomsk
+    const PRODUCTS = [
+      { key:"shm", name:"Espectrograma compuesto", hint:"shm.jpg", desc:"Vista general tipo “power/spectrogram” 1–40 Hz aprox." },
+      { key:"srf", name:"Frecuencias", hint:"srf.jpg", desc:"Picos modales f0≈7.8 Hz, f1≈14.3 Hz, f2≈20.8 Hz, f3≈27.3 Hz." },
+      { key:"sra", name:"Amplitudes", hint:"sra.jpg", desc:"Amplitud relativa por modo. Sensible a actividad eléctrica global." },
+      { key:"srq", name:"Factores Q", hint:"srq.jpg", desc:"Calidad de resonancia por modo. Influida por conductividad ionosférica." }
+    ];
 
-    <h2>Filtros</h2>
-    <div class="grid3">
-      <div>
-        <label>Mes</label>
-        <select id="filterMonth"></select>
-      </div>
-      <div>
-        <label>Categoría</label>
-        <select id="filterCategory"></select>
-      </div>
-      <div>
-        <label>Búsqueda</label>
-        <input id="filterSearch" type="text" placeholder="texto libre">
-      </div>
-    </div>
-  </section>
+    const grid = document.getElementById('grid');
+    const baseSel = document.getElementById('base');
+    const secsInput = document.getElementById('secs');
+    const autoChk = document.getElementById('auto');
+    const btnRefresh = document.getElementById('refresh');
+    const utcEl = document.getElementById('utc');
+    const locEl = document.getElementById('loc');
+    const t7El = document.getElementById('t7');
 
-  <!-- Derecha: KPIs, gráfico y tabla -->
-  <section class="panel">
-    <h2>Resumen</h2>
-    <div class="kpi">
-      <div class="card">
-        <div class="badge">Ingresos</div>
-        <div id="kpiIncome" class="big">—</div>
-      </div>
-      <div class="card">
-        <div class="badge">Gastos</div>
-        <div id="kpiExpense" class="big">—</div>
-      </div>
-      <div class="card">
-        <div class="badge">Balance</div>
-        <div id="kpiBalance" class="big">—</div>
-      </div>
-    </div>
+    let timer = null;
 
-    <div style="margin-top:12px">
-      <canvas id="chart" width="900" height="220" aria-label="Gastos por categoría"></canvas>
-      <div class="small">Gráfico de gastos por categoría del mes filtrado.</div>
-    </div>
-
-    <hr class="sep">
-
-    <div class="row" style="justify-content:space-between">
-      <h2 style="margin:0">Transacciones</h2>
-      <div class="small" id="countInfo">0 elementos</div>
-    </div>
-    <table id="table">
-      <thead>
-        <tr>
-          <th>Fecha</th>
-          <th>Tipo</th>
-          <th>Descripción</th>
-          <th>Categoría</th>
-          <th>Etiqueta</th>
-          <th class="amount">Monto</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </section>
-</div>
-
-<footer class="small">
-  Datos guardados en LocalStorage del navegador. Exporta el JSON para copia de seguridad o para migrar.
-</footer>
-
-<script>
-/* ====== Estado y utilidades ====== */
-const $ = s=>document.querySelector(s);
-const $$ = s=>Array.from(document.querySelectorAll(s));
-const storeKey='pf_state_v2';
-
-const defaultState={
-  currency:'USD',
-  categories:['Vivienda','Alimentación','Transporte','Salud','Ocio','Educación','Impuestos','Ahorro','Otros'],
-  tx:[], // {id, date, type, category, amount, desc, tag}
-  budgets:{} // {category: number}
-};
-
-let S = load();
-function load(){
-  try{
-    const raw = localStorage.getItem(storeKey);
-    if(!raw){ return structuredClone(defaultState); }
-    const parsed = JSON.parse(raw);
-    // Migraciones simples
-    parsed.categories = parsed.categories || structuredClone(defaultState.categories);
-    parsed.budgets = parsed.budgets || {};
-    parsed.tx = parsed.tx || [];
-    parsed.currency = parsed.currency || 'USD';
-    return parsed;
-  }catch(_){ return structuredClone(defaultState); }
-}
-function save(){ localStorage.setItem(storeKey, JSON.stringify(S)); }
-function uid(){ return Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4); }
-function fmt(n){
-  try{
-    return new Intl.NumberFormat(navigator.language,{style:'currency',currency:S.currency,maximumFractionDigits:2}).format(n);
-  }catch(_){
-    return `${S.currency} ${n.toFixed(2)}`;
-  }
-}
-function yyyymm(d){ const dt=new Date(d); return isFinite(dt)? `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}` : ''; }
-
-/* ====== Inicialización UI ====== */
-const currencyEl = $('#currency');
-const currencies = ['USD','EUR','MXN','ARS','COP','CLP','PEN','BRL','GBP','JPY','CNY','CAD','AUD','CHF'];
-currencyEl.innerHTML = currencies.map(c=>`<option ${S.currency===c?'selected':''}>${c}</option>`).join('');
-
-const catEl = $('#category');
-const budgetCatEl = $('#budgetCat');
-const filterCatEl = $('#filterCategory');
-function refreshCategorySelects(){
-  const opts = S.categories.map(c=>`<option>${c}</option>`).join('');
-  catEl.innerHTML = opts;
-  budgetCatEl.innerHTML = opts;
-  filterCatEl.innerHTML = `<option value="">Todas</option>` + opts;
-}
-refreshCategorySelects();
-
-function refreshMonthFilter(){
-  const months = Array.from(new Set(S.tx.map(t=>yyyymm(t.date)))).filter(Boolean).sort().reverse();
-  const now = yyyymm(new Date());
-  const all = months.includes(now)? months : [now,...months];
-  $('#filterMonth').innerHTML = `<option value="">Todos</option>` + all.map(m=>`<option>${m}</option>`).join('');
-}
-refreshMonthFilter();
-
-/* ====== Eventos ====== */
-$('#addCatBtn').onclick=()=>{
-  const name = prompt('Nombre de categoría:')?.trim();
-  if(!name) return;
-  if(!S.categories.includes(name)){ S.categories.push(name); save(); refreshCategorySelects(); render(); }
-};
-
-$('#setBudget').onclick=()=>{
-  const c = budgetCatEl.value;
-  const v = parseFloat($('#budgetVal').value);
-  if(!c || isNaN(v)) return;
-  S.budgets[c]=v;
-  save(); render();
-};
-$('#delBudget').onclick=()=>{
-  const c = budgetCatEl.value;
-  if(!c) return;
-  delete S.budgets[c];
-  save(); render();
-};
-
-currencyEl.onchange=()=>{ S.currency = currencyEl.value; save(); render(); };
-
-$('#addBtn').onclick=()=>{
-  const date = $('#date').value || new Date().toISOString().slice(0,10);
-  const type = $('#type').value;
-  const category = $('#category').value;
-  const amount = parseFloat($('#amount').value);
-  const desc = $('#desc').value.trim();
-  const tag = $('#tag').value.trim();
-  if(!category || !isFinite(amount)) return;
-  S.tx.push({id:uid(), date, type, category, amount, desc, tag});
-  save();
-  // limpiar mínimos
-  $('#amount').value=''; $('#desc').value=''; $('#tag').value='';
-  refreshMonthFilter();
-  render();
-};
-
-$('#exportBtn').onclick=()=>{
-  const blob = new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'finanzas.json';
-  a.click();
-  URL.revokeObjectURL(a.href);
-};
-
-$('#importFile').onchange=(e)=>{
-  const f = e.target.files?.[0]; if(!f) return;
-  const reader = new FileReader();
-  reader.onload=()=>{
-    try{
-      const data = JSON.parse(reader.result);
-      if(!data || !data.tx) throw new Error('formato inválido');
-      S = Object.assign(structuredClone(defaultState), data);
-      save(); refreshCategorySelects(); refreshMonthFilter(); render();
-    }catch(err){ alert('No se pudo importar: '+err.message); }
-  };
-  reader.readAsText(f);
-  e.target.value='';
-};
-
-$('#resetBtn').onclick=()=>{
-  if(confirm('Esto borrará todos los datos locales. ¿Continuar?')){
-    localStorage.removeItem(storeKey);
-    S = structuredClone(defaultState);
-    save(); refreshCategorySelects(); refreshMonthFilter(); render();
-  }
-};
-
-$('#filterMonth').onchange=render;
-$('#filterCategory').onchange=render;
-$('#filterSearch').oninput=()=>{ render(); };
-
-/* ====== Render ====== */
-function getFilters(){
-  return {
-    month: $('#filterMonth').value,
-    cat: $('#filterCategory').value,
-    q: ($('#filterSearch').value||'').toLowerCase()
-  };
-}
-function applyFilters(list){
-  const f = getFilters();
-  return list.filter(t=>{
-    const m = f.month? yyyymm(t.date)===f.month : true;
-    const c = f.cat? t.category===f.cat : true;
-    const q = f.q? [t.desc,t.tag,t.category].join(' ').toLowerCase().includes(f.q) : true;
-    return m && c && q;
-  });
-}
-
-function stats(list){
-  let inc=0, exp=0;
-  for(const t of list){
-    if(t.type==='ingreso') inc += t.amount;
-    else exp += t.amount;
-  }
-  return {inc, exp, bal: inc-exp};
-}
-
-function byCategoryExpenses(list){
-  const map={};
-  for(const t of list){ if(t.type==='gasto'){ map[t.category]=(map[t.category]||0)+t.amount; } }
-  return map;
-}
-
-function renderKPIs(){
-  const filtered = applyFilters(S.tx);
-  const s = stats(filtered);
-  $('#kpiIncome').textContent = fmt(s.inc);
-  $('#kpiExpense').textContent = fmt(s.exp);
-  const el = $('#kpiBalance');
-  el.textContent = fmt(s.bal);
-  el.style.color = s.bal>=0? 'var(--accent)' : 'var(--danger)';
-  $('#countInfo').textContent = `${filtered.length} elementos`;
-}
-
-function renderBudgets(){
-  const fMonth = $('#filterMonth').value || yyyymm(new Date());
-  const monthList = S.tx.filter(t=> yyyymm(t.date)===fMonth);
-  const spent = byCategoryExpenses(monthList);
-  const wrap = $('#budgets');
-  wrap.innerHTML = '';
-  const cats = Object.keys(S.budgets);
-  if(cats.length===0){
-    wrap.innerHTML = `<div class="small">Sin presupuestos definidos.</div>`;
-    return;
-  }
-  for(const c of cats){
-    const b = S.budgets[c];
-    const s = spent[c]||0;
-    const p = Math.min(100, b>0? (s/b)*100 : 0);
-    const over = s>b;
-    const row = document.createElement('div');
-    row.className='card';
-    row.innerHTML = `
-      <div class="row" style="justify-content:space-between;margin-bottom:6px">
-        <div><strong>${c}</strong> <span class="tag">${yyyymmToLabel(fMonth)}</span></div>
-        <div class="small">${fmt(s)} / ${fmt(b)} ${over?'<span style="color:var(--danger)">sobrepasado</span>':''}</div>
-      </div>
-      <div class="progress ${over?'over':''}"><i style="width:${p}%"></i></div>
-    `;
-    wrap.appendChild(row);
-  }
-}
-function yyyymmToLabel(s){
-  if(!s) return '';
-  const [y,m]=s.split('-').map(Number);
-  return new Date(y,m-1,1).toLocaleDateString(navigator.language,{month:'long',year:'numeric'});
-}
-
-function renderTable(){
-  const tbody = $('#table tbody');
-  const list = applyFilters(S.tx).sort((a,b)=> a.date<b.date?1:-1);
-  tbody.innerHTML='';
-  for(const t of list){
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${t.date}</td>
-      <td><span class="tag" style="color:${t.type==='ingreso'?'#86efac':'#fecaca'}">${t.type}</span></td>
-      <td>${esc(t.desc||'')}</td>
-      <td>${esc(t.category)}</td>
-      <td>${esc(t.tag||'')}</td>
-      <td class="amount">${fmt(t.amount*(t.type==='gasto'?-1:1))}</td>
-      <td class="amount">
-        <button class="iconbtn" data-act="edit" data-id="${t.id}">✎</button>
-        <button class="iconbtn" data-act="del" data-id="${t.id}">🗑</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  }
-  tbody.onclick=(e)=>{
-    const btn = e.target.closest('button'); if(!btn) return;
-    const id = btn.dataset.id;
-    const tx = S.tx.find(x=>x.id===id); if(!tx) return;
-    if(btn.dataset.act==='del'){
-      if(confirm('Eliminar transacción?')){
-        S.tx = S.tx.filter(x=>x.id!==id); save(); refreshMonthFilter(); render();
+    function fmt(tzOffsetMinutes) {
+      const d = new Date();
+      if (tzOffsetMinutes !== undefined) {
+        // Construye una fecha ajustada a un offset fijo
+        const utcMs = d.getTime() + (d.getTimezoneOffset()*60000);
+        const ms = utcMs + tzOffsetMinutes*60000;
+        return new Date(ms).toISOString().replace('T',' ').slice(0,19) + " UTC" + (tzOffsetMinutes>=0?"+":"") + (tzOffsetMinutes/60);
       }
-    }else{
-      // editar
-      const date = prompt('Fecha (YYYY-MM-DD):', tx.date) || tx.date;
-      const type = prompt('Tipo (gasto/ingreso):', tx.type) || tx.type;
-      const category = prompt('Categoría:', tx.category) || tx.category;
-      const amount = parseFloat(prompt('Monto:', tx.amount)) || tx.amount;
-      const desc = prompt('Descripción:', tx.desc||'') ?? tx.desc;
-      const tag = prompt('Etiqueta:', tx.tag||'') ?? tx.tag;
-      Object.assign(tx,{date,type,category,amount,desc,tag});
-      save(); refreshMonthFilter(); render();
+      return d.toISOString().replace('T',' ').slice(0,19) + "Z";
     }
-  };
-}
 
-function esc(s){ return String(s).replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
+    function drawClock() {
+      utcEl.textContent = new Date().toISOString().replace('T',' ').slice(0,19) + "Z";
+      const now = new Date();
+      const local = new Date(now.getTime() - now.getTimezoneOffset()*60000).toISOString().replace('T',' ').slice(0,19);
+      locEl.textContent = local;
+      const utcMs = now.getTime() + (now.getTimezoneOffset()*60000);
+      const tomsk = new Date(utcMs + 7*3600*1000).toISOString().replace('T',' ').slice(0,19);
+      t7El.textContent = tomsk + " UTC+7";
+    }
+    setInterval(drawClock, 1000);
+    drawClock();
 
-/* ====== Gráfico simple en canvas (sin librerías) ====== */
-function drawChart(){
-  const cvs = $('#chart'); const ctx = cvs.getContext('2d');
-  ctx.clearRect(0,0,cvs.width,cvs.height);
-  // Datos: gastos por categoría del mes filtrado
-  const month = $('#filterMonth').value || yyyymm(new Date());
-  const list = S.tx.filter(t=> yyyymm(t.date)===month && t.type==='gasto');
-  const map = byCategoryExpenses(list);
-  const entries = Object.entries(map).sort((a,b)=>b[1]-a[1]);
-  const pad=36, w=cvs.width, h=cvs.height;
-  // Ejes
-  ctx.strokeStyle='#1f2937'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(pad,10); ctx.lineTo(pad,h-30); ctx.lineTo(w-10,h-30); ctx.stroke();
-  // Barras
-  if(entries.length===0){
-    ctx.fillStyle='#94a3b8'; ctx.fillText('Sin datos de gastos en el mes seleccionado', pad+10, h/2);
-    return;
-  }
-  const max = Math.max(...entries.map(e=>e[1]));
-  const barAreaW = w - pad - 20, barH = 18, gap = 10;
-  const totalHeight = entries.length*(barH+gap);
-  const startY = Math.max(20,(h-40-totalHeight)/2 + 10);
-  entries.forEach((e,idx)=>{
-    const y = startY + idx*(barH+gap);
-    const val = e[1];
-    const len = (val/max) * (barAreaW-80);
-    // label
-    ctx.fillStyle='#94a3b8';
-    ctx.fillText(e[0], 10, y+barH-4);
-    // bar
-    ctx.fillStyle='#22c55e';
-    ctx.fillRect(pad+2, y, Math.max(2,len), barH);
-    // value
-    ctx.fillStyle='#e5e7eb';
-    ctx.textAlign='right';
-    ctx.fillText(fmt(val), w-14, y+barH-4);
-    ctx.textAlign='start';
-  });
-}
+    function cardTemplate(p) {
+      const id = `card-${p.key}`;
+      return `
+        <section class="card" id="${id}">
+          <header>
+            <div>
+              <div style="font-weight:600">${p.name}</div>
+              <div class="meta">${p.desc}</div>
+            </div>
+            <div class="meta">Actualizado <span id="${id}-ts" class="time">—</span></div>
+          </header>
+          <div class="imgwrap">
+            <img id="${id}-img" alt="${p.name} (${p.hint})" />
+          </div>
+          <div id="${id}-err" class="err">Error al cargar. Revisa la conectividad o cambia de origen.</div>
+        </section>
+      `;
+    }
 
-/* ====== Render maestro ====== */
-function render(){
-  renderKPIs();
-  renderBudgets();
-  renderTable();
-  drawChart();
-}
-render();
+    function mount() {
+      grid.innerHTML = PRODUCTS.map(cardTemplate).join('');
+    }
+    mount();
 
-/* Prefills útiles */
-(function prime(){
-  if(S.tx.length>0) return;
-  const today = new Date();
-  const d = (off)=> new Date(today.getFullYear(), today.getMonth(), today.getDate()-off).toISOString().slice(0,10);
-  const seed = [
-    {date:d(2), type:'ingreso', category:'Ahorro', amount:1200, desc:'Nómina', tag:'transferencia'},
-    {date:d(1), type:'gasto', category:'Alimentación', amount:42.8, desc:'Supermercado', tag:'tarjeta'},
-    {date:d(1), type:'gasto', category:'Transporte', amount:9.5, desc:'Taxi', tag:'efectivo'},
-    {date:d(0), type:'gasto', category:'Ocio', amount:18, desc:'Cine', tag:'tarjeta'}
-  ];
-  S.tx.push(...seed.map(x=>({...x,id:uid()})));
-  S.budgets['Alimentación']=250;
-  S.budgets['Transporte']=120;
-  save(); refreshMonthFilter(); render();
-})();
+    function buildURL(key) {
+      const base = baseSel.value.replace(/\/+$/,'');
+      return `${base}/${key}.jpg?nocache=${Date.now()}`;
+    }
 
-/* Accesibilidad mínima */
-document.addEventListener('keydown',e=>{
-  if(e.key==='Enter' && (document.activeElement===$('#amount') || document.activeElement===$('#desc'))) $('#addBtn').click();
-});
-</script>
+    function loadOne(p) {
+      const img = document.getElementById(`card-${p.key}-img`);
+      const ts = document.getElementById(`card-${p.key}-ts`);
+      const err = document.getElementById(`card-${p.key}-err`);
+      const url = buildURL(p.key);
+      err.style.display = 'none';
+      img.onerror = () => { err.style.display = 'block'; };
+      img.onload = () => {
+        ts.textContent = new Date().toLocaleString();
+      };
+      img.src = url;
+    }
+
+    function loadAll() {
+      PRODUCTS.forEach(loadOne);
+    }
+
+    function startAuto() {
+      stopAuto();
+      const s = Math.max(5, Number(secsInput.value)||60);
+      secsInput.value = s;
+      timer = setInterval(loadAll, s*1000);
+    }
+    function stopAuto() {
+      if (timer) { clearInterval(timer); timer = null; }
+    }
+
+    // Inicial
+    loadAll();
+    startAuto();
+
+    // Controles
+    baseSel.addEventListener('change', () => { loadAll(); });
+    secsInput.addEventListener('change', () => { if (autoChk.checked) startAuto(); });
+    autoChk.addEventListener('change', () => { autoChk.checked ? startAuto() : stopAuto(); });
+    btnRefresh.addEventListener('click', loadAll);
+
+    // Atajos de teclado
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'r' || e.key === 'R') { loadAll(); }
+      if (e.key === 'a' || e.key === 'A') { autoChk.checked = !autoChk.checked; autoChk.dispatchEvent(new Event('change')); }
+      if (e.key === '+') { secsInput.value = Math.max(5, Number(secsInput.value||60) - 5); secsInput.dispatchEvent(new Event('change')); }
+      if (e.key === '-') { secsInput.value = Math.max(5, Number(secsInput.value||60) + 5); secsInput.dispatchEvent(new Event('change')); }
+    });
+
+    // Descarga rápida de la imagen visible actual en cada tarjeta
+    function downloadCurrent(imgEl, name) {
+      const a = document.createElement('a');
+      a.href = imgEl.src;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    // Clic derecho para descargar
+    grid.addEventListener('contextmenu', (e) => {
+      const img = e.target.closest('img');
+      if (!img) return;
+      e.preventDefault();
+      const id = img.id.replace('-img','');
+      const key = id.split('-').pop();
+      downloadCurrent(img, `${key}-${Date.now()}.jpg`);
+    }, false);
+  </script>
 </body>
 </html>
